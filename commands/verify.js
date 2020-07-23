@@ -3,8 +3,6 @@ exports.run = async (client, message, args) => {
     const channel = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].channel;
     const role = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].role;
     const fs = require("fs");
-
-    message.author.send("This is a test command pls help me God");
     message.delete();
     if(!channel && !role) {
         message.author.send({embed: {
