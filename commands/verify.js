@@ -29,7 +29,7 @@ exports.run = async (client, message, args) => {
         return;
     }
     if(message.channel != serverSettings[message.guild.id].channel) {
-        message.channel.send("You have already verified yourself. Dont try.");
+        message.author.send("You have already verified yourself. Dont try.");
     } else {
         message.member.roles.remove(serverSettings[message.guild.id].role);
         message.author.send({embed: {
