@@ -7,6 +7,11 @@ const client = new Discord.Client();
 client.prefix = prefix;
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith(".js"));
 
+client.user.setActivity("The Verification Channel", {
+    type: "STREAMING",
+    url: "https://www.twitch.tv/purestgem"
+  });
+
 fs.readdir('./events', (err, files) => {
     if (err) return console.log(`Oopsie Woopsies Gem Found an Error: ${err}`);
     for(const eventFile of files) {
