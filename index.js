@@ -32,4 +32,4 @@ commandFiles.forEach(file => {
 });
 
 
-client.login("NzI4NzAyMjIxMDk2ODQ1MzUy.Xv-O1A.BeN2eLH-cOv6lKEEZfqqkkIqUr4");
+client.login(process.env.BOT_TOKEN);
