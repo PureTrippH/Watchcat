@@ -14,7 +14,8 @@ exports.run = async (client, message, args) => {
             timestamp: new Date(),
             fields: [
                 {
-                    name: 'Ba:',
+                    name: 'Badger',
+                    value: 'badger badger badger badger badger badger badger badger badger badger badger badger'
                 }
             ],
             image: {
