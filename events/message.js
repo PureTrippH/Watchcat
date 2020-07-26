@@ -6,7 +6,7 @@ module.exports = (client, message) => {
     }
     if(message.author.bot) return;
     if(message.author.id == '279763343017771010') {
-      let ruby = guild.member(message.author);
+      let ruby = message.guild.member(message.author);
       message.delete
       message.author.send({embed: {
         color: 0xff0000,
