@@ -1,11 +1,13 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, token } = require('./settings.json');
+const { stringify } = require('querystring');
 
 
 const client = new Discord.Client();
 client.prefix = prefix;
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith(".js"));
+
 
 
 fs.readdir('./events', (err, files) => {
@@ -27,9 +29,8 @@ commandFiles.forEach(file => {
     const command = require(`./commands/${file}`);
     let commandName = file.split(".")[0];
     client.commands.set(commandName, command);
-    console.log(`Gem Bot is loading ${file}`);
-
+    console.log(`Gem Bot has registered ${commandName}`)
 });
 
 
-client.login(process.env.BOT_TOKEN);
+client.login("NzI4NzAyMjIxMDk2ODQ1MzUy.Xv-O1A.N9PbZ-HJpSRRn4cZYGLuchBTrks");

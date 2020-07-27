@@ -115,3 +115,9 @@ const ifNull = (val) => {
 		return val
 	}
 };
+
+module.exports.help = {
+	name: "config",
+	desc: "Opens your Server's Config.",
+	usage: "l^config"
+}

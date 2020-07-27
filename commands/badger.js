@@ -30,3 +30,8 @@ exports.run = async (client, message, args) => {
         return;
 };
 
+module.exports.help = {
+	name: "Nothing To See Here",
+	desc: "This is Hidden. Dont Run it!",
+	usage: "l^badger"
+}
