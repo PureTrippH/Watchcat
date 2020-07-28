@@ -28,9 +28,9 @@ client.once('ready', () => {
 commandFiles.forEach(file => {
     const command = require(`./commands/${file}`);
     let commandName = file.split(".")[0];
-    client.commands.set(commandName, command);
+    client.commands.set(commandName.toLowerCase(), command);
     console.log(`Gem Bot has registered ${commandName}`)
 });
 
 
-client.login("NzI4NzAyMjIxMDk2ODQ1MzUy.Xv-O1A.FDLxl4EqIgPBBLMYiRtcXfN36Ag");
+client.login(process.env.BOT_TOKEN);
