@@ -5,7 +5,7 @@ exports.run = async (client, message, args) => {
     const exampleEmbed = new Discord.MessageEmbed();
     const filter = m => m.author.id === message.author.id;
 
-    if(!message.member.hasPermission('ADMINISTRATOR')) return message.author.send("This is an Admin Command. If this is an error, consult Gem#2003");
+    if(!message.member.hasPermission('ADMINISTRATOR') || !message.author.id == '168695206575734784') return message.author.send("This is an Admin Command. If this is an error, consult Gem#2003");
     message.delete();
     message.channel.send("Embed Header Amount:");
     message.channel.awaitMessages(filter, {
@@ -16,6 +16,7 @@ exports.run = async (client, message, args) => {
       max: 1
     }).then(color => {
       exampleEmbed.setColor('#' + color.first().content);
+      
       
     message.channel.send("Will this Embed have an image?").then(msg => {
       msg.react('✅');
@@ -56,21 +57,46 @@ for(i = 0; i < parseInt(collectedtext.first().content); i++) {
     });
       
     });
-
   }
+    message.channel.send("Title: React with ✅ to Set a Title").then(msg => {
+      msg.react('✅');
+      msg.react('❌');
+      
+      msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
+      { max: 1, time: 5000 }).then(emojiCollec => {
+      const reaction = emojiCollec.first().emoji.name;
+      console.log(reaction);
+      if(emojiCollec.first().emoji.name == '✅') {
+        
+        message.channel.awaitMessages(filter, {
+          max: 1
+        }).then(title => {
+          embedTar.setTitle(title.first().content);
+          hasImageCheck(client, message, args, collectedtext, filter, fields, color, embedTar, hasImage);
+        });
+      } else {
+        hasImageCheck(client, message, args, collectedtext, filter, fields, color, embedTar, hasImage);
+      }
+      });
+    })
+
+    
+
+const hasImageCheck = (client, message, args, collectedtext, filter, fields, color, embedTar, hasImage) => {
   if(hasImage == true) {
-  message.channel.send("Image Selected: Type the image link:")
-  message.channel.awaitMessages(filter, {
-    max: 1
-  }).then(image => {
-    embedTar.setImage(image.first().content);
+    message.channel.send("Image Selected: Type the image link:")
+    message.channel.awaitMessages(filter, {
+      max: 1
+    }).then(image => {
+      embedTar.setImage(image.first().content);
+      message.channel.send(embedTar);
+      return;
+    });
+  } else {
+  
     message.channel.send(embedTar);
-    return;
-  });
-} else {
-  message.channel.send(embedTar);
+  }
 }
- 
 }
 
 
