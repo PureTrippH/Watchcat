@@ -5,7 +5,7 @@ exports.run = async (client, message, args) => {
     const exampleEmbed = new Discord.MessageEmbed();
     const filter = m => m.author.id === message.author.id;
 
-    if(!message.member.hasPermission('ADMINISTRATOR') || !message.author.id == '168695206575734784') return message.author.send("This is an Admin Command. If this is an error, consult Gem#2003");
+    if(!message.member.hasPermission('ADMINISTRATOR') || message.author.id != '168695206575734784') return message.author.send("This is an Admin Command. If this is an error, consult Gem#2003");
     message.delete();
     message.channel.send("Embed Header Amount:");
     message.channel.awaitMessages(filter, {
