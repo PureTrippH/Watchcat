@@ -68,7 +68,7 @@ for(i = 0; i < parseInt(collectedtext.first().content); i++) {
       const reaction = emojiCollec.first().emoji.name;
       console.log(reaction);
       if(emojiCollec.first().emoji.name == '✅') {
-        
+        message.channel.send("Insert a Title:");
         message.channel.awaitMessages(filter, {
           max: 1
         }).then(title => {
