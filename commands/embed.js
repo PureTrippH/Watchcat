@@ -7,7 +7,7 @@ exports.run = async (client, message, args) => {
 
     if(message.member.hasPermission('ADMINISTRATOR') || message.author.id == '168695206575734784') {
     message.delete();
-    message.channel.send("Embed Header Amount:");
+    message.channel.send("Embed Header Amount (If You Dont Want Headers, Set 0 and Use Desc. Instead!):");
     message.channel.awaitMessages(filter, {
       max: 1
     }).then(collectedtext => {
@@ -52,27 +52,52 @@ for(i = 0; i < parseInt(collectedtext.first().content); i++) {
       let header = contents.first().content;
       let body = contents.last().content;
       embedTar.addFields(
-        { name: `${header}`, value: `${body}` }
+        { name: `${header}`, value: `${body}`, inline: false }
       )
       res();
     });
       
     });
   }
-    message.channel.send("Title: React with ✅ to Set a Title").then(msg => {
+
+
+  message.channel.send("Title: React with ✅ to Set a Title").then(msg => {
+    msg.react('✅');
+    msg.react('❌');
+    
+    msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
+    { max: 1, time: 5000 }).then(emojiCollec => {
+    const reaction = emojiCollec.first().emoji.name;
+    console.log(reaction);
+    if(emojiCollec.first().emoji.name == '✅') {
+      message.channel.send("Insert a Title:");
+      message.channel.awaitMessages(filter, {
+        max: 1
+      }).then(title => {
+        embedTar.setTitle(title.first().content);
+        wantDesc(client, message, args, collectedtext, filter, fields, color, embedTar, hasImage);
+      });
+    } else {
+      wantDesc(client, message, args, collectedtext, filter, fields, color, embedTar, hasImage);
+    }
+    });
+  })
+
+const wantDesc = (client, message, args, collectedtext, filter, fields, color, embedTar, hasImage) => {
+    message.channel.send("Description: Will There Be One Present?").then(msg => {
       msg.react('✅');
       msg.react('❌');
       
       msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
-      { max: 1, time: 5000 }).then(emojiCollec => {
-      const reaction = emojiCollec.first().emoji.name;
+      { max: 1, time: 5000 }).then(emojiCollec1 => {
+      const reaction = emojiCollec1.first().emoji.name;
       console.log(reaction);
-      if(emojiCollec.first().emoji.name == '✅') {
-        message.channel.send("Insert a Title:");
+      if(emojiCollec1.first().emoji.name == '✅') {
+        message.channel.send("Insert a Description:");
         message.channel.awaitMessages(filter, {
           max: 1
-        }).then(title => {
-          embedTar.setTitle(title.first().content);
+        }).then(desc => {
+          embedTar.setDescription(desc.first().content);
           hasImageCheck(client, message, args, collectedtext, filter, fields, color, embedTar, hasImage);
         });
       } else {
@@ -80,7 +105,7 @@ for(i = 0; i < parseInt(collectedtext.first().content); i++) {
       }
       });
     })
-
+  }
     
 
 const hasImageCheck = (client, message, args, collectedtext, filter, fields, color, embedTar, hasImage) => {
