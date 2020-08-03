@@ -2,6 +2,7 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, token } = require('./settings.json');
 const { stringify } = require('querystring');
+const mongoose = require('./utils/mongoose');
 
 
 const client = new Discord.Client();
@@ -32,5 +33,5 @@ commandFiles.forEach(file => {
     console.log(`Gem Bot has registered ${commandName}`)
 });
 
-
+mongoose.init();
 client.login(process.env.BOT_TOKEN);

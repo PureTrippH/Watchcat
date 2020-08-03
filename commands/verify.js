@@ -3,8 +3,16 @@ exports.run = async (client, message, args) => {
     const channel = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].channel;
     const role = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].role;
     const fs = require("fs");
+
+    const mongoose = require('mongoose');
+	const serverConfig = require("../utils/schemas/serverconfig.js");
+
+    const dbRes = await serverConfig.findOne({
+      guildId: message.guild.id
+    });
+
     message.delete();
-    if(!channel && !role) {
+    if(!dbRes) {
         message.author.send({embed: {
             color: 0xff0000,
             author: {
@@ -28,10 +36,10 @@ exports.run = async (client, message, args) => {
         });
         return;
     }
-    if(message.channel != serverSettings[message.guild.id].channel) {
+    if(message.channel != dbRes.verChannel) {
         message.author.send("You have already verified yourself. Dont try.");
     } else {
-        message.member.roles.remove(serverSettings[message.guild.id].role);
+        message.member.roles.remove(dbRes.removedRole);
         message.author.send({embed: {
             color: 0x00ff00,
             author: {

@@ -23,7 +23,7 @@ exports.run = async (client, message, args) => {
       msg.react('❌');
       
       msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
-      { max: 1, time: 5000 }).then(collected => {
+      { max: 1, time: 50000 }).then(collected => {
         const reaction = collected.first().emoji.name;
       console.log(reaction);
       if(collected.first().emoji.name == '✅') {
@@ -66,7 +66,7 @@ for(i = 0; i < parseInt(collectedtext.first().content); i++) {
     msg.react('❌');
     
     msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
-    { max: 1, time: 5000 }).then(emojiCollec => {
+    { max: 1, time: 50000 }).then(emojiCollec => {
     const reaction = emojiCollec.first().emoji.name;
     console.log(reaction);
     if(emojiCollec.first().emoji.name == '✅') {
@@ -89,7 +89,7 @@ const wantDesc = (client, message, args, collectedtext, filter, fields, color, e
       msg.react('❌');
       
       msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
-      { max: 1, time: 5000 }).then(emojiCollec1 => {
+      { max: 1, time: 50000 }).then(emojiCollec1 => {
       const reaction = emojiCollec1.first().emoji.name;
       console.log(reaction);
       if(emojiCollec1.first().emoji.name == '✅') {
