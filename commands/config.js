@@ -29,12 +29,11 @@ exports.run = async (client, message, args) => {
 			
 			return message.channel.send("Server not Found! Adding Server to our Database");
 		}
-	});
+	},{upsert:true});
 
 	let dbRes = await thisConfig.findOne({
 		guildId: message.guild.id
 	});
-
 	const fs = require("fs");
 	if(message.member.hasPermission('ADMINISTRATOR') || message.author.id == '168695206575734784') {
 	message.channel.send({embed: {
@@ -55,6 +54,11 @@ exports.run = async (client, message, args) => {
 				name: '2️⃣ Channel:',
 				value: dbRes.verChannel,
 				
+			},
+			{
+				name: '3️⃣ Channel:',
+				value: dbRes.verChannel,
+				
 			}
 		],
 		footer: {
@@ -65,9 +69,10 @@ exports.run = async (client, message, args) => {
 	}).then(msg => {
 		msg.react('1️⃣');
 		msg.react('2️⃣');
+		msg.react('3️⃣')
 		console.log(thisConfig);
 	
-		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣'),
+		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣' || reaction.emoji.name == '3️⃣'),
 	  { max: 1, time: 50000 }).then(collected => {
 		  const reaction = collected.first().emoji.name;
 		console.log(reaction);
@@ -109,6 +114,27 @@ exports.run = async (client, message, args) => {
 			}
 		});
 		}
+
+		if(collected.first().emoji.name == '3️⃣') {
+			message.channel.send("Please send a Role");
+			message.channel.awaitMessages(filter, {
+				max: 1
+			}).then(collectedtext => {
+			let newText = collectedtext.first().content.replace('<#', '').replace('>', "");
+			console.log(newText);
+			if(!message.guild.channels.cache.get(newText)) {
+				message.channel.send("No Channel Found!");
+			} else {
+				updateVer(thisConfig, "newUserRole", newText);
+
+				thisConfig.updateOne({
+					newUserRole: newText
+				});
+			}
+		});
+		}
+
+
 	});
 });
 	} else {

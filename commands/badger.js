@@ -3,7 +3,7 @@ exports.run = async (client, message, args) => {
     const channel = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].channel;
     const role = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].role;
     const fs = require("fs");
-    message.delete();
+    message.delete({ timeout: 200 });
         message.author.send({embed: {
             color: 0xff0000,
             author: {

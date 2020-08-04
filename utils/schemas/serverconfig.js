@@ -4,7 +4,9 @@ const configSchema = mongoose.Schema({
     guildId: String,
     removedRole: String,
     verChannel: String,
-    prefix: String
+    prefix: String,
+    newUserEnabled: String,
+    newUserRole: String,
 });
 
 module.exports = mongoose.model("ServerConfig", configSchema, 'serverconfigs');

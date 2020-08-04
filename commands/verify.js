@@ -11,7 +11,7 @@ exports.run = async (client, message, args) => {
       guildId: message.guild.id
     });
 
-    message.delete();
+    message.delete({ timeout: 10});
     if(!dbRes) {
         message.author.send({embed: {
             color: 0xff0000,
