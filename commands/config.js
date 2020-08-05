@@ -5,8 +5,6 @@ exports.run = async (client, message, args) => {
 	const filter = m => m.author.id === message.author.id;
     const tagged = message.mentions.users.first();
 	const time = args[1];
-	const channel = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].channel;
-	const role = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].role;
 	const reason = args.slice(2).join(" ") || "Unknown Reason";
 	
 	const mongoose = require('mongoose');
@@ -22,7 +20,7 @@ exports.run = async (client, message, args) => {
 				guildId: message.guild.id,
 				removedRole: "blank",
 				verChannel: "blank",
-				prefix: "?"
+				newUserRole: "blank"
 			});
 
 			newConfig.save();
@@ -56,8 +54,8 @@ exports.run = async (client, message, args) => {
 				
 			},
 			{
-				name: '3️⃣ Channel:',
-				value: dbRes.verChannel,
+				name: '3️⃣ New Role:',
+				value: dbRes.newUserRole,
 				
 			}
 		],
@@ -69,8 +67,7 @@ exports.run = async (client, message, args) => {
 	}).then(msg => {
 		msg.react('1️⃣');
 		msg.react('2️⃣');
-		msg.react('3️⃣')
-		console.log(thisConfig);
+		msg.react('3️⃣');
 	
 		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣' || reaction.emoji.name == '3️⃣'),
 	  { max: 1, time: 50000 }).then(collected => {
@@ -120,13 +117,15 @@ exports.run = async (client, message, args) => {
 			message.channel.awaitMessages(filter, {
 				max: 1
 			}).then(collectedtext => {
-			let newText = collectedtext.first().content.replace('<#', '').replace('>', "");
+			let newText = collectedtext.first().content.replace('<@&', '').replace('>', "");
 			console.log(newText);
-			if(!message.guild.channels.cache.get(newText)) {
-				message.channel.send("No Channel Found!");
+			let newrole = message.guild.roles.cache.get(newText);
+			
+			if(!newrole) {
+				message.channel.send("No Role Found!");
 			} else {
-				updateVer(thisConfig, "newUserRole", newText);
 
+				updateVer(thisConfig, "removedRole", newText);
 				thisConfig.updateOne({
 					newUserRole: newText
 				});

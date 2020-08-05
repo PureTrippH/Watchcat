@@ -10,7 +10,7 @@ Query the Database to Increment total server message count, Add New Users to Dat
 Is it efficient? No probably not,
 but lets give it a shot for now.
 */
-const thisStats = serverStats.findOne({
+const thisStats = await serverStats.findOne({
   guildId: message.guild.id
 }, (err, guildStats) => {
   if(!guildStats) {
@@ -27,11 +27,19 @@ const thisStats = serverStats.findOne({
   }
 });
 
+const serverConfig = require("../utils/schemas/serverconfig.js");
+
+const getServerSettings = await serverConfig.findOne({
+  guildId: message.guild.id
+});
+
+
 await addOne(message, client, mongoose, serverStats);
-
-
-
-
+thisStats.guildMembers.forEach(key =>{
+  if(key.messageCount >= 200 && key.userID == message.author.id && getServerSettings && message.member.roles.cache.has(getServerSettings.newUserRole)) {
+    message.member.roles.remove(getServerSettings.newUserRole);
+  }
+});
 
 
     }
@@ -58,10 +66,8 @@ await addOne(message, client, mongoose, serverStats);
                 punishmentsTiers: [],
                 medals: []
               }
-            },
-            $inc: {
-              'messageCountTotal': 1
-          }
+            }
         }).exec()
         serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": message.author.id} , {$inc:{"guildMembers.$.messageCount":1}}).exec();
+        
   }

@@ -5,7 +5,7 @@ exports.run = (client, message, args) => {
 	const fs = require("fs");
 
 
-	if(!message.member.hasPermission('KICK_MEMBERS')) return message.channel.send("Did you really try to kick as a regular. Come on...");
+	if(!message.member.hasPermission('KICK_MEMBERS')) return message.channel.send("Did you really try to ban as a regular. Come on...");
 
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the kick");
 	else return message.channel.send({embed: {
