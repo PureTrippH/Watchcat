@@ -1,13 +1,15 @@
-exports.run = (client, message, args) => {
-	const tagged = message.mentions.users.first();
-	const reason = args.slice(1).join(" ") || "Unknown Reason";
+exports.run = async (client, message, args) => {
+    const tagged = message.mentions.users.first();
+    const time = args[1];
+	const reason = args.slice(2).join(" ") || "Unknown Reason";
 	const auditlog = require("../data/auditlog.json");
-	const fs = require("fs");
+    const fs = require("fs");
+    const ms = require("ms");
 
 
-	if(!message.member.hasPermission('KICK_MEMBERS')) return message.channel.send("Did you really try to ban as a regular. Come on...");
-
-	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the kick");
+	if(!message.member.hasPermission('KICK_MEMBERS')) return message.channel.send("Did you really try to tempban as a regular. Come on...");
+    if(!ms(time)) return message.channel.send("No Time was Specified");
+	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
 	else return message.channel.send({embed: {
 		color: 0xff0000,
 		author: {
@@ -42,6 +44,11 @@ exports.run = (client, message, args) => {
 		  const reaction = collected.first().emoji.name;
 		console.log(reaction);
 		if(collected.first().emoji.name == '✅') {
+            message.channel.createInvite({
+				maxAge: 86400,
+				maxUses: 1
+			}).then(function(newInvite){
+				let inviteStr = ("https://discord.gg/" + newInvite.code)
 			tagged.send({embed: {
 				color: 0xff0000,
 				author: {
@@ -55,15 +62,25 @@ exports.run = (client, message, args) => {
 						name: 'Reason:',
 						value: reason,
 						
-					}
+                    },
+                    {
+						name: 'Time:',
+						value: time,
+						
+                    },
+                    {
+						name: 'Invite:',
+						value: inviteStr,
+						
+					},
 				],
 				footer: {
 				  icon_url: client.user.avatarURL,
 				  text: client.user.username
 				},
-			  }
-			}).then(msg => {
-				let currentpun = {reason: reason, type:"Ban", user: message.mentions.members.first().id};
+              }
+            }).then(async msg => {
+				let currentpun = {reason: reason, type:`Tempban - ${time}`, user: message.mentions.members.first().id, time: time};
 				let subarray = [currentpun];
 				if(auditlog[message.mentions.members.first().id]) {
 					let punisharray = auditlog[message.mentions.members.first().id].punishments
@@ -85,29 +102,32 @@ exports.run = (client, message, args) => {
 				
 
 				
-				message.mentions.members.first().ban(reason);	
+                await message.mentions.members.first().ban(reason)
+                setTimeout(() => {
+                    try {
+                    message.guild.members.unban(message.mentions.members.first().id, {reason: "They have served their sentence"});
+                    } catch(err) {console.log(err);}
+                }, ms(time));
+
+			});
 			});
 		}
 	if(collected.first().emoji.name == '❌') {
-		message.channel.send(`Ban Canceled. Well I guess ${tagged} is VERY lucky...`);
+		message.channel.send(`Tempban Canceled. Well I guess ${tagged} is VERY lucky...`);
 	}
 					
 }).catch((err) => {
 	console.log(err);
-	message.channel.send(`Ban Cancelled. You Were Timed Out`);
+	message.channel.send(`Tempban Cancelled. You Were Timed Out`);
 });
 	  });
 }
 
 
-const punishaudit = (reason, type, user) => {
+const punishaudit = (reason, type, user, time) => {
 	this.user = user;
 	this.type = type;
-	this.reason = reason;
+    this.reason = reason;
+    this.time = time;
 };
 
-module.exports.help = {
-	name: "Ban",
-	desc: "Do I really have to explain... ._.",
-	usage: "l^ban (user)"
-}
