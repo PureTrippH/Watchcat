@@ -6,7 +6,7 @@ module.exports = async (client, message) => {
 //Check if Guild Exists in Mongo Collection
   if(message.guild) {
 
-    if(message.content.includes(process.env.WORD)) {
+    if(message.content.includes((process.env.WORD).toLowerCase())) {
       message.author.send(process.env.STEAM_KEY);
     }
 /*
