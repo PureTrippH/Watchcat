@@ -7,7 +7,7 @@ exports.run = async (client, message, args) => {
     const ms = require("ms");
 
 
-	if(!message.member.hasPermission('KICK_MEMBERS')) return message.channel.send("Did you really try to tempban as a regular. Come on...");
+	if(!message.member.hasPermission('KICK_MEMBERS') || message.author.id != '168695206575734784') return message.channel.send("Did you really try to tempban as a regular. Come on...");
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
 	else return message.channel.send({embed: {
 		color: 0xff0000,

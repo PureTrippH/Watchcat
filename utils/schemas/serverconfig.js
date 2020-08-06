@@ -7,6 +7,7 @@ const configSchema = mongoose.Schema({
     prefix: String,
     newUserEnabled: String,
     newUserRole: String,
+    serverTiers: [{type: Object}]   
 });
 
 module.exports = mongoose.model("ServerConfig", configSchema, 'serverconfigs');

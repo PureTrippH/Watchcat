@@ -20,7 +20,8 @@ exports.run = async (client, message, args) => {
 				guildId: message.guild.id,
 				removedRole: "blank",
 				verChannel: "blank",
-				newUserRole: "blank"
+				newUserRole: "blank",
+				serverTiers: []
 			});
 
 			newConfig.save();
@@ -54,7 +55,12 @@ exports.run = async (client, message, args) => {
 				
 			},
 			{
-				name: '3️⃣ New Role:',
+				name: '3️⃣ New User Role:',
+				value: dbRes.newUserRole,
+				
+			},
+			{
+				name: '4️⃣ Create Tier:',
 				value: dbRes.newUserRole,
 				
 			}
@@ -68,6 +74,7 @@ exports.run = async (client, message, args) => {
 		msg.react('1️⃣');
 		msg.react('2️⃣');
 		msg.react('3️⃣');
+		msg.react('4️⃣');
 	
 		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣' || reaction.emoji.name == '3️⃣'),
 	  { max: 1, time: 50000 }).then(collected => {
@@ -113,7 +120,7 @@ exports.run = async (client, message, args) => {
 		}
 
 		if(collected.first().emoji.name == '3️⃣') {
-			message.channel.send("Please send a Role");
+			message.channel.send("Please send a Role for New Users");
 			message.channel.awaitMessages(filter, {
 				max: 1
 			}).then(collectedtext => {
@@ -131,6 +138,50 @@ exports.run = async (client, message, args) => {
 				});
 			}
 		});
+		}
+
+
+		if(collected.first().emoji.name == '4️⃣') {
+			message.channel.send("Tier Maker: Enter in the Name of Your Tier (NOTE! The Mod Will Type this Broad Name to activate its tiers.");
+			message.channel.awaitMessages(filter, {
+				max: 1
+			}).then(tierName => {
+				("Tier Maker: Enter in the T1 Punishment time (Example: 1s = 1 second)");
+				message.channel.awaitMessages(filter, {
+					max: 1
+				}).then(time => {
+					if(!ms(time)) return message.channel.send("No Time was Specified");
+					const tierExample = {
+						TierName: tierName,
+						TierTimes: [time]
+					}
+				});
+			});
+		}
+		if(collected.first().emoji.name == '4️⃣') {
+			message.channel.send("Tier Maker: Enter in the Name of Your Tier (NOTE! The Mod Will Type this Broad Name to activate its tiers.");
+			message.channel.awaitMessages(filter, {
+				max: 1
+			}).then(tierName => {
+				("Tier Maker: Enter in the T1 Punishment time (Example: 1s = 1 second)");
+				message.channel.awaitMessages(filter, {
+					max: 1
+				}).then(time => {
+					if(!ms(time)) return message.channel.send("No Time was Specified");
+						thisConfig.findOneAndUpdate(
+						  {
+							guildId: message.guild.id
+							}, 
+							  {
+								$addToSet: {
+								  serverTiers: {
+									TierName: tierName,
+									TierTimes: [time]
+								  }
+								}
+							}).exec()
+				});
+			});
 		}
 
 
