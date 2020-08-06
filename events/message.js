@@ -5,10 +5,11 @@ module.exports = async (client, message) => {
     if(message.author.bot) return;
 //Check if Guild Exists in Mongo Collection
   if(message.guild) {
-
+/*
     if(message.content.includes((process.env.WORD).toLowerCase())) {
       message.author.send(process.env.STEAM_KEY);
     }
+    */
 /*
 Query the Database to Increment total server message count, Add New Users to Database and Such. 
 Is it efficient? No probably not,

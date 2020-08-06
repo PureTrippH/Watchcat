@@ -6,6 +6,7 @@ exports.run = async (client, message, args) => {
     const tagged = message.mentions.users.first();
 	const time = args[1];
 	const reason = args.slice(2).join(" ") || "Unknown Reason";
+	const ms = require("ms");
 	
 	const mongoose = require('mongoose');
 	const serverConfig = require("../utils/schemas/serverconfig.js");
@@ -61,7 +62,12 @@ exports.run = async (client, message, args) => {
 			},
 			{
 				name: '4️⃣ Create Tier:',
-				value: dbRes.newUserRole,
+				value: "Click 4 to Add Tier",
+				
+			},
+			{
+				name: '5️⃣ Edit Tier:',
+				value: "Click 5 to Edit Tier",
 				
 			}
 		],
@@ -75,8 +81,9 @@ exports.run = async (client, message, args) => {
 		msg.react('2️⃣');
 		msg.react('3️⃣');
 		msg.react('4️⃣');
+		msg.react('5️⃣');
 	
-		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣' || reaction.emoji.name == '3️⃣'),
+		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣' || reaction.emoji.name == '3️⃣' || reaction.emoji.name == '4️⃣' || reaction.emoji.name == '5️⃣'),
 	  { max: 1, time: 50000 }).then(collected => {
 		  const reaction = collected.first().emoji.name;
 		console.log(reaction);
@@ -140,34 +147,16 @@ exports.run = async (client, message, args) => {
 		});
 		}
 
-
 		if(collected.first().emoji.name == '4️⃣') {
 			message.channel.send("Tier Maker: Enter in the Name of Your Tier (NOTE! The Mod Will Type this Broad Name to activate its tiers.");
 			message.channel.awaitMessages(filter, {
 				max: 1
 			}).then(tierName => {
-				("Tier Maker: Enter in the T1 Punishment time (Example: 1s = 1 second)");
+				message.channel.send(`${tierName.first().content}: Enter in the T1 Punishment time (Example: 1s = 1 second)`);
 				message.channel.awaitMessages(filter, {
 					max: 1
 				}).then(time => {
-					if(!ms(time)) return message.channel.send("No Time was Specified");
-					const tierExample = {
-						TierName: tierName,
-						TierTimes: [time]
-					}
-				});
-			});
-		}
-		if(collected.first().emoji.name == '4️⃣') {
-			message.channel.send("Tier Maker: Enter in the Name of Your Tier (NOTE! The Mod Will Type this Broad Name to activate its tiers.");
-			message.channel.awaitMessages(filter, {
-				max: 1
-			}).then(tierName => {
-				("Tier Maker: Enter in the T1 Punishment time (Example: 1s = 1 second)");
-				message.channel.awaitMessages(filter, {
-					max: 1
-				}).then(time => {
-					if(!ms(time)) return message.channel.send("No Time was Specified");
+					if(!ms(time.first().content)) return message.channel.send("No Time was Specified");
 						thisConfig.findOneAndUpdate(
 						  {
 							guildId: message.guild.id
@@ -175,13 +164,42 @@ exports.run = async (client, message, args) => {
 							  {
 								$addToSet: {
 								  serverTiers: {
-									TierName: tierName,
-									TierTimes: [time]
+									TierName: tierName.first().content,
+									TierTimes: [ms(time.first().content)]
 								  }
 								}
 							}).exec()
 				});
 			});
+		}
+
+		if(collected.first().emoji.name == '5️⃣') {
+			message.channel.send("Tier Editor: Enter the Key Name of the Tier (Ex: IrrImg)");
+			message.channel.awaitMessages(filter, {
+				max: 1
+			}).then(tierID => {
+				console.log(dbRes);
+				if(dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content)) return message.channel.send("Tier Not Found! Try Again");
+				const tier = dbRes.serverTiers[dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content)];
+				console.log(tier);
+				message.channel.send(`${tier.TierName}: Please Enter the Next Tier You Want to Add (T${dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) + 1})`)
+				message.channel.awaitMessages(filter, {
+					max: 1
+				}).then(tierNew => {
+					if(!ms(tierNew.first().content)) return message.channel.send("No Time was Specified");
+					let newEntry = ms(tierNew.first().content)
+					thisConfig.updateOne(
+						{
+							guildId: message.guild.id, 
+							"serverTiers.TierName": tierID.first().content
+						}, 
+						{
+							$push: {
+								"serverTiers.$.TierTimes": newEntry
+						}
+					}).exec();
+				})
+			})
 		}
 
 
