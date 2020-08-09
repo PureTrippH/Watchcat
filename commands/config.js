@@ -22,6 +22,7 @@ exports.run = async (client, message, args) => {
 				removedRole: "blank",
 				verChannel: "blank",
 				newUserRole: "blank",
+				mutedRole: "blank",
 				serverTiers: []
 			});
 
@@ -69,6 +70,11 @@ exports.run = async (client, message, args) => {
 				name: '5️⃣ Edit Tier:',
 				value: "Click 5 to Edit Tier",
 				
+			},
+			{
+				name: '6️⃣ Mute Role:',
+				value: "Click 5 to Edit Tier",
+				
 			}
 		],
 		footer: {
@@ -82,8 +88,9 @@ exports.run = async (client, message, args) => {
 		msg.react('3️⃣');
 		msg.react('4️⃣');
 		msg.react('5️⃣');
+		msg.react('6️⃣');
 	
-		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣' || reaction.emoji.name == '3️⃣' || reaction.emoji.name == '4️⃣' || reaction.emoji.name == '5️⃣'),
+		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣' || reaction.emoji.name == '3️⃣' || reaction.emoji.name == '4️⃣' || reaction.emoji.name == '5️⃣' || reaction.emoji.name == '6️⃣'),
 	  { max: 1, time: 50000 }).then(collected => {
 		  const reaction = collected.first().emoji.name;
 		console.log(reaction);
@@ -169,6 +176,9 @@ exports.run = async (client, message, args) => {
 								  }
 								}
 							}).exec()
+
+
+						
 				});
 			});
 		}
@@ -179,15 +189,27 @@ exports.run = async (client, message, args) => {
 				max: 1
 			}).then(tierID => {
 				console.log(dbRes);
-				if(dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content)) return message.channel.send("Tier Not Found! Try Again");
+				if(dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) === -1) return message.channel.send("Tier Not Found! Try Again");
 				const tier = dbRes.serverTiers[dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content)];
 				console.log(tier);
-				message.channel.send(`${tier.TierName}: Please Enter the Next Tier You Want to Add (T${dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) + 1})`)
+				message.channel.send(`${tier.TierName}: Please Enter the Next Tier You Want to Add (T${dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) - 1}) (Enter Delete to Delete Last Tier)`)
 				message.channel.awaitMessages(filter, {
 					max: 1
 				}).then(tierNew => {
 					if(!ms(tierNew.first().content)) return message.channel.send("No Time was Specified");
 					let newEntry = ms(tierNew.first().content)
+					if(tierNew.first().content.toLowerCase() == 'delete') {
+						thisConfig.updateOne(
+							{
+								guildId: message.guild.id, 
+								"serverTiers.TierName": tierID.first().content
+							}, 
+							{
+								$pop: {
+									"serverTiers.$.TierTimes":  -1
+							}
+						}).exec();
+					}
 					thisConfig.updateOne(
 						{
 							guildId: message.guild.id, 
@@ -200,6 +222,27 @@ exports.run = async (client, message, args) => {
 					}).exec();
 				})
 			})
+		}
+
+		if(collected.first().emoji.name == '6️⃣') {
+			message.channel.send("Please send a Role for Muted Users");
+			message.channel.awaitMessages(filter, {
+				max: 1
+			}).then(collectedtext => {
+			let newText = collectedtext.first().content.replace('<@&', '').replace('>', "");
+			console.log(newText);
+			let newrole = message.guild.roles.cache.get(newText);
+			
+			if(!newrole) {
+				message.channel.send("No Role Found!");
+			} else {
+
+				updateVer(thisConfig, "removedRole", newText);
+				thisConfig.updateOne({
+					mutedRole: newText
+				});
+			}
+		});
 		}
 
 

@@ -73,6 +73,9 @@ thisStats.guildMembers.forEach(key =>{
               }
             }
         }).exec()
-        serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": message.author.id} , {$inc:{"guildMembers.$.messageCount":1}}).exec();
+        serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": message.author.id} , {
+          $inc:{
+            "guildMembers.$.messageCount":1
+          }}).exec();
         
   }

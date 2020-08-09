@@ -1,6 +1,6 @@
 exports.run = async (client, message, args) => {
     const tagged = message.mentions.users.first();
-	const tierArg = args[1];
+    const tierArg = args[1];
 	const reason = args.slice(2).join(" ") || "Unknown Reason";
 	const fs = require("fs");
 	const date = new Date();
@@ -21,25 +21,21 @@ exports.run = async (client, message, args) => {
 	});
 	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg)
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
-	if(!message.member.hasPermission('KICK_MEMBERS') || message.author.id != '168695206575734784') return message.channel.send("Did you really try to tempban as a regular. Come on...");
+	if(!message.member.hasPermission('BAN_MEMBERS') || message.author.id != '168695206575734784') return message.channel.send("Did you really try to tempban as a regular. Come on...");
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
+	if(!dbResConfig || dbResConfig.mutedRole == "blank") return message.channel.send("Muted Role was not Defined in Config");
 	else return message.channel.send({embed: {
 		color: 0xff0000,
 		author: {
 		  name: client.user.username,
 		  icon_url: client.user.avatarURL
 		},
-		title: `Temp Ban: ${tagged ? tagged.username : null}`,
+		title: `Tier Mute: ${tagged ? tagged.username : null}`,
 		timestamp: new Date(),
 		fields: [
 			{
 				name: 'Tier:',
 				value: dbResConfig.serverTiers[tierIndex].TierName,
-				
-			},
-			{
-				name: 'Reason:',
-				value: reason,
 				
 			},
 			{
@@ -114,13 +110,8 @@ exports.run = async (client, message, args) => {
 						value: matchTier(dbResStats, dbResConfig, tierIndex, lastTier),
 						
 					},
-					{
-						name: 'Reason:',
-						value: reason,
-						
-					},
                     {
-						name: 'Invite (Expires When You Join Back):',
+						name: 'Invite:',
 						value: inviteStr,
 						
 					},
