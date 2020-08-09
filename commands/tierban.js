@@ -21,7 +21,7 @@ exports.run = async (client, message, args) => {
 	});
 	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg)
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
-	if(!message.member.hasPermission('KICK_MEMBERS') || message.author.id != '168695206575734784') return message.channel.send("Did you really try to tempban as a regular. Come on...");
+	if(!message.member.hasPermission('BAN_MEMBERS') || message.author.id != '168695206575734784') return message.channel.send("Did you really try to tempban as a regular. Come on...");
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
 	else return message.channel.send({embed: {
 		color: 0xff0000,
