@@ -20,6 +20,7 @@ exports.run = async (client, message, args) => {
 		guildId: message.guild.id
 	});
 	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg);
+	console.log(`${tierArg}: ${tierIndex}`);
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
@@ -63,6 +64,7 @@ exports.run = async (client, message, args) => {
 		console.log(reaction);
 		if(collected.first().emoji.name == '✅') {
 		const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === tagged.id);
+		const lastTier = dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
 		console.log(dbResStats.guildMembers[userIndex].punishmentsTiers);
 		if((dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
 			console.log("Adding to set");
@@ -94,9 +96,20 @@ exports.run = async (client, message, args) => {
 				maxAge: 86400,
 				maxUses: 1
 			}).then(function(newInvite){
+
+
+				const tierArray = dbResConfig.serverTiers[tierIndex].TierTimes
+
+				console.log("The Tier: " + dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
+
+				let seconds = matchTier(dbResStats, dbResConfig, tierIndex, lastTier)
+
+				console.log(dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
+
 				let inviteStr = ("https://discord.gg/" + newInvite.code)
-				const lastTier = dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
-			tagged.send({embed: {
+				
+				console.error(matchTier(dbResStats, dbResConfig, tierIndex, lastTier));
+				tagged.send({embed: {
 				color: 0xff0000,
 				author: {
 				  name: client.user.username,
@@ -132,17 +145,9 @@ exports.run = async (client, message, args) => {
               }
             }).then(async msg => {	
 				
-				console.log("The Tier: " + dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
 
-				
-
-				let seconds = matchTier(dbResStats, dbResConfig, tierIndex, lastTier)
-
-				console.log(dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
 
 				await message.mentions.members.first().ban(reason)
-
-				const tierArray = dbResConfig.serverTiers[tierIndex].TierTimes
 				console.log((dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1]))
                 setTimeout(() => {
                     try {
@@ -177,9 +182,13 @@ module.exports.help = {
 
 
 const matchTier = (dbResStats, dbResConfig, tierIndex, lastTier) => {
-	if(dbResConfig.serverTiers[tierIndex].TierTimes[lastTier] >= (parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) - 1)) {
-		return dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) - 1]
+	console.log("Running");
+	if(parseInt(lastTier) >= (parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) - 1)) {
+		console.log("above tier");
+		return (dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1])
 	} else {
-		return dbResConfig.serverTiers[tierIndex].TierTimes[lastTier]
+		console.log("below tier: " + dbResConfig.serverTiers[tierIndex]);
+		console.log("Last Tier: " + lastTier);
+		return dbResConfig.serverTiers[tierIndex].TierTimes[lastTier].TierTimes[lastTier]
 	}
 };
