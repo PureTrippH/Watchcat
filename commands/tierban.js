@@ -19,9 +19,9 @@ exports.run = async (client, message, args) => {
 	let dbResStats = await serverStats.findOne({
 		guildId: message.guild.id
 	});
-	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg)
+	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg);
+	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
-	if(!message.member.hasPermission('BAN_MEMBERS') || message.author.id != '168695206575734784') return message.channel.send("Did you really try to tempban as a regular. Come on...");
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
 	else return message.channel.send({embed: {
 		color: 0xff0000,
@@ -162,6 +162,11 @@ exports.run = async (client, message, args) => {
 	message.channel.send(`Tempban Cancelled. You Were Timed Out`);
 });
 	  });
+	} else {
+		//Using lengthened If statement to see if that was the issue with perms
+		console.log("Seems like the perms issue is persisting");
+		message.author.send("Did you really try to tempban as a regular user. Come on...");
+	}
 }
 
 module.exports.help = {
