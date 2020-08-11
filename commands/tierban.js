@@ -73,7 +73,7 @@ exports.run = async (client, message, args) => {
 		if(collected.first().emoji.name == '✅') {
 		
 
-			addTier(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, banDate);
+			
 
             message.channel.createInvite({
 				maxAge: 86400,
@@ -92,6 +92,8 @@ exports.run = async (client, message, args) => {
 				let inviteStr = ("https://discord.gg/" + newInvite.code)
 
 				const lastTier = (typeof dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
+				addTier(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, banDate, lastTier);
+				
 				console.log(`Last Tier: ${lastTier}`);
 
 
@@ -216,7 +218,7 @@ const matchTier = (dbResStats, dbResConfig, tierIndex, lastTier) => {
 };
 
 
-const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date) => {
+const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier) => {
 
 	if((dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
 		console.log("Adding to set");
@@ -226,7 +228,7 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 				tierName: dbResConfig.serverTiers[tierIndex].TierName,
 				dateOfTier: date.mm + '/' + date.dd + '/' + date.yyyy,
 				tierLevel: 1,
-				TierForgiveness: dbResConfig.serverTiers[tierIndex].TierForgiveness,
+				TierForgiveness: (dbResConfig.serverTiers[tierIndex].TierForgiveness*(lastTier + 1)),
 				OffenderMsgCount: dbResStats.guildMembers[userIndex].messageCount
 
 			  }

@@ -13,6 +13,11 @@ exports.run = async (client, message, args) => {
 	const mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
 	const yyyy = date.getFullYear();
 
+	const banDate = {
+		dd: dd,
+		mm: mm,
+		yyyy: yyyy
+	}
 
 	let dbResConfig = await serverConfig.findOne({
 		guildId: message.guild.id
@@ -20,44 +25,39 @@ exports.run = async (client, message, args) => {
 	let dbResStats = await serverStats.findOne({
 		guildId: message.guild.id
 	});
-
-	const dbRes = await serverConfig.findOne({
-		guildId: message.guild.id
-	  });
-  
-	  message.delete({ timeout: 10});
-	  if(!dbResConfig || dbResConfig.mutedRole == "blank") {
-		  message.author.send({embed: {
-			  color: 0xff0000,
-			  author: {
-				name: client.user.username,
-				icon_url: client.user.avatarURL
-			  },
-			  title: `Laela's Watchdog's`,
-			  timestamp: new Date(),
-			  fields: [
-				  {
-					  name: 'ERROR:',
-					  value: "The Server Admins have NOT set the muted role. Please DM and Admin for info! (Or not tell them and evade your mute [This is between you and me though 😉",
-					  
-				  }
-			  ],
-			  footer: {
-				icon_url: client.user.avatarURL,
-				text: client.user.username
-			  },
-			}
-		  });
-		  return;
-	  }
-
-
-
 	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg);
 	console.log(`${tierArg}: ${tierIndex}`);
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
-	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
+
+	
+	if(!dbResConfig || dbResConfig.mutedRole == "blank") {
+		message.author.send({embed: {
+			color: 0xff0000,
+			author: {
+			  name: client.user.username,
+			  icon_url: client.user.avatarURL
+			},
+			title: `Laela's Watchdog's`,
+			timestamp: new Date(),
+			fields: [
+				{
+					name: 'ERROR:',
+					value: "The Server Admins have NOT set the muted role. Please DM and Admin for info! (Or not tell them and evade your mute [This is between you and me though 😉",
+					
+				}
+			],
+			footer: {
+			  icon_url: client.user.avatarURL,
+			  text: client.user.username
+			},
+		  }
+		});
+		return;
+	}
+
+
+	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempmute");
 	else return message.channel.send({embed: {
 		color: 0xff0000,
 		author: {
@@ -94,53 +94,39 @@ exports.run = async (client, message, args) => {
 		
 		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
 	  { max: 1, time: 50000 }).then(collected => {
+		const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === tagged.id);
+
 		const reaction = collected.first().emoji.name;
 		console.log(reaction);
 		if(collected.first().emoji.name == '✅') {
-		const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === tagged.id);
-		const lastTier = dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
-		console.log(dbResStats.guildMembers[userIndex].punishmentsTiers);
-		if((dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
-			console.log("Adding to set");
-			serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": tagged.id} , {
-				$addToSet:{
-				  "guildMembers.$.punishmentsTiers": {
-					tierName: dbResConfig.serverTiers[tierIndex].TierName,
-					dateOfTier: mm + '/' + dd + '/' + yyyy,
-					tierLevel: 1
-				  }
-				}}, {upsert: true}).exec();
-			} else {
-				console.log("Updating set");
-				serverStats.updateOne({
-					guildId: message.guild.id, 
-					"guildMembers.userID": tagged.id,
+		
 
-				}, 
-				{
-					$inc:{
-					  "guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
-					},
-				 },
-				  { "arrayFilters": [
-						{ "punishmentName.tierName": dbResConfig.serverTiers[tierIndex].TierName }
-					] }).exec();
-			}
+			
+
             message.channel.createInvite({
 				maxAge: 86400,
 				maxUses: 1
 			}).then(function(newInvite){
-
-
+				console.log(dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)]);
+				
 				const tierArray = dbResConfig.serverTiers[tierIndex].TierTimes
 
 				console.log("The Tier: " + dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
 
-				let seconds = matchTier(dbResStats, dbResConfig, tierIndex, lastTier)
+				
 
 				console.log(dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
 
 				let inviteStr = ("https://discord.gg/" + newInvite.code)
+
+				const lastTier = (typeof dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
+				addTier(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, banDate, lastTier);
+				
+				console.log(`Last Tier: ${lastTier}`);
+
+
+				let seconds = matchTier(dbResStats, dbResConfig, tierIndex, lastTier);
+
 				
 				console.error(matchTier(dbResStats, dbResConfig, tierIndex, lastTier));
 				tagged.send({embed: {
@@ -166,6 +152,11 @@ exports.run = async (client, message, args) => {
 						value: reason,
 						
 					},
+                    {
+						name: 'Invite (Expires When You Join Back):',
+						value: inviteStr,
+						
+					},
 				],
 				footer: {
 				  icon_url: client.user.avatarURL,
@@ -173,9 +164,10 @@ exports.run = async (client, message, args) => {
 				},
               }
             }).then(async msg => {	
+
+
 				if(dbResStats.logChannel != "blank") {
-					let logChannel = client.channels.cache.get(dbResChannel.logChannel);
-					
+					let logChannel = client.channels.cache.get(dbResConfig.logChannel);
 
 					logChannel.send({embed: {
 						color: 0xff0000,
@@ -231,17 +223,13 @@ exports.run = async (client, message, args) => {
 	message.channel.send(`Tiermute Cancelled. You Were Timed Out`);
 });
 	  });
-	} else {
-		//Using lengthened If statement to see if that was the issue with perms
-		console.log("Seems like the perms issue is persisting");
-		message.author.send("Did you really try to Tiermute as a regular user. Come on...");
 	}
 }
 
 module.exports.help = {
 	name: "Tier Mute",
 	desc: "Mutes the User for the Tier Time (WARNING: This feature is experimental. Do NOT Use it for real yet) [ALSO, DO NOT JOKE WITH THIS COMMAND. This can lead to adding a tier NO MATTER WHAT!]",
-	usage: "l^tierban (user) (tier)"
+	usage: "l^tiermute (user) (tier)"
 }
 
 
@@ -251,8 +239,43 @@ const matchTier = (dbResStats, dbResConfig, tierIndex, lastTier) => {
 		console.log("above tier");
 		return (dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1])
 	} else {
-		console.log("below tier: " + dbResConfig.serverTiers[tierIndex]);
+		console.log("below tier: " + dbResConfig.serverTiers[tierIndex].TierTimes);
 		console.log("Last Tier: " + lastTier);
-		return dbResConfig.serverTiers[tierIndex].TierTimes[lastTier].TierTimes[lastTier]
+		return dbResConfig.serverTiers[tierIndex].TierTimes[lastTier]
 	}
 };
+
+
+const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier) => {
+
+	if((dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
+		console.log("Adding to set");
+		serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": tagged.id} , {
+			$addToSet:{
+			  "guildMembers.$.punishmentsTiers": {
+				tierName: dbResConfig.serverTiers[tierIndex].TierName,
+				dateOfTier: date.mm + '/' + date.dd + '/' + date.yyyy,
+				tierLevel: 1,
+				TierForgiveness: (dbResConfig.serverTiers[tierIndex].TierForgiveness*(lastTier + 1)),
+				OffenderMsgCount: dbResStats.guildMembers[userIndex].messageCount
+
+			  }
+			}}, {upsert: true}).exec();
+		} else {
+			console.log("Updating set");
+			serverStats.updateOne({
+				guildId: message.guild.id, 
+				"guildMembers.userID": tagged.id,
+
+			}, 
+			{
+				$inc:{
+				  "guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
+				},
+			 },
+			  { "arrayFilters": [
+					{ "punishmentName.tierName": dbResConfig.serverTiers[tierIndex].TierName }
+				] }).exec();
+		}
+
+}

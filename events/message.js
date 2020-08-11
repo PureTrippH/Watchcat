@@ -3,22 +3,25 @@ module.exports = async (client, message) => {
     const mongoose = require('mongoose');
     const serverStats = require("../utils/schemas/serverstat.js");
     if(message.author.bot) return;
-
-    const triggerWords = ["sex", "cum", "jizz", "dick", "clit", "vagina", "porn", "jerk off", "hentai", "penis", "testicles", "pussy"];
-    const participants = ["585842334118314008", "315659296539148289", "357204785604329474", "692841053044080641", "536682455311319040", "700214206808719432", "600381224674000918", "476551304852799489", ""]
     
 //Check if Guild Exists in Mongo Collection
+const triggerWords = ["sex", "cum", "jizz", "dick", "clit", "vagina", "porn", "jerk off", "hentai", "penis", "testicles", "pussy"];
+const participants = ["585842334118314008", "315659296539148289", "357204785604329474", "692841053044080641", "536682455311319040", "700214206808719432", "600381224674000918", "476551304852799489", ""]
 
-  if(message.guild) {
+//Check if Guild Exists in Mongo Collection
 
-    if(message.guild.id == "709865844670201967") {
-    triggerWords.forEach(word => {
-      if(message.content.includes((word).toLowerCase()) && particpants.findIndex(indiv => indiv == message.author.id) != -1) {
-        message.author.send("You have been flagged as horny during the monk challenge. Notifying other participants...");
-      }
-    })
+if(message.guild) {
+
+if(message.guild.id == "709865844670201967") {
+  console.log("ok Cool");
+triggerWords.forEach(word => {
+  if(message.content.includes((word).toLowerCase()) && participants.findIndex(indiv => indiv == message.author.id) != -1) {
     
+    message.author.send("You have been flagged as horny during the monk challenge. Notifying other participants...");
   }
+})
+
+}
 /*
 Query the Database to Increment total server message count, Add New Users to Database and Such. 
 Is it efficient? No probably not,
@@ -112,6 +115,34 @@ dbResStats.guildMembers[userIndex].punishmentsTiers.forEach(tier =>{
         tierName: tier.tierName,
         }
       }}, {multi: true}).exec();
+
+      if(dbResStats.logChannel != "blank") {
+        let logChannel = client.channels.cache.get(dbResConfig.logChannel);
+
+        logChannel.send({embed: {
+          color: 0x95eb34,
+          author: {
+            name: client.user.username,
+            icon_url: client.user.avatarURL
+          },
+          description: `Tier Forgiven: ${message.author.username}`,
+          title: `User: ${tagged}`,
+          timestamp: new Date(),
+          fields: [
+            {
+              name: 'Reason of Original Tier:',
+              value: tier.tierName,
+              
+            }
+          ],
+          footer: {
+            icon_url: client.user.avatarURL,
+            text: client.user.username
+          },
+          }
+        })
+      }
+
   }
 });
   }
