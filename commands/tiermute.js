@@ -182,7 +182,7 @@ exports.run = async (client, message, args) => {
                     try {
 						message.mentions.members.first().roles.remove(dbResConfig.mutedRole);
                     } catch(err) {console.log(err);}
-                }, (seconds));
+                }, (seconds*(lastTier +1)));
 
 			});
 			});
