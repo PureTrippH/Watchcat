@@ -155,7 +155,7 @@ exports.run = async (client, message, args) => {
 		}
 
 		if(collected.first().emoji.name == '4️⃣') {
-			message.channel.send("Tier Maker: Enter in the Name of Your Tier (NOTE! The Mod Will Type this Broad Name to activate its tiers.");
+			message.channel.send("Tier Maker: Enter in the Name of Your Tier (NOTE! The Mod Will Type this Broad Name to activate its tiers. ALSO NO SPACES!");
 			message.channel.awaitMessages(filter, {
 				max: 1
 			}).then(tierName => {
@@ -202,20 +202,25 @@ exports.run = async (client, message, args) => {
 				message.channel.awaitMessages(filter, {
 					max: 1
 				}).then(tierNew => {
+
+						if(tierNew.first().content.toLowerCase() == 'delete') {
+							thisConfig.updateOne(
+								{
+									guildId: message.guild.id, 
+									"serverTiers.TierName": tierID.first().content
+								}, 
+								{
+									$pop: {
+										"serverTiers.$.TierTimes":  -1
+								}
+							}).exec();
+
+							message.channel.send("Latest Tier Removed!");
+							return;
+						}
+
 					if(!ms(tierNew.first().content)) return message.channel.send("No Time was Specified");
 					let newEntry = ms(tierNew.first().content)
-					if(tierNew.first().content.toLowerCase() == 'delete') {
-						thisConfig.updateOne(
-							{
-								guildId: message.guild.id, 
-								"serverTiers.TierName": tierID.first().content
-							}, 
-							{
-								$pop: {
-									"serverTiers.$.TierTimes":  -1
-							}
-						}).exec();
-					}
 					thisConfig.updateOne(
 						{
 							guildId: message.guild.id, 
