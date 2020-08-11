@@ -13,6 +13,12 @@ exports.run = async (client, message, args) => {
 	const mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
 	const yyyy = date.getFullYear();
 
+	const banDate = {
+		dd: dd,
+		mm: mm,
+		yyyy: yyyy
+	}
+
 	let dbResConfig = await serverConfig.findOne({
 		guildId: message.guild.id
 	});
@@ -60,53 +66,37 @@ exports.run = async (client, message, args) => {
 		
 		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
 	  { max: 1, time: 50000 }).then(collected => {
+		const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === tagged.id);
+
 		const reaction = collected.first().emoji.name;
 		console.log(reaction);
 		if(collected.first().emoji.name == '✅') {
-		const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === tagged.id);
-		const lastTier = dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
-		console.log(dbResStats.guildMembers[userIndex].punishmentsTiers);
-		if((dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
-			console.log("Adding to set");
-			serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": tagged.id} , {
-				$addToSet:{
-				  "guildMembers.$.punishmentsTiers": {
-					tierName: dbResConfig.serverTiers[tierIndex].TierName,
-					dateOfTier: mm + '/' + dd + '/' + yyyy,
-					tierLevel: 1
-				  }
-				}}, {upsert: true}).exec();
-			} else {
-				console.log("Updating set");
-				serverStats.updateOne({
-					guildId: message.guild.id, 
-					"guildMembers.userID": tagged.id,
+		
 
-				}, 
-				{
-					$inc:{
-					  "guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
-					},
-				 },
-				  { "arrayFilters": [
-						{ "punishmentName.tierName": dbResConfig.serverTiers[tierIndex].TierName }
-					] }).exec();
-			}
+			addTier(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, banDate);
+
             message.channel.createInvite({
 				maxAge: 86400,
 				maxUses: 1
 			}).then(function(newInvite){
-
-
+				console.log(dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)]);
+				
 				const tierArray = dbResConfig.serverTiers[tierIndex].TierTimes
 
 				console.log("The Tier: " + dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
 
-				let seconds = matchTier(dbResStats, dbResConfig, tierIndex, lastTier)
+				
 
 				console.log(dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
 
 				let inviteStr = ("https://discord.gg/" + newInvite.code)
+
+				const lastTier = (typeof dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
+				console.log(`Last Tier: ${lastTier}`);
+
+
+				let seconds = matchTier(dbResStats, dbResConfig, tierIndex, lastTier);
+
 				
 				console.error(matchTier(dbResStats, dbResConfig, tierIndex, lastTier));
 				tagged.send({embed: {
@@ -159,18 +149,14 @@ exports.run = async (client, message, args) => {
 			});
 		}
 	if(collected.first().emoji.name == '❌') {
-		message.channel.send(`Tempban Canceled. Well I guess ${tagged} is VERY lucky...`);
+		message.channel.send(`Tiermute Canceled. Well I guess ${tagged} is VERY lucky...`);
 	}
 					
 }).catch((err) => {
 	console.log(err);
-	message.channel.send(`Tempban Cancelled. You Were Timed Out`);
+	message.channel.send(`Tiermute Cancelled. You Were Timed Out`);
 });
 	  });
-	} else {
-		//Using lengthened If statement to see if that was the issue with perms
-		console.log("Seems like the perms issue is persisting");
-		message.author.send("Did you really try to tempban as a regular user. Come on...");
 	}
 }
 
@@ -187,8 +173,43 @@ const matchTier = (dbResStats, dbResConfig, tierIndex, lastTier) => {
 		console.log("above tier");
 		return (dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1])
 	} else {
-		console.log("below tier: " + dbResConfig.serverTiers[tierIndex]);
+		console.log("below tier: " + dbResConfig.serverTiers[tierIndex].TierTimes);
 		console.log("Last Tier: " + lastTier);
-		return dbResConfig.serverTiers[tierIndex].TierTimes[lastTier].TierTimes[lastTier]
+		return dbResConfig.serverTiers[tierIndex].TierTimes[lastTier]
 	}
 };
+
+
+const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date) => {
+
+	if((dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
+		console.log("Adding to set");
+		serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": tagged.id} , {
+			$addToSet:{
+			  "guildMembers.$.punishmentsTiers": {
+				tierName: dbResConfig.serverTiers[tierIndex].TierName,
+				dateOfTier: date.mm + '/' + date.dd + '/' + date.yyyy,
+				tierLevel: 1,
+				TierForgiveness: dbResConfig.serverTiers[tierIndex].TierForgiveness,
+				OffenderMsgCount: dbResStats.guildMembers[userIndex].messageCount
+
+			  }
+			}}, {upsert: true}).exec();
+		} else {
+			console.log("Updating set");
+			serverStats.updateOne({
+				guildId: message.guild.id, 
+				"guildMembers.userID": tagged.id,
+
+			}, 
+			{
+				$inc:{
+				  "guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
+				},
+			 },
+			  { "arrayFilters": [
+					{ "punishmentName.tierName": dbResConfig.serverTiers[tierIndex].TierName }
+				] }).exec();
+		}
+
+}

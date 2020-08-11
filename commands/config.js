@@ -164,18 +164,24 @@ exports.run = async (client, message, args) => {
 					max: 1
 				}).then(time => {
 					if(!ms(time.first().content)) return message.channel.send("No Time was Specified");
+					message.channel.send(`${tierName.first().content}: Enter in the T1 Punishment Forgiveness message count. (Example: User loses a tier after sending 1000 msges)`);
+					message.channel.awaitMessages(filter, {
+						max: 1
+					}).then(forgiveness => {	
 						thisConfig.findOneAndUpdate(
-						  {
-							guildId: message.guild.id
-							}, 
-							  {
-								$addToSet: {
-								  serverTiers: {
-									TierName: tierName.first().content,
-									TierTimes: [ms(time.first().content)]
+							{
+							  guildId: message.guild.id
+							  }, 
+								{
+								  $addToSet: {
+									serverTiers: {
+									  TierName: tierName.first().content,
+									  TierForgiveness: forgiveness.first().content,
+									  TierTimes: [ms(time.first().content)]
+									}
 								  }
-								}
-							}).exec()
+							  }).exec()
+					});
 
 
 						

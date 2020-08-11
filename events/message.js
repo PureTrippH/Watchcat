@@ -3,6 +3,7 @@ module.exports = async (client, message) => {
     const mongoose = require('mongoose');
     const serverStats = require("../utils/schemas/serverstat.js");
     if(message.author.bot) return;
+    
 //Check if Guild Exists in Mongo Collection
   if(message.guild) {
 /*
@@ -34,17 +35,25 @@ const thisStats = await serverStats.findOne({
 
 const serverConfig = require("../utils/schemas/serverconfig.js");
 
+const dbResStats = await serverStats.findOne({
+  guildId: message.guild.id
+});
+
 const getServerSettings = await serverConfig.findOne({
   guildId: message.guild.id
 });
 
 
-await addOne(message, client, mongoose, serverStats);
+await addOne(message, client, mongoose, serverStats, getServerSettings, dbResStats);
 thisStats.guildMembers.forEach(key =>{
   if(key.messageCount >= 200 && key.userID == message.author.id && getServerSettings && message.member.roles.cache.has(getServerSettings.newUserRole)) {
     message.member.roles.remove(getServerSettings.newUserRole);
   }
 });
+
+await checkTiers(message, client, mongoose, serverStats, getServerSettings, dbResStats);
+
+
 
 
     }
@@ -58,7 +67,7 @@ thisStats.guildMembers.forEach(key =>{
     cmd.run(client, message, args);
   };
 
-  const addOne = (message, client, mongoose, serverStats) => {
+  const addOne = (message, client, mongoose, serverStats, getServerSettings, dbResStats) => {
     serverStats.findOneAndUpdate(
       {
         guildId: message.guild.id
@@ -77,5 +86,24 @@ thisStats.guildMembers.forEach(key =>{
           $inc:{
             "guildMembers.$.messageCount":1
           }}).exec();
-        
+  }
+
+  const checkTiers = async(message, client, mongoose, serverStats, getServerSettings, dbResStats) => {
+    const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === message.author.id);
+  if(!dbResStats.guildMembers[userIndex]) return console.log("Sadchamp");;
+dbResStats.guildMembers[userIndex].punishmentsTiers.forEach(tier =>{
+  console.log((parseInt(tier.TierForgiveness) + parseInt(tier.OffenderMsgCount)));
+  console.log(dbResStats.guildMembers);
+  if((parseInt(tier.TierForgiveness) + parseInt(tier.OffenderMsgCount)) <= parseInt(dbResStats.guildMembers[userIndex].messageCount)) {
+
+    console.log("Poggers")
+    console.log(tier.tierName);
+    serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": message.author.id} , {
+      $pull: {
+        "guildMembers.$.punishmentsTiers": {
+        tierName: tier.tierName,
+        }
+      }}, {multi: true}).exec();
+  }
+});
   }
