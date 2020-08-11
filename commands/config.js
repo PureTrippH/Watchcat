@@ -217,7 +217,7 @@ exports.run = async (client, message, args) => {
 
 							message.channel.send("Latest Tier Removed!");
 							return;
-						}
+						} else {
 
 					if(!ms(tierNew.first().content)) return message.channel.send("No Time was Specified");
 					let newEntry = ms(tierNew.first().content)
@@ -231,6 +231,7 @@ exports.run = async (client, message, args) => {
 								"serverTiers.$.TierTimes": newEntry
 						}
 					}).exec();
+				}
 				})
 			})
 		}
