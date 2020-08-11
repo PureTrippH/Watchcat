@@ -23,6 +23,7 @@ exports.run = async (client, message, args) => {
 				verChannel: "blank",
 				newUserRole: "blank",
 				mutedRole: "blank",
+				logChannel: "blank",
 				serverTiers: []
 			});
 
@@ -73,7 +74,12 @@ exports.run = async (client, message, args) => {
 			},
 			{
 				name: '6️⃣ Mute Role:',
-				value: "Click 5 to Edit Tier",
+				value: dbRes.mutedRole,
+				
+			},
+			{
+				name: '📜 Log Channel:',
+				value: dbRes.logChannel,
 				
 			}
 		],
@@ -89,8 +95,9 @@ exports.run = async (client, message, args) => {
 		msg.react('4️⃣');
 		msg.react('5️⃣');
 		msg.react('6️⃣');
+		msg.react('📜');
 	
-		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣' || reaction.emoji.name == '3️⃣' || reaction.emoji.name == '4️⃣' || reaction.emoji.name == '5️⃣' || reaction.emoji.name == '6️⃣'),
+		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '1️⃣' || reaction.emoji.name == '2️⃣' || reaction.emoji.name == '3️⃣' || reaction.emoji.name == '4️⃣' || reaction.emoji.name == '5️⃣' || reaction.emoji.name == '6️⃣' || reaction.emoji.name == '📜'),
 	  { max: 1, time: 50000 }).then(collected => {
 		  const reaction = collected.first().emoji.name;
 		console.log(reaction);
@@ -234,6 +241,27 @@ exports.run = async (client, message, args) => {
 				}
 				})
 			})
+		}
+
+		
+
+		if(collected.first().emoji.name == '📜') {
+			message.channel.send("Please send a Channel");
+			message.channel.awaitMessages(filter, {
+				max: 1
+			}).then(collectedtext => {
+			let newText = collectedtext.first().content.replace('<#', '').replace('>', "");
+			console.log(newText);
+			if(!message.guild.channels.cache.get(newText)) {
+				message.channel.send("No Channel Found!");
+			} else {
+				updateVer(thisConfig, "verChannel", newText);
+
+				thisConfig.updateOne({
+					logChannel: newText
+				});
+			}
+		});
 		}
 
 		if(collected.first().emoji.name == '6️⃣') {

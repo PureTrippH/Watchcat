@@ -134,7 +134,43 @@ exports.run = async (client, message, args) => {
 				},
               }
             }).then(async msg => {	
-				
+
+
+				if(dbResStats.logChannel != "blank") {
+					let logChannel = client.channels.cache.get(dbResConfig.logChannel);
+
+					logChannel.send({embed: {
+						color: 0xff0000,
+						author: {
+						  name: client.user.username,
+						  icon_url: client.user.avatarURL
+						},
+						description: `Tier By: ${message.author.username}`,
+						title: `User: ${tagged}`,
+						timestamp: new Date(),
+						fields: [
+							{
+								name: `Tier (T${lastTier + 1}):`,
+								value: dbResConfig.serverTiers[tierIndex].TierName,
+							},
+							{
+								name: 'Time:',
+								value: matchTier(dbResStats, dbResConfig, tierIndex, lastTier),
+								
+							},
+							{
+								name: 'Reason:',
+								value: reason,
+								
+							}
+						],
+						footer: {
+						  icon_url: client.user.avatarURL,
+						  text: client.user.username
+						},
+					  }
+					})
+				}
 
 
 				await message.mentions.members.first().ban(reason)
