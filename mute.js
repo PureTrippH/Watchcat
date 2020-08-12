@@ -7,7 +7,7 @@ exports.run = async (client, message, args) => {
     if(message.author.id == "700214206808719432") {
     message.delete({ timeout: 200 });
         message.author.send({embed: {
-            color: 0xff0000,
+            color: 0xa8e0af,
             author: {
               name: client.user.username,
               icon_url: client.user.avatarURL
@@ -31,6 +31,12 @@ exports.run = async (client, message, args) => {
         });
         return;
 };
+setTimeout(() => {
+  try {
+    message.channel.send("Min just got stickbugged lol");
+  } catch(err) {console.log(err);}
+}, 7000);
+
 }
 
 module.exports.help = {
