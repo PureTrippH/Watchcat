@@ -29,13 +29,14 @@ exports.run = async (client, message, args) => {
             },
           }
         });
+        setTimeout(() => {
+          try {
+            message.channel.send("Min just got stickbugged lol");
+          } catch(err) {console.log(err);}
+        }, 7000);
         return;
 };
-setTimeout(() => {
-  try {
-    message.channel.send("Min just got stickbugged lol");
-  } catch(err) {console.log(err);}
-}, 7000);
+
 
 }
 
