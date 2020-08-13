@@ -2,6 +2,7 @@ module.exports = async (client, message) => {
     const serverSettings = require("../data/serversettings.json");
     const mongoose = require('mongoose');
     const serverStats = require("../utils/schemas/serverstat.js");
+    const serverConfig = require("../utils/schemas/serverconfig.js");
     if(message.author.bot) return;
 
 //Check if Guild Exists in Mongo Collection
@@ -31,7 +32,13 @@ const thisStats = await serverStats.findOne({
   }
 });
 
-const serverConfig = require("../utils/schemas/serverconfig.js");
+
+
+const dbResConfig = await serverConfig.findOne({
+		guildId: message.guild.id
+	});
+
+
 
 const dbResStats = await serverStats.findOne({
   guildId: message.guild.id
@@ -49,7 +56,7 @@ thisStats.guildMembers.forEach(key =>{
   }
 });
 
-await checkTiers(message, client, mongoose, serverStats, getServerSettings, dbResStats);
+await checkTiers(message, client, mongoose, serverStats, getServerSettings, dbResStats, dbResConfig);
 
 
 
@@ -86,15 +93,11 @@ await checkTiers(message, client, mongoose, serverStats, getServerSettings, dbRe
           }}).exec();
   }
 
-  const checkTiers = async(message, client, mongoose, serverStats, getServerSettings, dbResStats) => {
+  const checkTiers = async(message, client, mongoose, serverStats, getServerSettings, dbResStats, dbResConfig) => {
     const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === message.author.id);
   if(!dbResStats.guildMembers[userIndex]) return console.log("Sadchamp");;
 dbResStats.guildMembers[userIndex].punishmentsTiers.forEach(tier =>{
-  console.log((parseInt(tier.TierForgiveness) + parseInt(tier.OffenderMsgCount)));
-  console.log(dbResStats.guildMembers);
   if((parseInt(tier.TierForgiveness) + parseInt(tier.OffenderMsgCount)) <= parseInt(dbResStats.guildMembers[userIndex].messageCount)) {
-
-    console.log("Poggers")
     console.log(tier.tierName);
     serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": message.author.id} , {
       $pull: {
@@ -113,7 +116,7 @@ dbResStats.guildMembers[userIndex].punishmentsTiers.forEach(tier =>{
             icon_url: client.user.avatarURL
           },
           description: `Tier Forgiven: ${message.author.username}`,
-          title: `User: ${tagged}`,
+          title: `User: ${message.author.username}`,
           timestamp: new Date(),
           fields: [
             {

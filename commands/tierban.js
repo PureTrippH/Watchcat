@@ -1,6 +1,6 @@
 exports.run = async (client, message, args) => {
     const tagged = message.mentions.users.first();
-	const tierArg = args[1];
+	const tierArg = args[1].toLowerCase();
 	const reason = args.slice(2).join(" ") || "Unknown Reason";
 	const fs = require("fs");
 	const date = new Date();
@@ -91,16 +91,17 @@ exports.run = async (client, message, args) => {
 
 				let inviteStr = ("https://discord.gg/" + newInvite.code)
 
+				
 				const lastTier = (typeof dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
-				addTier(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, banDate, lastTier);
+				let seconds = matchTier(dbResStats, dbResConfig, tierIndex, lastTier);
+				addTier(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, banDate, lastTier, seconds);
 				
 				console.log(`Last Tier: ${lastTier}`);
 
 
-				let seconds = matchTier(dbResStats, dbResConfig, tierIndex, lastTier);
+				
 
 				
-				console.error(matchTier(dbResStats, dbResConfig, tierIndex, lastTier));
 				tagged.send({embed: {
 				color: 0xff0000,
 				author: {
@@ -218,7 +219,7 @@ const matchTier = (dbResStats, dbResConfig, tierIndex, lastTier) => {
 };
 
 
-const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier) => {
+const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds) => {
 
 	if((dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
 		console.log("Adding to set");
@@ -229,8 +230,8 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 				dateOfTier: date.mm + '/' + date.dd + '/' + date.yyyy,
 				tierLevel: 1,
 				TierForgiveness: (dbResConfig.serverTiers[tierIndex].TierForgiveness*(lastTier + 1)),
-				OffenderMsgCount: dbResStats.guildMembers[userIndex].messageCount
-
+				OffenderMsgCount: dbResStats.guildMembers[userIndex].messageCount,
+				tierTime: seconds
 			  }
 			}}, {upsert: true}).exec();
 		} else {
@@ -241,6 +242,7 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 
 			}, 
 			{
+				tierTime: seconds,
 				$inc:{
 				  "guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
 				},

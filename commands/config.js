@@ -182,7 +182,7 @@ exports.run = async (client, message, args) => {
 								{
 								  $addToSet: {
 									serverTiers: {
-									  TierName: tierName.first().content,
+									  TierName: tierName.first().content.toLowerCase(),
 									  TierForgiveness: forgiveness.first().content,
 									  TierTimes: [ms(time.first().content)]
 									}
@@ -202,7 +202,7 @@ exports.run = async (client, message, args) => {
 				max: 1
 			}).then(tierID => {
 				console.log(dbRes);
-				if(dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) === -1) return message.channel.send("Tier Not Found! Try Again");
+				if(dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content.toLowerCase()) === -1) return message.channel.send("Tier Not Found! Try Again");
 				const tier = dbRes.serverTiers[dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content)];
 				console.log(tier);
 				message.channel.send(`${tier.TierName}: Please Enter the Next Tier You Want to Add (T${dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) - 1}) (Enter Delete to Delete Last Tier)`)
