@@ -181,7 +181,7 @@ exports.run = async (client, message, args) => {
                     try {
                     message.guild.members.unban(message.mentions.members.first().id, {reason: "They have served their sentence"});
                     } catch(err) {console.log(err);}
-                }, (seconds*(lastTier + 1)));
+                }, seconds);
 
 			});
 			});
