@@ -148,7 +148,7 @@ exports.run = async (client, message, args) => {
 						  name: client.user.username,
 						  icon_url: client.user.avatarURL
 						},
-						description: `Tier By: ${message.author.username}`,
+						description: `Tier By: ${message.author}`,
 						title: `User: ${tagged}`,
 						timestamp: new Date(),
 						fields: [

@@ -116,7 +116,7 @@ dbResStats.guildMembers[userIndex].punishmentsTiers.forEach(tier =>{
             icon_url: client.user.avatarURL
           },
           description: `Tier Forgiven: ${message.author.username}`,
-          title: `User: ${message.author.username}`,
+          title: `User: ${message.author}`,
           timestamp: new Date(),
           fields: [
             {
