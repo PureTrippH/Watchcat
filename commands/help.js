@@ -1,8 +1,20 @@
 exports.run = async (client, message, args) => {
+  const Discord = require('discord.js');
+
     const fs = require("fs");
     message.delete();
     console.log(client.commands.has(args[0]));
-    if(!args[0]) return message.channel.send("Really... blank is not a command...");
+    if(!args[0]) {
+      const cmd = client.commands
+      const broadHelp = new Discord.MessageEmbed();
+      broadHelp.setColor('#e0a5e6');
+      cmd.forEach(key =>{
+        broadHelp.addFields(
+          { name: `${key.help.name}`, value: `${key.help.desc}`, inline: false }
+        )
+      })
+      message.author.send({embed: broadHelp});
+    }
     if(!client.commands.has(args[0])) return message.channel.send("Commands Entered not a command!");
         const cmd = client.commands.get(args[0].toLowerCase());
         message.author.send({embed: {

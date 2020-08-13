@@ -131,3 +131,8 @@ const punishaudit = (reason, type, user, time) => {
     this.time = time;
 };
 
+module.exports.help = {
+	name: "Tempban",
+	desc: "Do I really have to explain... ._.",
+	usage: "l^tempban (user) (time) [reason]"
+}
