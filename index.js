@@ -34,5 +34,5 @@ commandFiles.forEach(file => {
 });
 
 mongoose.init();
-client.login("NzI4NzAyMjIxMDk2ODQ1MzUy.Xv-O1A.Rs6HuZbbQBhRAxUcvQYVI3ocwlI");
+client.login(process.env.BOT_TOKEN);
 
