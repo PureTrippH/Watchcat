@@ -91,7 +91,7 @@ exports.run = async (client, message, args) => {
 	}).then(msg => {
 		msg.react('✅');
 		msg.react('❌');
-		
+
 		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
 	  { max: 1, time: 50000 }).then(collected => {
 		const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === tagged.id);
@@ -203,12 +203,22 @@ exports.run = async (client, message, args) => {
 					})
 				}
 
-
-				await message.mentions.members.first().roles.add(dbResConfig.mutedRole);
-				console.log((dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1]))
-                setTimeout(() => {
+				await (message.mentions.members.first()._roles).forEach(role => {
+					message.mentions.members.first().roles.remove(role);
+				});
+				message.mentions.members.first().roles.add(dbResConfig.mutedRole);
+				let dbResStatsUpdate = await serverStats.findOne({
+					guildId: message.guild.id
+				});
+				const mentionedTier = (dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
+				console.log(mentionedTier);
+                await setTimeout(() => {
                     try {
+						console.log(dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers);
 						message.mentions.members.first().roles.remove(dbResConfig.mutedRole);
+						(dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers[mentionedTier].pastRoles).forEach(role => {
+							message.mentions.members.first().roles.add(role);
+						});
                     } catch(err) {console.log(err);}
                 }, seconds);
 
@@ -259,7 +269,8 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 				tierLevel: 1,
 				TierForgiveness: (dbResConfig.serverTiers[tierIndex].TierForgiveness*(lastTier + 1)),
 				OffenderMsgCount: dbResStats.guildMembers[userIndex].messageCount,
-				tierTime: seconds
+				tierTime: seconds,
+				pastRoles: message.mentions.members.first()._roles
 			  }
 			}}, {upsert: true}).exec();
 		} else {
@@ -271,6 +282,7 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 			}, 
 			{
 				tierTime: seconds,
+				pastRoles: message.mentions.members.first()._roles,
 				$inc:{
 				  "guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
 				},
