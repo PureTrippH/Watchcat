@@ -34,6 +34,7 @@ exports.run = async (client, message, args) => {
 				maxAge: 86400,
 				maxUses: 1
 			}).then (async function(newInvite){
+				const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === tagged.id);
 				console.log(dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)]);
 				
 				const tierArray = dbResConfig.serverTiers[tierIndex].TierTimes
@@ -223,7 +224,7 @@ const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, 
 	`);
 
 	await message.mentions.members.first().ban(reason)
-	message.channel.send(`Sucessfully banned ${message.author} for T${lastTier + 1}`);
+	message.channel.send(`Sucessfully banned <@${tagged.id}> for T${lastTier + 1}`);
 	console.log((dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1]))
 	setTimeout(() => {
 		try {
@@ -263,7 +264,7 @@ const awaitWarn = async(client, message, tagged, dbResStats, userIndex, tierArg,
 	  }
 	});
 
-	message.channel.send(`Sucessfully warned ${message.author} for T${lastTier + 1}`);
+	message.channel.send(`Sucessfully warned <@${tagged.id}> for T${lastTier + 1}`);
 
 	return;
 
@@ -316,7 +317,7 @@ let dbResStatsUpdate = await serverStats.findOne({
 });
 const mentionedTier = (dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
 console.log(mentionedTier);
-message.channel.send(`Sucessfully muted ${message.author} for T${lastTier + 1}`);
+message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
 await setTimeout(() => {
 	try {
 		console.log(dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers);
