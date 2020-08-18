@@ -14,13 +14,17 @@ exports.run = async (client, message, args) => {
 	tierList.setTitle("Laela's Watchdog's Tiers (This Server)");
 
 	dbRes.serverTiers.forEach(tier => {
-		embedTar.addFields(
+		tierList.addFields(
 			{ name: `${tier.TierName}`, value: `${tier.TierTimes}`, inline: false }
 		  )
-		embedTar.addFields(
+		tierList.addFields(
 			{ name: `${tier.TierName} Forgiveness`, value: `${tier.TierForgiveness} Messages`, inline: false }
 		  )
 	})
+
+	message.channel.send(tierList);
+
+
 }
 
 
