@@ -30,51 +30,6 @@ exports.run = async (client, message, args) => {
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
-	else return message.channel.send({embed: {
-		color: 0xff0000,
-		author: {
-		  name: client.user.username,
-		  icon_url: client.user.avatarURL
-		},
-		title: `Tier: ${tagged ? tagged.username : null}`,
-		timestamp: new Date(),
-		fields: [
-			{
-				name: 'Tier:',
-				value: dbResConfig.serverTiers[tierIndex].TierName,
-				
-			},
-			{
-				name: 'Reason:',
-				value: reason,
-				
-			},
-			{
-				name: 'Confirm?',
-				value: "React with :white_check_mark: to confirm",
-				
-			}
-		],
-		footer: {
-		  icon_url: client.user.avatarURL,
-		  text: client.user.username
-		},
-	  }
-	}).then(msg => {
-		msg.react('✅');
-		msg.react('❌');
-		
-		msg.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
-	  { max: 1, time: 50000 }).then(collected => {
-		const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === tagged.id);
-
-		const reaction = collected.first().emoji.name;
-		console.log(reaction);
-		if(collected.first().emoji.name == '✅') {
-		
-
-			
-
             message.channel.createInvite({
 				maxAge: 86400,
 				maxUses: 1
@@ -154,17 +109,8 @@ exports.run = async (client, message, args) => {
 
 			});
 		}
-	if(collected.first().emoji.name == '❌') {
-		message.channel.send(`Tiermute Canceled. Well I guess ${tagged} is VERY lucky...`);
-	}
-					
-}).catch((err) => {
-	console.log(err);
-	message.channel.send(`Tiermute Cancelled. You Were Timed Out`);
-});
-	  });
-	}
-}
+
+	  };
 
 module.exports.help = {
 	name: "Tier Ban",
@@ -268,7 +214,16 @@ const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, 
 		},
 	  }
 	})
+
+	tagged.send(`
+	Tier: T${lastTier + 1}. 
+	Time: ${matchTier(dbResStats, dbResConfig, tierIndex, lastTier)}. 
+	Reason: ${reason}.
+	Invite: ${inviteStr}
+	`);
+
 	await message.mentions.members.first().ban(reason)
+	message.channel.send(`Sucessfully banned ${message.author} for T${lastTier + 1}`);
 	console.log((dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1]))
 	setTimeout(() => {
 		try {
@@ -307,7 +262,11 @@ const awaitWarn = async(client, message, tagged, dbResStats, userIndex, tierArg,
 		},
 	  }
 	});
+
+	message.channel.send(`Sucessfully warned ${message.author} for T${lastTier + 1}`);
+
 	return;
+
 };
 	
 
@@ -357,6 +316,7 @@ let dbResStatsUpdate = await serverStats.findOne({
 });
 const mentionedTier = (dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
 console.log(mentionedTier);
+message.channel.send(`Sucessfully muted ${message.author} for T${lastTier + 1}`);
 await setTimeout(() => {
 	try {
 		console.log(dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers);
