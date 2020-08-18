@@ -14,6 +14,8 @@ exports.run = async (client, message, args) => {
         )
       })
       message.author.send({embed: broadHelp});
+
+      return;
     }
     if(!client.commands.has(args[0])) return message.channel.send("Commands Entered not a command!");
         const cmd = client.commands.get(args[0].toLowerCase());
