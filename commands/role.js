@@ -28,7 +28,7 @@ exports.run = async (client, message, args) => {
 }
 }
 module.exports.help = {
-	name: "Tier Mute",
-	desc: "Mutes the User for the Tier Time (WARNING: This feature is experimental. Do NOT Use it for real yet) [ALSO, DO NOT JOKE WITH THIS COMMAND. This can lead to adding a tier NO MATTER WHAT!]",
-	usage: "l^tiermute (user) (tier)"
+	name: "Role",
+	desc: "Add or Remove a role from a user",
+	usage: "!!role (user) (add/remove) (role)"
 }

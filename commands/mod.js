@@ -33,6 +33,21 @@ exports.run = async (client, message, args) => {
         }).then(msg => {
           msg.react("1️⃣");
           msg.react("2️⃣");
+
+          msg.awaitReactions((reaction, user) => user.id == message.author.id, {
+            max: 1,
+            time: 25000
+          }.then(reaction => {
+            const reactionName = reaction.first().emoji.name;
+            switch(reactionName) {
+              case '1️⃣':
+                
+                break;
+              case '2️⃣':
+
+                break;
+            }
+          }));
         });
         return;
 };
