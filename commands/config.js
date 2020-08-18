@@ -175,22 +175,32 @@ exports.run = async (client, message, args) => {
 					message.channel.awaitMessages(filter, {
 						max: 1
 					}).then(forgiveness => {	
-						thisConfig.findOneAndUpdate(
-							{
-							  guildId: message.guild.id
-							  }, 
+						message.channel.send(`${tierName.first().content}: Send Your Punishment type.`);
+				message.channel.awaitMessages(filter, {
+					max: 1
+				}).then(punishType => {
+					console.log((punishType.first().content.toLowerCase() != "warning" || punishType.first().content.toLowerCase() !=  "ban" || punishType.first().content.toLowerCase() !=  "mute"));
+						if(punishType.first().content.toLowerCase() == "warning" || punishType.first().content.toLowerCase() ==  "ban" || punishType.first().content.toLowerCase() ==  "mute") {
+							thisConfig.findOneAndUpdate(
 								{
-								  $addToSet: {
-									serverTiers: {
-									  TierName: tierName.first().content.toLowerCase(),
-									  TierForgiveness: forgiveness.first().content,
-									  TierTimes: [ms(time.first().content)]
-									}
-								  }
-							  }).exec()
+								  guildId: message.guild.id
+								  }, 
+									{
+									  $addToSet: {
+										serverTiers: {
+										  TierName: tierName.first().content.toLowerCase(),
+										  TierForgiveness: forgiveness.first().content,
+										  TierTimes: [ms(time.first().content)],
+										  banOrMute: [punishType.first().content.toLowerCase()]
+										}
+									  }
+								  }).exec()
+								  message.channel.send("Successfully created tier");
+						
+						} else return message.channel.send("Punishment does not exist. Try using Mute, Warning, or Ban");
 					});
 
-
+				});
 						
 				});
 			});
@@ -205,11 +215,11 @@ exports.run = async (client, message, args) => {
 				if(dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content.toLowerCase()) === -1) return message.channel.send("Tier Not Found! Try Again");
 				const tier = dbRes.serverTiers[dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content)];
 				console.log(tier);
-				message.channel.send(`${tier.TierName}: Please Enter the Next Tier You Want to Add (T${dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) - 1}) (Enter Delete to Delete Last Tier)`)
+				message.channel.send(`${tier.TierName}: Please Enter the Next Tier Time You Want to Add (T${dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) - 1}) (Enter Delete to Delete Last Tier)`)
 				message.channel.awaitMessages(filter, {
 					max: 1
 				}).then(tierNew => {
-
+						
 						if(tierNew.first().content.toLowerCase() == 'delete') {
 							thisConfig.updateOne(
 								{
@@ -228,16 +238,27 @@ exports.run = async (client, message, args) => {
 
 					if(!ms(tierNew.first().content)) return message.channel.send("No Time was Specified");
 					let newEntry = ms(tierNew.first().content)
-					thisConfig.updateOne(
+					message.channel.send(`Send Your Punishment type for next tier.`);
+					message.channel.awaitMessages(filter, {
+						max: 1
+					}).then(punishType => {
+						console.log((punishType.first().content.toLowerCase() != "warning" || punishType.first().content.toLowerCase() !=  "ban" || punishType.first().content.toLowerCase() !=  "mute"));
+							if(punishType.first().content.toLowerCase() == "warning" || punishType.first().content.toLowerCase() ==  "ban" || punishType.first().content.toLowerCase() ==  "mute") {
+								thisConfig.updateOne(
 						{
 							guildId: message.guild.id, 
 							"serverTiers.TierName": tierID.first().content
 						}, 
 						{
 							$push: {
+								"serverTiers.$.banOrMute": punishType.first().content.toLowerCase(),
 								"serverTiers.$.TierTimes": newEntry
 						}
 					}).exec();
+
+					message.channel.send("Successfully edited tier");
+				} else return message.channel.send("Punishment does not exist. Try using Mute, Warning, or Ban");
+				});
 				}
 				})
 			})
