@@ -85,7 +85,7 @@ exports.run = async (client, message, args) => {
 			},
 			{
 				name: '📜 Log Channel:',
-				value: dbRes.logChannel,
+				value: dbRes.unverifiedRole,
 				
 			}
 		],
