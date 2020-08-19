@@ -7,8 +7,7 @@ exports.run = async (client, message, args) => {
 	if(message.member.hasPermission('MANAGE_CHANNELS') || message.author.id == '168695206575734784') {
 	switch(args[0].toLowerCase()) {
 		case "remove":
-			add.rolecmd(client, message, args, tagged);
-
+			remove.removeChannel(client, message, args, tagged);
 		break;
 
 		default:

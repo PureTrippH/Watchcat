@@ -9,6 +9,7 @@ const configSchema = mongoose.Schema({
     newUserRole: String,
     mutedRole: String,
     logChannel: String,
+    unverifiedRole: String,
     serverTiers: [{type: Object}]   
 });
 

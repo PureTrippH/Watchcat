@@ -24,6 +24,7 @@ exports.run = async (client, message, args) => {
 				newUserRole: "blank",
 				mutedRole: "blank",
 				logChannel: "blank",
+				unverifiedRole: "blank",
 				serverTiers: []
 			});
 
