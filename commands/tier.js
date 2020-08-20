@@ -1,5 +1,4 @@
 exports.run = async (client, message, args) => {
-    const tagged = message.mentions.users.first();
 	const tierArg = args[1].toLowerCase();
 	const reason = args.slice(2).join(" ") || "Unknown Reason";
 	const fs = require("fs");
@@ -10,7 +9,7 @@ exports.run = async (client, message, args) => {
 	const serverStats = require("../utils/schemas/serverstat.js");
 
 	const dd = String(date.getDate()).padStart(2, '0');
-	const mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+	const mm = String(date.getMonth() + 1).padStart(2, '0'); 
 	const yyyy = date.getFullYear();
 
 	const banDate = {
@@ -25,11 +24,15 @@ exports.run = async (client, message, args) => {
 	let dbResStats = await serverStats.findOne({
 		guildId: message.guild.id
 	});
+	let newText = args[0].replace('<@!', '').replace('>', "");
+	console.log(newText);
+	const tagged = await message.guild.member(newText);
+	console.log(tagged);
 	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg);
 	console.log(`${tierArg}: ${tierIndex}`);
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
-	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
+	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tiering");
             message.channel.createInvite({
 				maxAge: 86400,
 				maxUses: 1
@@ -65,7 +68,7 @@ exports.run = async (client, message, args) => {
 						  icon_url: client.user.avatarURL
 						},
 						description: `Tier By: ${message.author}`,
-						title: `User: ${tagged}`,
+						title: `User: ${tagged.username}`,
 						timestamp: new Date(),
 						fields: [
 							{
@@ -223,12 +226,12 @@ const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, 
 	Invite: ${inviteStr}
 	`);
 
-	await message.mentions.members.first().ban(reason)
+	await tagged.ban(reason)
 	message.channel.send(`Sucessfully banned <@${tagged.id}> for T${lastTier + 1}`);
 	console.log((dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1]))
 	setTimeout(() => {
 		try {
-		message.guild.members.unban(message.mentions.members.first().id, {reason: "They have served their sentence"});
+		message.guild.members.unban(tagged.id, {reason: "They have served their sentence"});
 		} catch(err) {console.log(err);}
 	}, seconds);
 }
@@ -308,10 +311,10 @@ const awaitMute = async(client, message, tagged, dbResStats, userIndex, tierArg,
 		},
 	  }
 	});
-await (message.mentions.members.first()._roles).forEach(role => {
-	message.mentions.members.first().roles.remove(role);
+await (tagged._roles).forEach(role => {
+	tagged.roles.remove(role);
 });
-message.mentions.members.first().roles.add(dbResConfig.mutedRole);
+tagged.roles.add(dbResConfig.mutedRole);
 let dbResStatsUpdate = await serverStats.findOne({
 	guildId: message.guild.id
 });
@@ -321,9 +324,9 @@ message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
 await setTimeout(() => {
 	try {
 		console.log(dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers);
-		message.mentions.members.first().roles.remove(dbResConfig.mutedRole);
+		tagged.roles.remove(dbResConfig.mutedRole);
 		(dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers[mentionedTier].pastRoles).forEach(role => {
-			message.mentions.members.first().roles.add(role);
+			tagged.roles.add(role);
 		});
 	} catch(err) {console.log(err);}
 }, seconds);

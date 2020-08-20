@@ -80,12 +80,12 @@ exports.run = async (client, message, args) => {
 			},
 			{
 				name: '7️⃣ Restricted Role:',
-				value: dbRes.mutedRole,
+				value: dbRes.unverifiedRole,
 				
 			},
 			{
 				name: '📜 Log Channel:',
-				value: dbRes.unverifiedRole,
+				value: dbRes.logChannel,
 				
 			}
 		],
