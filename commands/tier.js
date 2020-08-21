@@ -68,7 +68,7 @@ exports.run = async (client, message, args) => {
 						  icon_url: client.user.avatarURL
 						},
 						description: `Tier By: ${message.author}`,
-						title: `User: ${tagged.username}`,
+						title: `User: ${message.guild.member(message.author) ? message.guild.member(message.author).displayName : null}`,
 						timestamp: new Date(),
 						fields: [
 							{
@@ -159,7 +159,8 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 				tierLevel: 1,
 				TierForgiveness: (dbResConfig.serverTiers[tierIndex].TierForgiveness*(lastTier + 1)),
 				OffenderMsgCount: dbResStats.guildMembers[userIndex].messageCount,
-				tierTime: seconds
+				tierTime: seconds,
+				pastRoles: tagged._roles
 			  }
 			}}, {upsert: true}).exec();
 		} else {
@@ -170,6 +171,7 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 
 			}, 
 			{
+				pastRoles: tagged._roles,
 				tierTime: seconds,
 				$inc:{
 				  "guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
@@ -276,6 +278,7 @@ const awaitWarn = async(client, message, tagged, dbResStats, userIndex, tierArg,
 
 
 const awaitMute = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr) => {
+	console.log("Muted!");
 	await tagged.send({embed: {
 		color: 0xff0000,
 		author: {
@@ -311,10 +314,12 @@ const awaitMute = async(client, message, tagged, dbResStats, userIndex, tierArg,
 		},
 	  }
 	});
+if(!tagged.roles.cache.has(dbResConfig.mutedRole)) {
 await (tagged._roles).forEach(role => {
 	tagged.roles.remove(role);
 });
 tagged.roles.add(dbResConfig.mutedRole);
+}
 let dbResStatsUpdate = await serverStats.findOne({
 	guildId: message.guild.id
 });
