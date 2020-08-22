@@ -9,7 +9,6 @@ module.exports = async (client, member) => {
 		guildId: member.guild.id
   });
   
-  member.send(`Hello and Welcome to ${member.guild.name}! Please check the Information channel for Info and verify in the verification channel!`);
   if(!(dbResConfig.unverifiedRole == "blank")) {
     member.roles.add(dbResConfig.unverifiedRole);
   }

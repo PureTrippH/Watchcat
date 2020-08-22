@@ -68,7 +68,7 @@ exports.run = async (client, message, args) => {
 						  icon_url: client.user.avatarURL
 						},
 						description: `Tier By: ${message.author}`,
-						title: `User: ${message.guild.member(message.author) ? message.guild.member(message.author).displayName : null}`,
+						title: `User: ${message.guild.member(tagged) ? message.guild.member(tagged).displayName : null}`,
 						timestamp: new Date(),
 						fields: [
 							{
