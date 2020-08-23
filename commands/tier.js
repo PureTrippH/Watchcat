@@ -77,7 +77,7 @@ exports.run = async (client, message, args) => {
 							},
 							{
 								name: 'Time:',
-								value: matchTier(dbResStats, dbResConfig, tierIndex, lastTier),
+								value: ms(matchTier(dbResStats, dbResConfig, tierIndex, lastTier), { long: true }),
 								
 							},
 							{
@@ -98,14 +98,14 @@ exports.run = async (client, message, args) => {
 
 				switch(tierType) {
 					case "warning":
-						awaitWarn(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr);
+						awaitWarn(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
 					break;
 					case "ban":
-						awaitBan(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr);
+						awaitBan(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
 					break;
 
 					case "mute":
-						awaitMute(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr);
+						awaitMute(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
 					break;
 
 
@@ -147,7 +147,7 @@ const punishVar = (dbResStats, dbResConfig, tierIndex, lastTier) => {
 };
 
 
-const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds) => {
+const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, ms) => {
 
 	if((dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
 		console.log("Adding to set");
@@ -184,7 +184,7 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 
 }
 
-const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr) => {
+const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
 	await tagged.send({embed: {
 		color: 0xff0000,
 		author: {
@@ -200,7 +200,7 @@ const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, 
 			},
 			{
 				name: 'Time:',
-				value: matchTier(dbResStats, dbResConfig, tierIndex, lastTier),
+				value: ms(matchTier(dbResStats, dbResConfig, tierIndex, lastTier), { long: true }),
 				
 			},
 			{
@@ -238,7 +238,7 @@ const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, 
 	}, seconds);
 }
 
-const awaitWarn = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr) => {
+const awaitWarn = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
 	tagged.send({embed: {
 		color: 0xeba134,
 		author: {
@@ -277,7 +277,7 @@ const awaitWarn = async(client, message, tagged, dbResStats, userIndex, tierArg,
 	
 
 
-const awaitMute = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr) => {
+const awaitMute = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
 	console.log("Muted!");
 	await tagged.send({embed: {
 		color: 0xff0000,
@@ -294,7 +294,7 @@ const awaitMute = async(client, message, tagged, dbResStats, userIndex, tierArg,
 			},
 			{
 				name: 'Time:',
-				value: matchTier(dbResStats, dbResConfig, tierIndex, lastTier),
+				value: ms(matchTier(dbResStats, dbResConfig, tierIndex, lastTier), { long: true }),
 				
 			},
 			{

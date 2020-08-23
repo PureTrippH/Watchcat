@@ -361,4 +361,5 @@ const updateVer = async(thisConfig, field, val) => {
 	await thisConfig.updateOne({
 		field: val
 	});
+
 }

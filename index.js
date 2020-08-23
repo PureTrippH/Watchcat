@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const { prefix, token } = require('./settings.json');
 const { stringify } = require('querystring');
 const mongoose = require('./utils/mongoose');
+const eggHunt = require("./commands/laelaevents/easteregg.js");
 
 
 const client = new Discord.Client();
@@ -24,6 +25,7 @@ fs.readdir('./events', (err, files) => {
 client.commands = new Discord.Collection();
 client.once('ready', () => {
     console.log("Laela's Watchdog Ready to Guard");
+    //eggHunt.run(client);
 
 });
 
