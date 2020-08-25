@@ -18,7 +18,7 @@ exports.run = async (client) => {
       randomChannel.send("🐓").then(msg => {
         msg.react("🥚");
         console.log("An Egg Has Spawned");
-        msg.awaitReactions((reaction, user) => (user.id != "728702221096845352") && (reaction.emoji.name == '🥚'),
+        msg.awaitReactions((reaction, user) => (user.id != "735559543886446712") && (reaction.emoji.name == '🥚'),
 	    { 
       max: 1, 
       }).then(collected => {
