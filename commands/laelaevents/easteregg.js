@@ -33,7 +33,7 @@ exports.run = async (client) => {
         },
         {
           $inc:{
-            "guildMembers.$.eggCount":10000
+            "guildMembers.$.eggCount":1
           }
         },
          {upsert: true}).exec();
