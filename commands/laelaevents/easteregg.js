@@ -12,7 +12,7 @@ exports.run = async (client) => {
 
     let seconds = ((Math.floor(Math.random() * 10) + 1)*1000);
     let randomIndex = ((Math.floor(Math.random() * 2) + 1));
-    const channelArray = ["727955931551498351"];
+    const channelArray = ["727955931551498351", "727955931551498351"];
     setTimeout(function() {
       let randomChannel = client.channels.cache.get(channelArray[randomIndex - 1]);
       randomChannel.send("🐓").then(msg => {
