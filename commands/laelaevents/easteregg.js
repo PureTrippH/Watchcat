@@ -17,14 +17,14 @@ exports.run = async (client) => {
       let randomChannel = client.channels.cache.get(channelArray[randomIndex - 1]);
       randomChannel.send("🐓").then(msg => {
         msg.react("🥚");
-        
+        console.log("An Egg Has Spawned");
         msg.awaitReactions((reaction, user) => (user.id != "728702221096845352") && (reaction.emoji.name == '🥚'),
 	    { 
       max: 1, 
       }).then(collected => {
         msg.delete();
         let firstReaction = ([...collected.first().users.cache.keys()][1])
-        randomChannel.send(`${client.guilds.cache.get("709865844670201967").member(firstReaction).displayName} got the egg!`).then(msg => {
+        randomChannel.send(`Egg Claimed!`).then(msg => {
           msg.delete({timeout: 1000});
         });
         serverStats.findOneAndUpdate({
