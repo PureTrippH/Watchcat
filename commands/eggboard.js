@@ -57,5 +57,5 @@ const sortArray = (stats) => {
 module.exports.help = {
 	name: "Egg Leaderboard",
 	desc: "Shows Laelaserv Egg Leaderboard",
-	usage: "l^ban (user)"
+	usage: "!!eggboard"
 }
