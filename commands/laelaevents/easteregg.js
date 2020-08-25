@@ -10,7 +10,7 @@ exports.run = async (client) => {
       guildId: "709865844670201967"
     });
 
-    let seconds = ((Math.floor(Math.random() * 10) + 1)*1000);
+    let seconds = ((Math.floor(Math.random() * 300) + 60)*1000);
     let randomIndex = ((Math.floor(Math.random() * 2) + 1));
     const channelArray = ["727955931551498351", "727955931551498351"];
     setTimeout(function() {
