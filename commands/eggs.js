@@ -15,12 +15,12 @@ exports.run = async(client, message, args) => {
 
 console.log(message.guild.id);
 	  exampleEmbed.setColor('#e3bcf7');
-	  exampleEmbed.setFooter('test', "https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139");
+	  exampleEmbed.setFooter('Egg Hunt - 1 Week', "https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139");
 	  exampleEmbed.setTimestamp();
 	  exampleEmbed.setAuthor(`Laela's WatchCat`, 'https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139')
 	  exampleEmbed.setThumbnail('https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139');
-	  exampleEmbed.addFields({ name: `${message.guild.member(dbResStats.guildMembers[userIndex].userID).displayName}`, value: `Eggs: **${dbResStats.guildMembers[userIndex].eggCount}**`, inline: true });
-	  message.channel.send(exampleEmbed);
+	  exampleEmbed.addFields({ name: `${message.guild.member(dbResStats.guildMembers[userIndex].userID).displayName}`, value: `Eggs: **${(typeof(author.eggCount) === 'undefined') ? 0 : author.eggCount}**`, inline: true });
+	  message.author.send(exampleEmbed);
 
 }
 

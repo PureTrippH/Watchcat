@@ -14,7 +14,7 @@ console.log(message.guild.id);
 
 	  let leaders = sortArray(dbResStats);
 	  exampleEmbed.setColor('#e3bcf7');
-	  exampleEmbed.setFooter('test', "https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139");
+	  exampleEmbed.setFooter('Egg Hunt - 1 Week', "https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139");
 	  exampleEmbed.setTimestamp();
 	  exampleEmbed.setAuthor(`Laela's WatchCat`, 'https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139')
 	  exampleEmbed.setThumbnail('https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139');
