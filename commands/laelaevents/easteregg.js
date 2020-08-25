@@ -10,9 +10,9 @@ exports.run = async (client) => {
       guildId: "709865844670201967"
     });
 
-    let seconds = ((Math.floor(Math.random() * 300) + 60)*1000);
+    let seconds = ((Math.floor(Math.random() * 10) + 1)*1000);
     let randomIndex = ((Math.floor(Math.random() * 2) + 1));
-    const channelArray = ["709865845504868447", "724113716550828032", "723278430443143199", "709869018558759002", "709867435515183155"];
+    const channelArray = ["727955931551498351"];
     setTimeout(function() {
       let randomChannel = client.channels.cache.get(channelArray[randomIndex - 1]);
       randomChannel.send("🐓").then(msg => {
