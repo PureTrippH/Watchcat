@@ -3,13 +3,16 @@ exports.run = async (client) => {
 	const serverConfig = require("../../utils/schemas/serverconfig.js");
   const serverStats = require("../../utils/schemas/serverstat.js");
   
-  const serverData = await serverStats.findOne({
-    guildId: "732237195355750441"
-  });
-  (function sendEgg() {
-    let seconds = ((Math.floor(Math.random() * 10) + 1)*1000);
+
+  (async function sendEgg() {
+
+    let dbResStats = await serverStats.findOne({
+      guildId: "709865844670201967"
+    });
+
+    let seconds = ((Math.floor(Math.random() * 600) + 300)*1000);
     let randomIndex = ((Math.floor(Math.random() * 2) + 1));
-    const channelArray = ["732237195980701820", "739315803765342249"];
+    const channelArray = ["709865845504868447", "724113716550828032", "726156971090247782", "723278430443143199", "709867435515183155", "709867478574039121", "709869018558759002"];
     setTimeout(function() {
       let randomChannel = client.channels.cache.get(channelArray[randomIndex - 1]);
       randomChannel.send("🐓").then(msg => {
@@ -19,22 +22,21 @@ exports.run = async (client) => {
 	    { 
       max: 1, 
       }).then(collected => {
-        console.log(collected.first().users);
-        randomChannel.send(`${collected.first().author} got the egg!`);
-        serverData.findOneAndUpdate({
-          guildId: msg.guild.id, 
-				"guildMembers.userID": tagged.id,
-        }, 
-        {
-          $inc:{
-            "guildMembers.$.eggCount":1
-          },
+        msg.delete();
+        let firstReaction = ([...collected.first().users.cache.keys()][1])
+        randomChannel.send(`${client.guilds.cache.get("709865844670201967").member(firstReaction).displayName} got the egg!`).then(msg => {
+          msg.delete({timeout: 1000});
+        });
+        serverStats.findOneAndUpdate({
+          guildId: "709865844670201967", 
+          "guildMembers.userID": firstReaction
         },
         {
-          "arrayFilters": [
-            { "guildMembers.userID": dbResConfig.serverTiers[tierIndex].TierName }
-          ]
-        }).exec();
+          $inc:{
+            "guildMembers.$.eggCount":10000
+          }
+        },
+         {upsert: true}).exec();
 
 
 

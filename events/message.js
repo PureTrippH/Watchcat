@@ -87,7 +87,12 @@ await checkTiers(message, client, mongoose, serverStats, getServerSettings, dbRe
               }
             }
         }).exec()
-        serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": message.author.id} , {
+        serverStats.updateOne(
+          {
+            guildId: message.guild.id, 
+            "guildMembers.userID": message.author.id
+          } , 
+          {
           $inc:{
             "guildMembers.$.messageCount":1
           }}).exec();

@@ -25,7 +25,7 @@ fs.readdir('./events', (err, files) => {
 client.commands = new Discord.Collection();
 client.once('ready', () => {
     console.log("Laela's Watchdog Ready to Guard");
-    //eggHunt.run(client);
+    eggHunt.run(client);
 
 });
 

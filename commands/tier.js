@@ -68,7 +68,7 @@ exports.run = async (client, message, args) => {
 						  icon_url: client.user.avatarURL
 						},
 						description: `Tier By: ${message.author}`,
-						title: `User: ${message.guild.member(tagged) ? message.guild.member(tagged).displayName : null}`,
+						title: `User: ${message.guild.member(tagged).displayName}`,
 						timestamp: new Date(),
 						fields: [
 							{
@@ -168,7 +168,6 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 			serverStats.updateOne({
 				guildId: message.guild.id, 
 				"guildMembers.userID": tagged.id,
-
 			}, 
 			{
 				pastRoles: tagged._roles,
