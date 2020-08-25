@@ -19,7 +19,7 @@ console.log(message.guild.id);
 	  exampleEmbed.setTimestamp();
 	  exampleEmbed.setAuthor(`Laela's WatchCat`, 'https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139')
 	  exampleEmbed.setThumbnail('https://vignette.wikia.nocookie.net/minecraft/images/a/a4/EggNew.png/revision/latest?cb=20190829232139');
-	  exampleEmbed.addFields({ name: `${message.guild.member(dbResStats.guildMembers[userIndex].userID).displayName}`, value: `Eggs: **${(typeof(author.eggCount) === 'undefined') ? 0 : author.eggCount}**`, inline: true });
+	  exampleEmbed.addFields({ name: `${message.guild.member(dbResStats.guildMembers[userIndex].userID).displayName}`, value: `Eggs: **${(typeof(dbResStats.guildMembers[userIndex].eggCount) === 'undefined') ? 0 : dbResStats.guildMembers[userIndex].eggCount}**`, inline: true });
 	  message.author.send(exampleEmbed);
 
 }
