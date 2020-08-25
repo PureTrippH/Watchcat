@@ -12,14 +12,17 @@ exports.run = async(client, message, args) => {
 	  });
 	
 	const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === message.author.id);
-if(!tagged) return message.channel.send("Nope doesnt work.");
+	if(!tagged) return message.channel.send("Nope doesnt work.");
+	if(isNaN(args[1]) || !(parseInt(args[1]))) return message.channel.send("No integer specified.");
 console.log(message.guild.id);
 serverStats.findOneAndUpdate({
 	guildId: "709865844670201967", 
 	"guildMembers.userID": tagged.id
   },
   {
-	  "guildMembers.$.eggCount": 0
+	  $inc: {
+	  	"guildMembers.$.eggCount": parseInt(args[1])
+	  },
   },
    {upsert: true}).exec();
 
@@ -28,7 +31,7 @@ serverStats.findOneAndUpdate({
 }
 
 module.exports.help = {
-	name: "Delete Eggs",
-	desc: "Deletes the tagged users eggs",
-	usage: "!!eggdel"
+	name: "Add Eggs",
+	desc: "Adds to the tagged users eggs",
+	usage: "!!addeggs (user) (amount)"
 }

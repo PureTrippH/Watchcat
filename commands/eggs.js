@@ -5,7 +5,7 @@ exports.run = async(client, message, args) => {
 	const serverStats = require("../utils/schemas/serverstat.js");
 	const fs = require("fs");
 	const exampleEmbed = new Discord.MessageEmbed();
-
+	
 
 	const dbResStats = await serverStats.findOne({
 		guildId: message.guild.id
