@@ -15,7 +15,15 @@ Query the Database to Increment total server message count, Add New Users to Dat
 Is it efficient? No probably not,
 but lets give it a shot for now.
 */
-const thisStats = await serverStats.findOne({
+
+
+const dbResConfig = await serverConfig.findOne({
+		guildId: message.guild.id
+	});
+
+
+
+const dbResStats = await serverStats.findOne({
   guildId: message.guild.id
 }, (err, guildStats) => {
   if(!guildStats) {
@@ -34,29 +42,14 @@ const thisStats = await serverStats.findOne({
 
 
 
-const dbResConfig = await serverConfig.findOne({
-		guildId: message.guild.id
-	});
-
-
-
-const dbResStats = await serverStats.findOne({
-  guildId: message.guild.id
-});
-
-const getServerSettings = await serverConfig.findOne({
-  guildId: message.guild.id
-});
-
-
-await addOne(message, client, mongoose, serverStats, getServerSettings, dbResStats);
-thisStats.guildMembers.forEach(key =>{
-  if(key.messageCount >= 200 && key.userID == message.author.id && getServerSettings && message.member.roles.cache.has(getServerSettings.newUserRole)) {
-    message.member.roles.remove(getServerSettings.newUserRole);
+addOne(message, client, mongoose, serverStats, dbResConfig, dbResStats);
+dbResStats.guildMembers.forEach(key =>{
+  if(key.messageCount >= 200 && key.userID == message.author.id && dbResConfig && message.member.roles.cache.has(dbResConfig.newUserRole)) {
+    message.member.roles.remove(dbResConfig.newUserRole);
   }
 });
 
-await checkTiers(message, client, mongoose, serverStats, getServerSettings, dbResStats, dbResConfig);
+await checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats);
 
 
 
@@ -72,7 +65,7 @@ await checkTiers(message, client, mongoose, serverStats, getServerSettings, dbRe
     cmd.run(client, message, args);
   };
 
-  const addOne = (message, client, mongoose, serverStats, getServerSettings, dbResStats) => {
+  const addOne = (message, client, mongoose, serverStats, dbResConfig, dbResStats) => {
     serverStats.findOneAndUpdate(
       {
         guildId: message.guild.id
@@ -91,14 +84,16 @@ await checkTiers(message, client, mongoose, serverStats, getServerSettings, dbRe
           {
             guildId: message.guild.id, 
             "guildMembers.userID": message.author.id
-          } , 
+          }, 
           {
           $inc:{
             "guildMembers.$.messageCount":1
-          }}).exec();
+          }}).exec().then(() => {
+            message.channel.send("Finished Increment");
+          });
   }
 
-  const checkTiers = async(message, client, mongoose, serverStats, getServerSettings, dbResStats, dbResConfig) => {
+  const checkTiers = async(message, client, mongoose, serverStats, dbResConfig, dbResStats, ) => {
     const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === message.author.id);
   if(!dbResStats.guildMembers[userIndex]) return console.log("Sadchamp");;
 dbResStats.guildMembers[userIndex].punishmentsTiers.forEach(tier =>{
