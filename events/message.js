@@ -89,7 +89,6 @@ await checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats
           $inc:{
             "guildMembers.$.messageCount":1
           }}).exec().then(() => {
-            message.channel.send("Finished Increment");
           });
   }
 
