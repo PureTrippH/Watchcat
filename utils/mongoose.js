@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const settings = require('../settings.json');
 
 module.exports = {
     init: () => {
@@ -12,7 +13,7 @@ module.exports = {
             connectTimeoutMS: 10000,
             family: 4,
         };
-            mongoose.connect("mongodb+srv://admin:sK2rHGMZyHx0lTvc@laelaswatchdog.cqjtg.mongodb.net/LaelasWatchdog?retryWrites=true&w=majority", dbOptions);
+            mongoose.connect(settings.mongoose, dbOptions);
             mongoose.set('useFindAndModify', false);
             mongoose.promise = global.Promise;
             mongoose.connection.on('connected', () => {

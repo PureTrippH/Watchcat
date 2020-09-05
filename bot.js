@@ -4,6 +4,7 @@ const { prefix, token } = require('./settings.json');
 const { stringify } = require('querystring');
 const mongoose = require('./utils/mongoose');
 const eggHunt = require("./commands/laelaevents/easteregg.js");
+const settings = require('settings.json');
 
 
 const client = new Discord.Client();
@@ -38,5 +39,5 @@ commandFiles.forEach(file => {
 });
 
 mongoose.init();
-client.login("NzM1NTU5NTQzODg2NDQ2NzEy.XxiBNQ.AF14sfGrG0tHlvlOB6-Sqr1-GzM");
+client.login(settings.token);
 
