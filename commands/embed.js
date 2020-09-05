@@ -109,18 +109,34 @@ const wantDesc = (client, message, args, collectedtext, filter, fields, color, e
     
 
 const hasImageCheck = (client, message, args, collectedtext, filter, fields, color, embedTar, hasImage) => {
+  let parsedChannel = args[0].replace('<#', '').replace('>', "");
+  const channelRecipient = ((args[0] == null)) ? message.channel : message.guild.channels.cache.get(parsedChannel);
   if(hasImage == true) {
     message.channel.send("Image Selected: Type the image link:")
     message.channel.awaitMessages(filter, {
       max: 1
     }).then(image => {
       embedTar.setImage(image.first().content);
-      message.channel.send(embedTar);
+      if(!(args[0] == null) && !(args[1] == null)) {
+        channelRecipient.messages.fetch(args[1]).then(msg => {
+          msg.edit(embedTar);
+        });
+        return;
+      }
+
+      
+      channelRecipient.send(embedTar);
       return;
     });
   } else {
-  
-    message.channel.send(embedTar);
+    console.log(!(args[0] == null) && !(args[1] == null));
+    if(!(args[0] == null) && !(args[1] == null)) {
+      channelRecipient.messages.fetch(args[1]).then(msg => {
+        msg.edit(embedTar);
+      });
+      return;
+    }
+    channelRecipient.send(embedTar);
   }
 }
 }
@@ -129,5 +145,5 @@ const hasImageCheck = (client, message, args, collectedtext, filter, fields, col
 module.exports.help = {
 	name: "Embed",
 	desc: "Opens the Embed Editor to create Discord Embeds",
-	usage: "l^embed"
+	usage: "!!embed [channel] [id]"
 }

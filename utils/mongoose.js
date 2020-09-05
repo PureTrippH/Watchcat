@@ -12,7 +12,7 @@ module.exports = {
             connectTimeoutMS: 10000,
             family: 4,
         };
-            mongoose.connect(process.env.MONGO_LINK, dbOptions);
+            mongoose.connect("", dbOptions);
             mongoose.set('useFindAndModify', false);
             mongoose.promise = global.Promise;
             mongoose.connection.on('connected', () => {

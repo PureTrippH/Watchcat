@@ -21,7 +21,7 @@ exports.run = async (client, message, args) => {
 	const selectedIndex = dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg);
 
 
-
+	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 	console.log(`${tierArg}: ${tierIndex}`);
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
@@ -41,6 +41,7 @@ exports.run = async (client, message, args) => {
 	}
 	}
 }; 
+}
 
 module.exports.help = {
 	name: "Delete Tier",
@@ -53,7 +54,7 @@ const removedTierFromUser = async(client, message, tagged, dbResConfig, dbResSta
 	console.log(selectedIndex);
 	if(selectedIndex == -1) return message.channel.send("User doesn't have this tiers.");
 	if(dbResStats.guildMembers[userIndex].punishmentsTiers[selectedIndex] == []) return message.channel.send("User has no tiers.");
-	if(dbResStats.guildMembers[userIndex].punishmentsTiers[selectedIndex].tierLevel == 0) {
+	if(dbResStats.guildMembers[userIndex].punishmentsTiers[selectedIndex].tierLevel <= 0) {
 	serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": tagged.id} , {
 		$pull:{
 		  "guildMembers.$.punishmentsTiers": {
@@ -76,4 +77,6 @@ const removedTierFromUser = async(client, message, tagged, dbResConfig, dbResSta
 				{ "punishmentName.tierName": dbResConfig.serverTiers[tierIndex].TierName }
 			] }).exec();
 	}
+
+	message.channel.send(`Sucessfully removed tier T${dbResStats.guildMembers[userIndex].punishmentsTiers[selectedIndex].tierLevel}`);
 };

@@ -1,3 +1,4 @@
+const isMessageCooldown = new Set();
 module.exports = async (client, message) => {
     const serverSettings = require("../data/serversettings.json");
     const mongoose = require('mongoose');
@@ -5,22 +6,19 @@ module.exports = async (client, message) => {
     const serverConfig = require("../utils/schemas/serverconfig.js");
     if(message.author.bot) return;
 
-//Check if Guild Exists in Mongo Collection
-
 if(message.guild) {
 
+//Is the User in the Cooldown for message count?
+if(isMessageCooldown.has(message.author.id)) {
 
-/*
-Query the Database to Increment total server message count, Add New Users to Database and Such. 
-Is it efficient? No probably not,
-but lets give it a shot for now.
-*/
+  console.log(isMessageCooldown);
 
+} else {
 
-const dbResConfig = await serverConfig.findOne({
-		guildId: message.guild.id
-	});
-
+  isMessageCooldown.add(message.author.id);
+  setTimeout(() => {
+    isMessageCooldown.delete(message.author.id);
+  }, 3000)
 
 
 const dbResStats = await serverStats.findOne({
@@ -42,16 +40,51 @@ const dbResStats = await serverStats.findOne({
 
 
 
-addOne(message, client, mongoose, serverStats, dbResConfig, dbResStats);
-dbResStats.guildMembers.forEach(key =>{
-  if(key.messageCount >= 200 && key.userID == message.author.id && dbResConfig && message.member.roles.cache.has(dbResConfig.newUserRole)) {
-    message.member.roles.remove(dbResConfig.newUserRole);
-  }
+
+const user = await serverStats.findOne(
+  {
+    guildId: message.guild.id,
+    "guildMembers.userID": message.author.id
+}, 
+  {
+    guildMembers: {
+      $elemMatch: 
+      {
+        userID: message.author.id
+      }}}, (err, userStat) => {
+        if(!userStat) {
+          serverStats.findOneAndUpdate(
+            {
+              guildId: message.guild.id
+              }, 
+                {
+                  $addToSet: {
+                    guildMembers: {
+                      userID: message.author.id,
+                      messageCount: 1,
+                      punishmentsTiers: [],
+                      medals: []
+                    }
+                  }
+              }).exec()
+        }
+      }
+    );
+
+
+const dbResConfig = await serverConfig.findOne({
+  guildId: message.guild.id
 });
 
-await checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats);
 
+addOne(message, client, mongoose, serverStats, dbResConfig, dbResStats);
+  if(user.guildMembers[0].messageCount >= 161 && dbResConfig && message.member.roles.cache.has(dbResConfig.newUserRole)) {
+    message.member.roles.remove(dbResConfig.newUserRole);
+  }
 
+checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats, user);
+
+}
 
 
     }
@@ -65,21 +98,7 @@ await checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats
     cmd.run(client, message, args);
   };
 
-  const addOne = (message, client, mongoose, serverStats, dbResConfig, dbResStats) => {
-    serverStats.findOneAndUpdate(
-      {
-        guildId: message.guild.id
-        }, 
-          {
-            $addToSet: {
-              guildMembers: {
-                userID: message.author.id,
-                messageCount: 1,
-                punishmentsTiers: [],
-                medals: []
-              }
-            }
-        }).exec()
+  const addOne = (message, client, mongoose, serverStats, dbResConfig, dbResStats, user) => {
         serverStats.updateOne(
           {
             guildId: message.guild.id, 
@@ -88,15 +107,13 @@ await checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats
           {
           $inc:{
             "guildMembers.$.messageCount":1
-          }}).exec().then(() => {
-          });
+          }}).exec();
   }
 
-  const checkTiers = async(message, client, mongoose, serverStats, dbResConfig, dbResStats, ) => {
-    const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === message.author.id);
-  if(!dbResStats.guildMembers[userIndex]) return console.log("Sadchamp");;
-dbResStats.guildMembers[userIndex].punishmentsTiers.forEach(tier =>{
-  if((parseInt(tier.TierForgiveness) + parseInt(tier.OffenderMsgCount)) <= parseInt(dbResStats.guildMembers[userIndex].messageCount)) {
+  const checkTiers = async(message, client, mongoose, serverStats, dbResConfig, dbResStats, user) => {
+    console.log(user.guildMembers[0].userID);
+(user.guildMembers[0].punishmentsTiers).forEach(tier =>{
+  if((parseInt(tier.TierForgiveness) + parseInt(tier.OffenderMsgCount)) <= parseInt(user.guildMembers[0].messageCount)) {
     console.log(tier.tierName);
     serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": message.author.id} , {
       $pull: {

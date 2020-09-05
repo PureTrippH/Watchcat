@@ -11,7 +11,9 @@ exports.run = async (client, message, args) => {
 	const dd = String(date.getDate()).padStart(2, '0');
 	const mm = String(date.getMonth() + 1).padStart(2, '0'); 
 	const yyyy = date.getFullYear();
-
+	let newText = args[0].replace('<@', '').replace('>', "").replace('!', "");
+	console.log(newText);
+	const tagged = await message.guild.member(newText);
 	const banDate = {
 		dd: dd,
 		mm: mm,
@@ -21,44 +23,68 @@ exports.run = async (client, message, args) => {
 	let dbResConfig = await serverConfig.findOne({
 		guildId: message.guild.id
 	});
-	let dbResStats = await serverStats.findOne({
-		guildId: message.guild.id
-	});
-	let newText = args[0].replace('<@!', '').replace('>', "");
-	console.log(newText);
-	const tagged = await message.guild.member(newText);
-	console.log(tagged);
+
+	await serverStats.findOneAndUpdate(
+		{
+		  guildId: message.guild.id
+		  }, 
+			{
+			  $addToSet: {
+				guildMembers: {
+				  userID: tagged.id,
+				  messageCount: 1,
+				  punishmentsTiers: [],
+				  medals: []
+				}
+			  }
+		  }).exec()
+
+	const user = await serverStats.findOne(
+		{
+		   guildId: message.guild.id,
+		  "guildMembers.userID": message.author.id
+	  }, 
+		{
+		  guildMembers: {
+			$elemMatch: 
+			{
+			  userID: tagged.id
+			}}});
+
+
+
 	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg);
-	console.log(`${tierArg}: ${tierIndex}`);
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
+
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
+
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tiering");
             message.channel.createInvite({
 				maxAge: 86400,
 				maxUses: 1
 			}).then (async function(newInvite){
-				const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === tagged.id);
-				console.log(dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)]);
+				console.log(user.guildMembers[0]);
+				console.log(user.guildMembers[0].punishmentsTiers[user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)]);
 				
 				const tierArray = dbResConfig.serverTiers[tierIndex].TierTimes
 
-				console.log("The Tier: " + dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
+				console.log("The Tier: " + user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
 
 				
 
-				console.log(dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
+				console.log(user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg));
 
 				let inviteStr = ("https://discord.gg/" + newInvite.code)
 
 				
-				const lastTier = (typeof dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : dbResStats.guildMembers[userIndex].punishmentsTiers[dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
-				const seconds = matchTier(dbResStats, dbResConfig, tierIndex, lastTier);
-				addTier(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, banDate, lastTier, seconds);
-				
-				console.log(`Last Tier: ${lastTier}`);
+				const lastTier = (typeof user.guildMembers[0].punishmentsTiers[user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : user.guildMembers[0].punishmentsTiers[user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
+				console.log(`HEY UR LAST TIER WAS ${lastTier}`);
+				const seconds = matchTier(user, dbResConfig, tierIndex, lastTier);
+				addTier(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, banDate, lastTier, seconds);
 
 
-				if(dbResStats.logChannel != "blank") {
+
+				if(user.logChannel != "blank") {
 					let logChannel = client.channels.cache.get(dbResConfig.logChannel);
 
 					logChannel.send({embed: {
@@ -77,7 +103,7 @@ exports.run = async (client, message, args) => {
 							},
 							{
 								name: 'Time:',
-								value: ms(matchTier(dbResStats, dbResConfig, tierIndex, lastTier), { long: true }),
+								value: ms(matchTier(user, dbResConfig, tierIndex, lastTier), { long: true }),
 								
 							},
 							{
@@ -94,18 +120,17 @@ exports.run = async (client, message, args) => {
 					})
 				}
 
-				const tierType = punishVar(dbResStats, dbResConfig, tierIndex, lastTier);
-
+				const tierType = punishVar(user, dbResConfig, tierIndex, lastTier);
 				switch(tierType) {
 					case "warning":
-						awaitWarn(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
+						awaitWarn(client, message, tagged, user, date, lastTier, reason, args);
 					break;
 					case "ban":
-						awaitBan(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
+						awaitBan(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
 					break;
 
 					case "mute":
-						awaitMute(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
+						awaitMute(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
 					break;
 
 
@@ -123,7 +148,7 @@ module.exports.help = {
 }
 
 
-const matchTier = (dbResStats, dbResConfig, tierIndex, lastTier) => {
+const matchTier = (user, dbResConfig, tierIndex, lastTier) => {
 	console.log("Running");
 	if(parseInt(lastTier) >= (parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) - 1)) {
 		console.log("above tier: "+ dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1]);
@@ -135,7 +160,7 @@ const matchTier = (dbResStats, dbResConfig, tierIndex, lastTier) => {
 	}
 };
 
-const punishVar = (dbResStats, dbResConfig, tierIndex, lastTier) => {
+const punishVar = (user, dbResConfig, tierIndex, lastTier) => {
 	console.log("Running");
 	if(parseInt(lastTier) >= (parseInt(dbResConfig.serverTiers[tierIndex].banOrMute.length) - 1)) {
 		return (dbResConfig.serverTiers[tierIndex].banOrMute[parseInt(dbResConfig.serverTiers[tierIndex].banOrMute.length) -1])
@@ -147,9 +172,12 @@ const punishVar = (dbResStats, dbResConfig, tierIndex, lastTier) => {
 };
 
 
-const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, ms) => {
+const addTier = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, ms) => {
+	console.log(tagged._roles);
 
-	if((dbResStats.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
+	let arrayOfRoles = tagged._roles
+
+	if((user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
 		console.log("Adding to set");
 		serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": tagged.id} , {
 			$addToSet:{
@@ -158,9 +186,9 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 				dateOfTier: date.mm + '/' + date.dd + '/' + date.yyyy,
 				tierLevel: 1,
 				TierForgiveness: (dbResConfig.serverTiers[tierIndex].TierForgiveness*(lastTier + 1)),
-				OffenderMsgCount: dbResStats.guildMembers[userIndex].messageCount,
+				OffenderMsgCount: user.guildMembers[0].messageCount,
 				tierTime: seconds,
-				pastRoles: tagged._roles
+				pastRoles: arrayOfRoles
 			  }
 			}}, {upsert: true}).exec();
 		} else {
@@ -170,8 +198,13 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 				"guildMembers.userID": tagged.id,
 			}, 
 			{
-				pastRoles: tagged._roles,
-				tierTime: seconds,
+	
+				$set:{
+					"guildMembers.$.punishmentsTiers.$[punishmentName].pastRoles": {
+						arrayOfRoles,
+					},
+				},
+				"guildMembers.$.punishmentsTiers.$[punishmentName].tierTime": seconds,
 				$inc:{
 				  "guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
 				},
@@ -183,7 +216,7 @@ const addTier = async(client, message, tagged, dbResStats, userIndex, tierArg, s
 
 }
 
-const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
+const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
 	await tagged.send({embed: {
 		color: 0xff0000,
 		author: {
@@ -199,7 +232,7 @@ const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, 
 			},
 			{
 				name: 'Time:',
-				value: ms(matchTier(dbResStats, dbResConfig, tierIndex, lastTier), { long: true }),
+				value: ms(matchTier(user, dbResConfig, tierIndex, lastTier), { long: true }),
 				
 			},
 			{
@@ -222,7 +255,7 @@ const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, 
 
 	tagged.send(`
 	Tier: T${lastTier + 1}. 
-	Time: ${matchTier(dbResStats, dbResConfig, tierIndex, lastTier)}. 
+	Time: ${matchTier(user, dbResConfig, tierIndex, lastTier)}. 
 	Reason: ${reason}.
 	Invite: ${inviteStr}
 	`);
@@ -237,14 +270,14 @@ const awaitBan = async(client, message, tagged, dbResStats, userIndex, tierArg, 
 	}, seconds);
 }
 
-const awaitWarn = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
+const awaitWarn = async(client, message, tagged, user, date, lastTier, reason, args) => {
 	tagged.send({embed: {
 		color: 0xeba134,
 		author: {
 		  name: message.author.username,
 		  icon_url: client.user.avatarURL
 		},
-		title: `Laela's Watchdog's`,
+		title: `Laela's Watchcat's`,
 		timestamp: new Date(),
 		description: `This Citation was created by: ${message.author}`,
 		fields: [
@@ -268,7 +301,7 @@ const awaitWarn = async(client, message, tagged, dbResStats, userIndex, tierArg,
 	  }
 	});
 
-	message.channel.send(`Sucessfully warned <@${tagged.id}> for T${lastTier + 1}`);
+	message.channel.send(`Sucessfully warned <@${tagged.id}> for  Tier ${lastTier + 1}`);
 
 	return;
 
@@ -276,7 +309,7 @@ const awaitWarn = async(client, message, tagged, dbResStats, userIndex, tierArg,
 	
 
 
-const awaitMute = async(client, message, tagged, dbResStats, userIndex, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
+const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
 	console.log("Muted!");
 	await tagged.send({embed: {
 		color: 0xff0000,
@@ -293,7 +326,7 @@ const awaitMute = async(client, message, tagged, dbResStats, userIndex, tierArg,
 			},
 			{
 				name: 'Time:',
-				value: ms(matchTier(dbResStats, dbResConfig, tierIndex, lastTier), { long: true }),
+				value: ms(matchTier(user, dbResConfig, tierIndex, lastTier), { long: true }),
 				
 			},
 			{
@@ -319,17 +352,43 @@ await (tagged._roles).forEach(role => {
 });
 tagged.roles.add(dbResConfig.mutedRole);
 }
-let dbResStatsUpdate = await serverStats.findOne({
-	guildId: message.guild.id
-});
-const mentionedTier = (dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
+let dbResStatsUpdate = await serverStats.findOne(
+	{
+	   guildId: message.guild.id,
+	  "guildMembers.userID": message.author.id
+  }, 
+	{
+	  guildMembers: {
+		$elemMatch: 
+		{
+		  userID: tagged.id
+		}}}, (err, userStat) => {
+		  if(!userStat) {
+			serverStats.findOneAndUpdate(
+			  {
+				guildId: message.guild.id
+				}, 
+				  {
+					$addToSet: {
+					  guildMembers: {
+						userID: tagged.id,
+						messageCount: 1,
+						punishmentsTiers: [],
+						medals: []
+					  }
+					}
+				}).exec()
+		  }
+		}
+	  );
+const mentionedTier = (dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
 console.log(mentionedTier);
 message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
 await setTimeout(() => {
 	try {
-		console.log(dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers);
+		console.log(dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles);
 		tagged.roles.remove(dbResConfig.mutedRole);
-		(dbResStatsUpdate.guildMembers[userIndex].punishmentsTiers[mentionedTier].pastRoles).forEach(role => {
+		(dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles).forEach(role => {
 			tagged.roles.add(role);
 		});
 	} catch(err) {console.log(err);}

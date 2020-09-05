@@ -12,6 +12,7 @@ exports.run = async(client, message, args) => {
 	  });
 	
 	const userIndex = dbResStats.guildMembers.findIndex(user => user.userID === message.author.id);
+	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 	if(!tagged) return message.channel.send("Nope doesnt work.");
 	if(isNaN(args[1]) || !(parseInt(args[1]))) return message.channel.send("No integer specified.");
 console.log(message.guild.id);
@@ -28,6 +29,7 @@ serverStats.findOneAndUpdate({
 
 
 
+}
 }
 
 module.exports.help = {
