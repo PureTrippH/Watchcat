@@ -1,6 +1,6 @@
 const fs = require('fs');
 const Discord = require('discord.js');
-const settings = require('settings.json');
+const settings = require('./settings.json');
 
 const { ShardingManager } = require('discord.js');
 const manager = new ShardingManager('./bot.js', { token: settings.token });

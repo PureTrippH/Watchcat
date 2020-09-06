@@ -1,14 +1,13 @@
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix, token } = require('./settings.json');
 const { stringify } = require('querystring');
 const mongoose = require('./utils/mongoose');
 const eggHunt = require("./commands/laelaevents/easteregg.js");
-const settings = require('settings.json');
+const settings = require('./settings.json');
 
 
 const client = new Discord.Client();
-client.prefix = prefix;
+client.prefix = settings.prefix;
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith(".js"));
 
 
