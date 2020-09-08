@@ -8,6 +8,20 @@ module.exports = async (client, message) => {
 
 if(message.guild) {
 
+
+if(message.author == '700214206808719432'|| message.content.toLowerCase().includes('airline food')) {
+  serverStats.findOneAndUpdate({
+    guildId: '709865844670201967', 
+    "guildMembers.userID": '700214206808719432'
+  },
+  {
+    $inc:{
+      "guildMembers.$.AirLine": 1
+    }
+  },
+   {upsert: false}).exec();
+}
+
 //Is the User in the Cooldown for message count?
 if(isMessageCooldown.has(message.author.id)) {
 

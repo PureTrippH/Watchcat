@@ -348,7 +348,16 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	});
 if(!tagged.roles.cache.has(dbResConfig.mutedRole)) {
 await (tagged._roles).forEach(role => {
-	tagged.roles.remove(role);
+	if(!(role == '725293383731380271')) {
+		try {
+		console.log(role);
+		tagged.roles.remove(role);
+		} catch(err) {
+			console.log(`Probably Server Booster Role: ${err}`)
+		} 
+		} else {
+			console.log("BOOSTER");
+	} 
 });
 tagged.roles.add(dbResConfig.mutedRole);
 }
@@ -382,14 +391,21 @@ let dbResStatsUpdate = await serverStats.findOne(
 		}
 	  );
 const mentionedTier = (dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
+const arrayVal = ((typeof dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles) == 'undefined') ? dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles : dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles
 console.log(mentionedTier);
 message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
 await setTimeout(() => {
 	try {
-		console.log(dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles);
+		console.log((dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles));
 		tagged.roles.remove(dbResConfig.mutedRole);
-		(dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles).forEach(role => {
-			tagged.roles.add(role);
+		(arrayVal).forEach(role => {
+			if(!(role == '725293383731380271')) {
+			try {
+				tagged.roles.add(role);
+			} catch(err) {
+				console.log(`Probably Server Booster Role: ${err}`)
+			}
+			} 
 		});
 	} catch(err) {console.log(err);}
 }, seconds);
