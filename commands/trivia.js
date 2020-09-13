@@ -136,7 +136,8 @@ exports.run = async (client, message, args) => {
 
 
 module.exports.help = {
-	name: "Trivia",
+    name: "Trivia",
+    type: "fun",
 	desc: "View a Trivia question an Answer it.",
 	usage: "!!trivia"
 }

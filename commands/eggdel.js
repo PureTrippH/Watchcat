@@ -29,6 +29,7 @@ serverStats.findOneAndUpdate({
 
 module.exports.help = {
 	name: "Delete Eggs",
+	type: "event",
 	desc: "Deletes the tagged users eggs",
 	usage: "!!eggdel"
 }

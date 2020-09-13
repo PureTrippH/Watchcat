@@ -56,6 +56,7 @@ exports.run = async (client, message, args) => {
 
 module.exports.help = {
 	name: "Delete Tier",
+	type: "moderation",
 	desc: "Deletes a Users Tier",
 	usage: "!!deltier (user) (tier)"
 }

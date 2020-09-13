@@ -108,6 +108,7 @@ const punishaudit = (reason, type, user) => {
 
 module.exports.help = {
 	name: "Ban",
+	type: "moderation",
 	desc: "Do I really have to explain... ._.",
 	usage: "l^ban (user)"
 }

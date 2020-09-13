@@ -24,9 +24,10 @@ fs.readdir('./events', (err, files) => {
 });
 
 client.commands = new Discord.Collection();
-client.once('ready', () => {
+client.once('ready', async() => {
+    const guildCount = await client.shard.fetchClientValues('guilds.cache.size')
     console.log("Laela's Watchdog Ready to Guard");
-    airLineCount(client);
+    client.user.setPresence({ activity: { name: `Watching: ${guildCount} Servers!!` }, status: 'idle' });
     //eggHunt.run(client);
 
 });
@@ -41,23 +42,3 @@ commandFiles.forEach(file => {
 mongoose.init();
 client.login(settings.token);
 
-const airLineCount = async(client) => {
-    const serverStats = require("./utils/schemas/serverstat.js");
-    const user = await serverStats.findOne(
-		{
-		   guildId: "709865844670201967",
-		  "guildMembers.userID": "700214206808719432"
-	  }, 
-		{
-		  guildMembers: {
-			$elemMatch: 
-			{
-			  userID: "700214206808719432"
-            }}});
-        console.log(user.guildMembers);
-        if((typeof user.guildMembers[0].AirLine) == 'undefined') {
-            client.user.setPresence({ activity: { name: `Min Airline Food Count: 0` }, status: 'idle' });
-        } else {
-            client.user.setPresence({ activity: { name: `Min Airline Food Count: ${user.guildMembers[0].AirLine}` }, status: 'idle' });
-        }
-}

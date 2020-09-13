@@ -28,7 +28,8 @@ exports.run = async (client, message, args) => {
 };
 
 module.exports.help = {
-	name: "Nothing To See Here",
+  name: "Nothing To See Here",
+  type: "fun",
 	desc: "This is Hidden. Dont Run it!",
 	usage: "l^badger"
 }

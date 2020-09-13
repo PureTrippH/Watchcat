@@ -143,6 +143,7 @@ exports.run = async (client, message, args) => {
 
 module.exports.help = {
 	name: "Tier Ban",
+	type: "moderation",
 	desc: "Bans the User for the Tier Time (WARNING: This feature is experimental. Do NOT Use it for real yet) [ALSO, DO NOT JOKE WITH THIS COMMAND. This can lead to adding a tier NO MATTER WHAT!]",
 	usage: "l^tierban (user) (tier)"
 }
@@ -371,29 +372,12 @@ let dbResStatsUpdate = await serverStats.findOne(
 		$elemMatch: 
 		{
 		  userID: tagged.id
-		}}}, (err, userStat) => {
-		  if(!userStat) {
-			serverStats.findOneAndUpdate(
-			  {
-				guildId: message.guild.id
-				}, 
-				  {
-					$addToSet: {
-					  guildMembers: {
-						userID: tagged.id,
-						messageCount: 1,
-						punishmentsTiers: [],
-						medals: []
-					  }
-					}
-				}).exec()
-		  }
-		}
-	  );
+		}}});
 const mentionedTier = (dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
 const arrayVal = ((typeof dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles) == 'undefined') ? dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles : dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles
 console.log(mentionedTier);
 message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
+
 await setTimeout(() => {
 	try {
 		console.log((dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles));
@@ -408,5 +392,5 @@ await setTimeout(() => {
 			} 
 		});
 	} catch(err) {console.log(err);}
-}, seconds);
+}, (seconds.MAX_SAFE_INTEGER));
 }

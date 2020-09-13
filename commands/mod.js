@@ -55,7 +55,8 @@ exports.run = async (client, message, args) => {
 }
 
 module.exports.help = {
-	name: "Warn",
+  name: "Warn",
+  type: "moderation",
 	desc: "Sends a user a DM warning them of an offense, but doesn't add a tier",
 	usage: "l^warn (user) [reason]"
 }

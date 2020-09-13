@@ -26,6 +26,7 @@ console.log(message.guild.id);
 
 module.exports.help = {
 	name: "Eggs",
+	type: "event",
 	desc: "Shows Your Egg Count",
 	usage: "!!eggs"
 }

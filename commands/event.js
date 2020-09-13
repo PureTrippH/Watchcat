@@ -58,6 +58,7 @@ exports.run = async (client, message, args) => {
 
 module.exports.help = {
 	name: "config",
+	type: "utility",
 	desc: "Opens your Server's Config.",
 	usage: "l^config"
 }

@@ -133,6 +133,7 @@ const punishaudit = (reason, type, user, time) => {
 
 module.exports.help = {
 	name: "Tempban",
+	type: "moderation",
 	desc: "Do I really have to explain... ._.",
 	usage: "l^tempban (user) (time) [reason]"
 }

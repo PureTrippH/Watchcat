@@ -56,6 +56,7 @@ const sortArray = (stats) => {
 
 module.exports.help = {
 	name: "Egg Leaderboard",
+	type: "event",
 	desc: "Shows Laelaserv Egg Leaderboard",
 	usage: "!!eggboard"
 }
