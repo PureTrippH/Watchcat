@@ -1,2 +1,1 @@
-# LaelasWatchdog
-A Security Discord Bot with the Aim of protecting Servers (Currently only verification)
+![LaelasLogo](https://i.imgur.com/Bx9c2YJ.png)
