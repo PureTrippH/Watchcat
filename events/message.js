@@ -146,7 +146,7 @@ checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats, user
             icon_url: client.user.avatarURL
           },
           description: `Tier Forgiven: ${message.guild.member(message.author) ? message.guild.member(message.author).displayName : null}`,
-          title: `User: ${message.author}`,
+          title: `User: ${message.guild.member(message.author) ? message.guild.member(message.author).displayName : null}`,
           timestamp: new Date(),
           fields: [
             {

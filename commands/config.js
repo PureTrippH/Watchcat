@@ -49,12 +49,12 @@ exports.run = async (client, message, args) => {
 		timestamp: new Date(),
 		fields: [
 			{
-				name: '1️⃣ Role:',
+				name: '1️⃣ Verify Role:',
 				value: dbRes.removedRole,
 				
 			},
 			{
-				name: '2️⃣ Channel:',
+				name: '2️⃣ Verification Channel:',
 				value: dbRes.verChannel,
 				
 			},
@@ -79,7 +79,7 @@ exports.run = async (client, message, args) => {
 				
 			},
 			{
-				name: '7️⃣ Restricted Role:',
+				name: '7️⃣ Restricted Role (The Role that makes it so no one can see the rest of the server):',
 				value: dbRes.unverifiedRole,
 				
 			},

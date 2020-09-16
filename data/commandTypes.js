@@ -1,3 +1,3 @@
 module.exports.cmdTypes = {
-    types: ["fun", "event", "moderation", "utility", "user"]
+    types: ["fun", "event", "moderation", "utility", "user", "misc"]
   }
