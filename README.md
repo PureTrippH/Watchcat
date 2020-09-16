@@ -8,3 +8,5 @@ Laelas Watchcat is a security and moderation bot for Discord. Well, I guess its 
 
 - Jeopardy: Laela's Watchcat supports its own Jeopardy Minigame, which will give you prompts from the TV show, and rank you among the rest of your server.
 
+# For People Wanting to Contribute, What Do I Need to Know To Contribute?
+        - Just a basic understanding on how both Frontends and Backends communicate. In a couple of versions, the emphasis on querying data and opening ports in the backend will greatly increase. I will admit the code is messy (Dont bully me for that. That is why Im here). Most of this lies in the queries so if you want to get started, optimizing MongoDB Queries is the WAY to go.
