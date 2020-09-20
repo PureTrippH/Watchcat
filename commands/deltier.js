@@ -92,7 +92,6 @@ const removedTierFromUser = async(client, message, tagged, dbResConfig, dbResSta
 			] }).exec();
 	}
 	try {
-		console.log(user.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles);
 		(user.guildMembers[0].punishmentsTiers[selectedIndex].pastRoles.arrayOfRoles).forEach(role => {
 			tagged.roles.add(role);
 		});

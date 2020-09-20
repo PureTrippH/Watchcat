@@ -52,7 +52,6 @@ exports.run = async (client, message, args) => {
 			}}});
 
 
-
 	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg);
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 
@@ -63,7 +62,6 @@ exports.run = async (client, message, args) => {
 				maxAge: 86400,
 				maxUses: 1
 			}).then (async function(newInvite){
-				console.log(user.guildMembers[0]);
 				console.log(user.guildMembers[0].punishmentsTiers[user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)]);
 				
 				const tierArray = dbResConfig.serverTiers[tierIndex].TierTimes
