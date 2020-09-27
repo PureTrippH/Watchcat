@@ -8,6 +8,7 @@ exports.run = async (client, message, args) => {
 	const ms = require("ms");
 	const fs = require("fs");
 	const mongoose = require('mongoose');
+	const cron = require('node-cron');
 	const serverConfig = require("../utils/schemas/serverconfig.js");
 	const serverStats = require("../utils/schemas/serverstat.js");
 	const queries = require("../utils/queries/queries.js");
@@ -60,7 +61,7 @@ exports.run = async (client, message, args) => {
 					timestamp: new Date(),
 					fields: [
 						{
-							name: `Tier (T${lastTier + 1}):`,
+							name: `Tier:`,
 							value: dbResConfig.serverTiers[tierIndex].TierName,
 						},
 						{
@@ -86,11 +87,11 @@ exports.run = async (client, message, args) => {
 					awaitWarn(client, message, tagged, user, date, lastTier, reason, args);
 				break;
 				case "ban":
-					awaitBan(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
+					awaitBan(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, cron);
 				break;
 
 				case "mute":
-					awaitMute(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms);
+					awaitMute(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, cron);
 				break;
 			}	
 		});
@@ -169,7 +170,7 @@ const addTier = async(client, message, tagged, user, tierArg, serverStats, dbRes
 
 }
 
-const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
+const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, cron) => {
 	await tagged.send({embed: {
 		color: 0xff0000,
 		author: {
@@ -218,11 +219,19 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 		throw err;
 	})
 	message.channel.send(`Sucessfully banned <@${tagged.id}> for T${lastTier + 1}`);
-	setTimeout(() => {
+
+	let days = seconds/(60*60*24*1000);
+	let hours = ((days % 1)*24 );
+	let min = ((hours % 1)*60 );
+	let sec = ((min % 1)*60 );
+
+	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${((Math.trunc(days) <= 0 ) ? '*' :  Math.trunc(days)  )} * *`, function() {
 		try {
-		message.guild.members.unban(tagged.id, {reason: "They have served their sentence"});
-		} catch(err) {console.log(err);}
-	}, seconds);
+			message.guild.members.unban(tagged.id, {reason: "They have served their sentence"});
+			} catch(err) {console.log(err);}
+		job.stop();
+	  });
+
 }
 
 
@@ -266,7 +275,7 @@ const awaitWarn = async(client, message, tagged, user, date, lastTier, reason, a
 	
 
 
-const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms) => {
+const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, cron) => {
 	console.log("Muted!");
 	await tagged.send({embed: {
 		color: 0xff0000,
@@ -278,7 +287,7 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 		timestamp: new Date(),
 		fields: [
 			{
-				name: 'Tier ${lastTier + 1}:',
+				name: `Tier ${lastTier + 1}:`,
 				value: dbResConfig.serverTiers[tierIndex].TierName,
 			},
 			{
@@ -315,7 +324,8 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 				console.log("BOOSTER");
 		} 
 	});
-	tagged.roles.add(dbResConfig.mutedRole);
+		tagged.roles.add(dbResConfig.mutedRole);
+		console.log("Added Mute Role");
 	}
 	let dbResStatsUpdate = await serverStats.findOne(
 		{
@@ -333,7 +343,13 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	console.log(mentionedTier);
 	message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
 
-	await setTimeout(() => {
+	let days = seconds/(60*60*24*1000);
+	let hours = ((days % 1)*24 );
+	let min = ((hours % 1)*60 );
+	let sec = ((min % 1)*60 );
+
+	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${((Math.trunc(days) <= 0 ) ? '*' :  Math.trunc(days)  )} * *`, function() {
+		console.log("Back Into the Add Roles");
 		try {
 			tagged.roles.remove(dbResConfig.mutedRole);
 			(arrayVal).forEach(role => {
@@ -346,5 +362,12 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 				} 
 			});
 		} catch(err) {console.log(err);}
-	}, (seconds.MAX_SAFE_INTEGER));
-}
+		job.stop();
+	  });
+	}
+
+
+/*	await setTimeout(() => {
+
+	}, ((seconds > 2147483647) ? 2147483647 : seconds));
+}*/
