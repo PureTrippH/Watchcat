@@ -230,7 +230,7 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 	const dayOfTheMonthBan = new Date()
 	dayOfTheMonthBan.setDate(dayOfTheMonthBan.getDate() + days);
 
-	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonthBan.getDate()} ${dayOfTheMonthBan.getMonth()} *`, function() {
+	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonthBan.getDate()} ${dayOfTheMonthBan.getMonth() + 1} *`, function() {
 		try {
 			message.guild.members.unban(tagged.id, {reason: "They have served their sentence"});
 			} catch(err) {console.log(err);}
@@ -361,9 +361,9 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	const dayOfTheMonth = new Date()
 	dayOfTheMonth.setDate(dayOfTheMonth.getDate() + days);
 
-	console.log(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonth.getDate()} ${dayOfTheMonth.getMonth()} *`);
+	console.log(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonth.getDate()} ${dayOfTheMonth.getMonth() + 1} *`);
 
-	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonth.getDate()} ${dayOfTheMonth.getMonth()} *`, function() {
+	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonth.getDate()} ${dayOfTheMonth.getMonth() + 1} *`, function() {
 		try {
 			tagged.roles.remove(dbResConfig.mutedRole);
 			(arrayVal).forEach(role => {
