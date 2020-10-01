@@ -16,7 +16,7 @@ exports.run = async (client, message, args) => {
 
 	dbRes.serverTiers.forEach(tier => {
 		tierList.addFields(
-			{ name: `${tier.TierName}`, value: `${tier.TierTimes}`, inline: false }
+			{ name: `${tier.TierName}`, value: `${ms(tier.TierTimes)}`, inline: false }
 		  )
 		tierList.addFields(
 			{ name: `${tier.TierName} Forgiveness`, value: `${tier.TierForgiveness} Messages`, inline: false }

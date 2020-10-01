@@ -4,23 +4,12 @@ module.exports = async (client, message) => {
     const mongoose = require('mongoose');
     const serverStats = require("../utils/schemas/serverstat.js");
     const serverConfig = require("../utils/schemas/serverconfig.js");
+    const queries = require('../utils/queries/queries.js');
     if(message.author.bot) return;
 
 if(message.guild) {
 
 
-if(message.author == '700214206808719432'|| message.content.toLowerCase().includes('airline food')) {
-  serverStats.findOneAndUpdate({
-    guildId: '709865844670201967', 
-    "guildMembers.userID": '700214206808719432'
-  },
-  {
-    $inc:{
-      "guildMembers.$.AirLine": 1
-    }
-  },
-   {upsert: false}).exec();
-}
 
 //Is the User in the Cooldown for message count?
 if(isMessageCooldown.has(message.author.id)) {
@@ -28,62 +17,10 @@ if(isMessageCooldown.has(message.author.id)) {
   console.log(isMessageCooldown);
 
 } else {
+console.log("adding a user.");
 
-  isMessageCooldown.add(message.author.id);
-  setTimeout(() => {
-    isMessageCooldown.delete(message.author.id);
-  }, 3000)
-
-
-const dbResStats = await serverStats.findOne({
-  guildId: message.guild.id
-}, (err, guildStats) => {
-  if(!guildStats) {
-    console.log("No Data Found!");
-    //Creates a New Stats Schema
-    const newStats = new serverStats({
-      _id: mongoose.Types.ObjectId(),
-      guildId: message.guild.id,
-      messageCountTotal: 0,
-      guildMembersInt: client.guilds.cache.get(message.guild.id).memberCount,
-      guildMembers: []
-    });
-    newStats.save();
-  }
-});
-
-
-
-
-const user = await serverStats.findOne(
-  {
-    guildId: message.guild.id,
-    "guildMembers.userID": message.author.id
-}, 
-  {
-    guildMembers: {
-      $elemMatch: 
-      {
-        userID: message.author.id
-      }}}, (err, userStat) => {
-        if(!userStat) {
-          serverStats.findOneAndUpdate(
-            {
-              guildId: message.guild.id
-              }, 
-                {
-                  $addToSet: {
-                    guildMembers: {
-                      userID: message.author.id,
-                      messageCount: 1,
-                      punishmentsTiers: [],
-                      medals: []
-                    }
-                  }
-              }).exec()
-        }
-      }
-    );
+const dbResStats = await queries.queryServerStats(message.guild.id, client);
+const user = await queries.queryUser(message.guild.id, message.author.id);
 
 
 const dbResConfig = await serverConfig.findOne({
@@ -97,6 +34,13 @@ addOne(message, client, mongoose, serverStats, dbResConfig, dbResStats);
   }
 
 checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats, user);
+
+
+  
+isMessageCooldown.add(message.author.id);
+setTimeout(() => {
+  isMessageCooldown.delete(message.author.id);
+}, 5000);
 
 }
 
@@ -112,7 +56,7 @@ checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats, user
     cmd.run(client, message, args);
   };
 
-  const addOne = (message, client, mongoose, serverStats, dbResConfig, dbResStats, user) => {
+ const addOne = (message, client, mongoose, serverStats, dbResConfig, dbResStats, user) => {
         serverStats.updateOne(
           {
             guildId: message.guild.id, 
@@ -125,7 +69,6 @@ checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats, user
   }
 
   const checkTiers = async(message, client, mongoose, serverStats, dbResConfig, dbResStats, user) => {
-    console.log(user.guildMembers[0].userID);
 (user.guildMembers[0].punishmentsTiers).forEach(tier =>{
   if((parseInt(tier.TierForgiveness) + parseInt(tier.OffenderMsgCount)) <= parseInt(user.guildMembers[0].messageCount)) {
     console.log(tier.tierName);

@@ -33,9 +33,28 @@ const user = await serverStats.findOne(
               }
             }
           })}
-        });
-
+        }).limit(1).lean();
+        
         return user;
+};
+
+const queryServerStats = async(guild, client) => {
+  return await serverStats.findOne({
+    guildId: guild
+  }, (err, guildStats) => {
+    if(!guildStats) {
+      console.log("No Data Found!");
+      //Creates a New Stats Schema
+      const newStats = new serverStats({
+        _id: mongoose.Types.ObjectId(),
+        guildId: guild,
+        messageCountTotal: 0,
+        guildMembersInt: client.guilds.cache.get(guild).memberCount,
+        guildMembers: []
+      });
+      newStats.save();
+    }
+  }).limit(1).lean();
 };
 
 const queryServerConfig = async(guild) => {
@@ -58,9 +77,9 @@ const queryServerConfig = async(guild) => {
 
 			newConfig.save();
 		}
-  },{upsert:true});
+  },{upsert:true}).limit(1).lean();
 };
 
-module.exports = {queryServerConfig, queryUser}
+module.exports = {queryServerConfig, queryUser, queryServerStats}
 
 //Hi

@@ -6,6 +6,8 @@ exports.run = async (client, message, args) => {
     const serverStats = require("../utils/schemas/serverstat");
     const Trivia = new Discord.MessageEmbed();
     const TriviaWrong = new Discord.MessageEmbed();
+
+    console.log("runs command");
     if(args[0]) {
     switch(args[0].toLowerCase()) {
 		case "board":

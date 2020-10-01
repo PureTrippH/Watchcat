@@ -313,18 +313,19 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	  }
 	});
 	if(!tagged.roles.cache.has(dbResConfig.mutedRole)) {
-	await (tagged._roles).forEach(role => {
+	await tagged.roles.set([]).then(()=> {
+		tagged.roles.add(dbResConfig.mutedRole);
+	}); /*(tagged._roles).forEach(role => {
 		if(!(role == '725293383731380271')) {
-			try {
+			/try {
 			console.log(role);
 			tagged.roles.remove(role).catch(err => {console.log(`Probably Server Booster Role or Staff: ${err}`)});
 			} catch(err) {
+				throw new Exception("Cant Take Role, but lets continue");
 			} 
-			} else {
-				console.log("BOOSTER");
-		} 
-	});
-		tagged.roles.add(dbResConfig.mutedRole);
+			}
+	});*/
+		
 		console.log("Added Mute Role");
 	}
 	let dbResStatsUpdate = await serverStats.findOne(
@@ -347,9 +348,12 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	let hours = ((days % 1)*24 );
 	let min = ((hours % 1)*60 );
 	let sec = ((min % 1)*60 );
+	const date = new Date().getDate();
 
-	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${((Math.trunc(days) <= 0 ) ? '*' :  Math.trunc(days)  )} * *`, function() {
-		console.log("Back Into the Add Roles");
+	console.log(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${((Math.trunc(days) <= 0 ) ? '*' :  Math.trunc(days)  )} * *`);
+	
+	console.log(date);
+	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} * * *`, function() {
 		try {
 			tagged.roles.remove(dbResConfig.mutedRole);
 			(arrayVal).forEach(role => {
@@ -357,17 +361,35 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 				try {
 					tagged.roles.add(role);
 				} catch(err) {
-					console.log(`Probably Server Booster Role: ${err}`)
+					throw new Exception("Cant Add Role, but lets continue");
 				}
 				} 
 			});
+			tagged.send({embed: {
+				color: 0xff0000,
+				author: {
+					name: client.user.username,
+					icon_url: client.user.avatarURL
+				},
+				description: `Tier Expired`,
+				title: `User: ${message.guild.member(tagged).displayName}`,
+				timestamp: new Date(),
+				fields: [
+					{
+						name: `Mute Expired!`,
+						value: `If you arent unmuted or your roles are not back, please use (serverprefix)ticket (message)`,
+					},
+					],
+				footer: {
+					icon_url: client.user.avatarURL,
+					text: client.user.username
+				},
+				}
+			})
 		} catch(err) {console.log(err);}
 		job.stop();
 	  });
 	}
 
 
-/*	await setTimeout(() => {
-
-	}, ((seconds > 2147483647) ? 2147483647 : seconds));
-}*/
+	
