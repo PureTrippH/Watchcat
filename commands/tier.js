@@ -344,16 +344,21 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	console.log(mentionedTier);
 	message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
 
+	let month = seconds/(60*60*24*1000*12);
 	let days = seconds/(60*60*24*1000);
 	let hours = ((days % 1)*24 );
 	let min = ((hours % 1)*60 );
 	let sec = ((min % 1)*60 );
-	const date = new Date().getDate();
 
-	console.log(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${((Math.trunc(days) <= 0 ) ? '*' :  Math.trunc(days)  )} * *`);
+	console.log();
+	console.log();
 	
-	console.log(date);
-	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} * * *`, function() {
+	const dayOfTheMonth = new Date()
+	dayOfTheMonth.setDate(dayOfTheMonth.getDate() + days);
+
+	console.log(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonth.getDate()} ${dayOfTheMonth.getMonth()} *`);
+
+	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonth.getDate()} ${dayOfTheMonth.getMonth()} *`, function() {
 		try {
 			tagged.roles.remove(dbResConfig.mutedRole);
 			(arrayVal).forEach(role => {
@@ -361,7 +366,6 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 				try {
 					tagged.roles.add(role);
 				} catch(err) {
-					throw new Exception("Cant Add Role, but lets continue");
 				}
 				} 
 			});
@@ -391,5 +395,7 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	  });
 	}
 
-
+const getUnbanDay = () => {
+	
+}
 	
