@@ -4,6 +4,7 @@ const serverStats = require("../schemas/serverstat.js");
 
 
 //Function to globally query the User in that server, and pass the information down to every command
+
 const queryUser = async(guild, userId) => {
 const user = await serverStats.findOne(
   {
@@ -33,7 +34,7 @@ const user = await serverStats.findOne(
               }
             }
           })}
-        }).limit(1).lean();
+        }).limit(1).lean().select({});
         
         return user;
 };
@@ -54,7 +55,7 @@ const queryServerStats = async(guild, client) => {
       });
       newStats.save();
     }
-  }).limit(1).lean();
+  }).limit(1).lean().select({guildMembers: []});
 };
 
 const queryServerConfig = async(guild) => {

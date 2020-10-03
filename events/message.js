@@ -10,7 +10,6 @@ module.exports = async (client, message) => {
 if(message.guild) {
 
 
-
 //Is the User in the Cooldown for message count?
 if(isMessageCooldown.has(message.author.id)) {
 
@@ -19,21 +18,18 @@ if(isMessageCooldown.has(message.author.id)) {
 } else {
 console.log("adding a user.");
 
-const dbResStats = await queries.queryServerStats(message.guild.id, client);
-const user = await queries.queryUser(message.guild.id, message.author.id);
+
+const [ user, dbResConfig] = await Promise.all([queries.queryUser(message.guild.id, message.author.id), queries.queryServerConfig(message.guild.id)]);
 
 
-const dbResConfig = await serverConfig.findOne({
-  guildId: message.guild.id
-});
 
 
-addOne(message, client, mongoose, serverStats, dbResConfig, dbResStats);
+addOne(message, client, mongoose, serverStats, dbResConfig);
   if(user.guildMembers[0].messageCount >= 161 && dbResConfig && message.member.roles.cache.has(dbResConfig.newUserRole)) {
     message.member.roles.remove(dbResConfig.newUserRole);
   }
 
-checkTiers(message, client, mongoose, serverStats, dbResConfig, dbResStats, user);
+checkTiers(message, client, mongoose, serverStats, dbResConfig, user);
 
 
   
@@ -56,7 +52,7 @@ setTimeout(() => {
     cmd.run(client, message, args);
   };
 
- const addOne = (message, client, mongoose, serverStats, dbResConfig, dbResStats, user) => {
+ const addOne = (message, client, mongoose, serverStats, dbResConfig, user) => {
         serverStats.updateOne(
           {
             guildId: message.guild.id, 
@@ -68,7 +64,7 @@ setTimeout(() => {
           }}).exec();
   }
 
-  const checkTiers = async(message, client, mongoose, serverStats, dbResConfig, dbResStats, user) => {
+  const checkTiers = async(message, client, mongoose, serverStats, dbResConfig, user) => {
 (user.guildMembers[0].punishmentsTiers).forEach(tier =>{
   if((parseInt(tier.TierForgiveness) + parseInt(tier.OffenderMsgCount)) <= parseInt(user.guildMembers[0].messageCount)) {
     console.log(tier.tierName);
@@ -77,9 +73,9 @@ setTimeout(() => {
         "guildMembers.$.punishmentsTiers": {
         tierName: tier.tierName,
         }
-      }}, {multi: true}).exec();
+      }}, {multi: true}).limit(1).lean().exec();
 
-      if(dbResStats.logChannel != "blank") {
+      if(dbResConfig.logChannel != "blank") {
         let logChannel = client.channels.cache.get(dbResConfig.logChannel);
 
         logChannel.send({embed: {
