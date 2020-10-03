@@ -25,7 +25,7 @@ fs.readdir('./events', (err, files) => {
 
 client.commands = new Discord.Collection();
 client.once('ready', async() => {
-    const guildCount = await client.shard.fetchClientValues('guilds.cache.size')
+    const guildCount = await client.shard.fetchClientValues('guilds.cache.size');
     console.log("Laela's Watchdog Ready to Guard");
     client.user.setPresence({ activity: { name: `Watching: ${guildCount} Servers!!` }, status: 'idle' });
     //eggHunt.run(client);
