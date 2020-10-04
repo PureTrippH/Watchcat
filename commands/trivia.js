@@ -60,7 +60,6 @@ exports.run = async (client, message, args) => {
     };
     console.log(newlineString);
     if(count <= 49 || count >= 49) {
-        console.log("yeah it runs this");
         spacing += 20;
         ctx.font = "20px Arial";
             ctx.strokeText(newlineString, 250, 100 + spacing);
