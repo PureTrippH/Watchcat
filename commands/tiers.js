@@ -4,7 +4,7 @@ exports.run = async (client, message, args) => {
 	const Discord = require('discord.js');
 	const serverStats = require("../utils/schemas/serverstat.js");
 	const queries = require("../utils/queries/queries.js");
-
+	let tagged = await queries.queryUser(message.guild.id, message.mentions.members.first().id);
     const tierList = new Discord.MessageEmbed();
 	if(message.member.hasPermission('BAN_MEMBERS') && (args[0] != 'view' )) {
 		tierList.setColor('#c9cf59');
@@ -15,7 +15,7 @@ exports.run = async (client, message, args) => {
 			tierList.addFields(
 				{ name: `Total Message Count:`, value: `${tagged.guildMembers[0].messageCount}`},
 			);
-			let tagged = await queries.queryUser(message.guild.id, message.mentions.members.first().id);
+			
 
 			(tagged.guildMembers[0].punishmentsTiers).forEach(tier => {
 				tierList.addFields(

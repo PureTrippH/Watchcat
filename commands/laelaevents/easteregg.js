@@ -37,9 +37,6 @@ exports.run = async (client) => {
           }
         },
          {upsert: true}).exec();
-
-
-
       });
     });
       sendEgg();
