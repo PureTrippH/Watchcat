@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const serverConfig = require("../schemas/serverconfig.js");
 const serverStats = require("../schemas/serverstat.js");
+const premUser = require("../schemas/premuser.js");
 
 
 //Function to globally query the User in that server, and pass the information down to every command
@@ -58,6 +59,12 @@ const queryServerStats = async(guild, client) => {
   }).limit(1).lean().select({guildMembers: []});
 };
 
+const queryPremUser = async(guild, client) => {
+	return await premUser.findOne({
+		discordId: client
+  });
+};
+
 const queryServerConfig = async(guild) => {
 	return await serverConfig.findOne({
 		guildId: guild
@@ -81,6 +88,6 @@ const queryServerConfig = async(guild) => {
   },{upsert:true}).limit(1).lean();
 };
 
-module.exports = {queryServerConfig, queryUser, queryServerStats}
+module.exports = {queryPremUser, queryServerConfig, queryUser, queryServerStats}
 
 //Hi

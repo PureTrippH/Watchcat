@@ -1,6 +1,7 @@
 exports.run = async (client, message, args) => {
 	const fs = require("fs");
 	const msgAdder = require("../commands/devcmd/addMsges.js");
+	const premAdder = require("../commands/devcmd/addprem.js");
 	const tagged = message.mentions.members.first();
 	
 	if(message.author.id == '168695206575734784') {
@@ -8,6 +9,11 @@ exports.run = async (client, message, args) => {
 	switch(args[0].toLowerCase()) {
 		case "msg":
 			msgAdder.addmsg(client, message, args, tagged);
+
+		break;
+
+		case "addprem":
+			premAdder.addPremUser(client, message, args, tagged);
 
 		break;
 
