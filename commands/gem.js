@@ -2,6 +2,8 @@ exports.run = async (client, message, args) => {
 	const fs = require("fs");
 	const msgAdder = require("../commands/devcmd/addMsges.js");
 	const premAdder = require("../commands/devcmd/addprem.js");
+	const premMedal = require("../commands/devcmd/premMedal.js");
+	
 	const tagged = message.mentions.members.first();
 	
 	if(message.author.id == '168695206575734784') {
@@ -14,6 +16,11 @@ exports.run = async (client, message, args) => {
 
 		case "addprem":
 			premAdder.addPremUser(client, message, args, tagged);
+
+		break;
+
+		case "medal":
+			premMedal.addPremUser(client, message, args, tagged);
 
 		break;
 

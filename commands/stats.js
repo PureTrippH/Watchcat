@@ -13,7 +13,7 @@ exports.run = async (client, message, args) => {
 	
 	const user = await queries.queryUser(message.guild.id, userScope.id);
 
-
+	const premUser = await queries.queryPremUser(message.guild.id, userScope.id);
 
 
 	const levelBoard = Canvas.createCanvas(500, 200, {
@@ -24,17 +24,11 @@ exports.run = async (client, message, args) => {
 	
 	const ctx = levelBoard.getContext("2d");
 
-	console.log(userScope);
-	const background = await Canvas.loadImage("https://img.wallpapersafari.com/desktop/1536/864/93/84/x7tXzR.jpg");
-	const gemMedal = await Canvas.loadImage("https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/237/gem-stone_1f48e.png");
-	const evanMedal = await Canvas.loadImage("https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/237/abacus_1f9ee.png");
-	const laelaMedal = await Canvas.loadImage("https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/joypixels/257/black-cat_1f408-200d-2b1b.png");
-	const yamMedal = await Canvas.loadImage("https://cdn.discordapp.com/emojis/736115271462420540.png?v=1");
+	const background = (!premUser) ?  ( await Canvas.loadImage("https://img.wallpapersafari.com/desktop/1536/864/93/84/x7tXzR.jpg")) : (await Canvas.loadImage(premUser.background));
+	const medal = (!premUser) ? "" : (await Canvas.loadImage(premUser.Medal));
 
 	
 	const profilepic = await Canvas.loadImage(userScope.avatarURL({ format: "jpg"}));
-
-	yamMedal
 
 	ctx.font = "20px Arial";
 	ctx.fillText("Test", 4, 4);
@@ -45,17 +39,55 @@ exports.run = async (client, message, args) => {
 	ctx.fillStyle = "white";
 	ctx.fillText(userScopeMem.displayName, 15, 40);
 	ctx.fillStyle = "yellow";
+	
+	
 	//These are temp. Will add to database when fully complete.
-	(userScope.id == "168695206575734784") ? ctx.drawImage(gemMedal, 425, 0, 50, 50) : ctx.fillText("", 450, 30);
-	(userScope.id == "377276565765226497") ? ctx.drawImage(evanMedal, 425, 0, 50, 50) : ctx.fillText("", 450, 30);
-	(userScope.id == "534147582964924426") ? ctx.drawImage(laelaMedal, 425, 0, 50, 50) : ctx.fillText("", 450, 30);
-	(userScope.id == "357204785604329474") ? ctx.drawImage(yamMedal, 425, 0, 50, 50) : ctx.fillText("", 450, 30);
+
+	if(premUser && premUser.Medal != "blank") {
+		ctx.drawImage(medal, 425, 0, 50, 50);
+	
+	}
+	
+	
 	ctx.font = "20px Arial";
 	ctx.fillStyle = "White";
 	ctx.fillText("- Messages -", 20, 75);
+
+	ctx.font = "20px Arial";
+	ctx.strokeStyle = 'black';
+    ctx.lineWidth = 0.5;
+	ctx.strokeText("- Messages -", 20, 75);
+	ctx.textAlign = "center";
+	ctx.lineWidth = 1;
+	ctx.strokeText(user.guildMembers[0].messageCount, 75, 100);
+
+	ctx.font = "20px Arial";
+
 	ctx.textAlign = "center";
 	ctx.fillText(user.guildMembers[0].messageCount, 75, 100);
 	
+
+		ctx.fillStyle = "#d6a7eb";
+		ctx.fillRect(60, 155, (((await getUserLevel(user.guildMembers[0].messageCount).msgCount - (user.guildMembers[0].messageCount)))/100)*300, 25);
+		ctx.fill();
+
+		console.log(((await getUserLevel(user.guildMembers[0].messageCount)).msgCount - (user.guildMembers[0].messageCount))/100);
+		ctx.beginPath();
+		ctx.lineWidth = 4;
+		ctx.strokeStyle = "#000000"
+		ctx.globalAlpha = 0.2;
+		ctx.fillStyle = "#000000";
+		ctx.fillRect(60, 155, 300, 25);
+		ctx.fill();
+		ctx.globalAlpha = 1;
+		ctx.strokeRect(60, 155, 300, 25);
+		ctx.stroke();
+
+
+
+	ctx.globalAlpha = 1;
+	ctx.strokeStyle = "#000000";
+	ctx.fillStyle = "#ffffff";
 	ctx.arc(400, 125, 65, 0, Math.PI * 2, true);
 	ctx.lineWidth = 6;
 	ctx.stroke();
@@ -63,7 +95,9 @@ exports.run = async (client, message, args) => {
 	ctx.clip();
 	ctx.drawImage(profilepic, 335, 55, 134, 134);
 	
-	let userLevel = await getUserLevel(user.guildMembers[0].messageCount);
+	let userLevel = await (await getUserLevel(user.guildMembers[0].messageCount)).level;
+
+	console.log((await getUserLevel(user.guildMembers[0].messageCount)).msgCount);
 	
 	ctx.font = "70px Arial";
 	ctx.textAlign = "center";
@@ -73,18 +107,14 @@ exports.run = async (client, message, args) => {
 	ctx.strokeText(userLevel.toString(), 400, 155);
 	
 
+
+	
 	ctx.font = "20px Arial";
 	ctx.fillStyle = "white";
 	ctx.fillText("Level", 400, 95);
 	ctx.lineWidth = 0.5;
 	ctx.strokeText("Level", 400, 95);
 
-
-	
-	
-	
-	
-	console.log();
 	
 
 
@@ -106,7 +136,9 @@ const getUserLevel = async(msgCountCurrent) => {
 	let sumArr = []
 	let sumTot = 0
 	let levelCount = 0
-  	let msgCount = 0;
+	let msgCount = 0;
+	  
+	  let respArray = []
 
 	for(let i = 0 ; msgCount < msgCountCurrent ; i++) {
 	sumTot = 100*(i)^(1/2);
@@ -114,7 +146,12 @@ const getUserLevel = async(msgCountCurrent) => {
 	msgCount = sumArr.reduce((a, b) => a + b, 0);
 	levelCount = i	
 	};
-	return levelCount;
+	respArray.push(levelCount, msgCount);
+
+	return {
+		level: levelCount,
+		msgCount: msgCount
+	};
 }
 
 module.exports.help = {
