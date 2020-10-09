@@ -9,7 +9,10 @@ exports.addPremUser = async (client, message, args, tagged) => {
   message.channel.awaitMessages(filter, {
     max: 1
   }).then(collectedtext => {
-    premUser.updateOne({
+    premUser.findOneAndUpdate({
+      discordId: tagged.id
+    },
+    {
       Medal: collectedtext.first().content
     }).exec();
     message.author.send("Successfully Added Medal");

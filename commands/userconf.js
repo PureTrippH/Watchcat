@@ -10,7 +10,7 @@ exports.run = async (client, message, args) => {
 
 
 	console.log(queriedPrem);
-	if(queriedPrem === null) return message.author.send("You Are Not A Premium User of Watchcat. You can sign up by going to the website to get access to cool perks!");
+	if(queriedPrem === null) return message.author.send("You Are Not A Premium User of Watchcat. You can sign up by going to the website to get access to cool perks! If you are part of Laelaserv, This Perk is Free. Just DM Gem for it.");
 	message.channel.send({embed: {
 		color: 0x00ff00,
 		description: "Thank you for Supporting the Development of Watchcat!",
@@ -44,6 +44,8 @@ exports.run = async (client, message, args) => {
 			message.channel.awaitMessages(filter, {
 				max: 1
 			}).then(collectedtext => {
+				if((collectedtext.first().content).endsWith(".jpeg") || (collectedtext.first().content).endsWith(".jpg") || (collectedtext.first().content).endsWith(".png")) {
+				
 				premUser.findOneAndUpdate({
 					discordId: message.author.id
 				},
@@ -51,6 +53,9 @@ exports.run = async (client, message, args) => {
 					background: collectedtext.first().content
 				}).exec();
 				message.author.send("Successfully Altered Image");
+			} else {
+				message.author.send("Image Sent not an immage. Please Send a link to one (Ends in .png or .jpg")
+			}
 			});
 		}
 	});

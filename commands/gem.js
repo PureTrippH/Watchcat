@@ -23,11 +23,7 @@ exports.run = async (client, message, args) => {
 			Embed.setDescription(`Hello! I am Gem: The creator of this bot. 
 			If you are seeing this, you were wonderful enough to support the creation of this bot.
 			Any bit of support helps, whether its contributing code on the Github or
-			Donating to the Project. On the Off Change you are from LaelaServ, Thank you SO MUCH
-			for giving me the opportunity to create this bot. I was honestly thinking about stopping the development
-			of Gem bots, since there was a void, the staff team let me fill it and create this bot which is now free for all to
-			use. You guys are incredible and to this day I still have no clue how you can trust some loser like me to make this and
-			trust a user to make the bot after what happened with the first bot. Thank you guys. I really mean it.`);
+			Donating to the Project. Now, you have access to the premium features`);
 
 			Embed.addFields(
 				{ name: `Perk 1:`, value: `You Can Fully Customize your !!stats Card With !!userconf`},
