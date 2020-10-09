@@ -44,8 +44,10 @@ exports.run = async (client, message, args) => {
 			message.channel.awaitMessages(filter, {
 				max: 1
 			}).then(collectedtext => {
-				updateVer(queriedPrem, "background", collectedtext);
-				premUser.updateOne({
+				premUser.findOneAndUpdate({
+					discordId: message.author.id
+				},
+				{
 					background: collectedtext.first().content
 				}).exec();
 				message.author.send("Successfully Altered Image");

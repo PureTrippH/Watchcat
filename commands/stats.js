@@ -25,7 +25,7 @@ exports.run = async (client, message, args) => {
 	const ctx = levelBoard.getContext("2d");
 
 	const background = (!premUser) ?  ( await Canvas.loadImage("https://img.wallpapersafari.com/desktop/1536/864/93/84/x7tXzR.jpg")) : (await Canvas.loadImage(premUser.background));
-	const medal = (!premUser) ? "" : (await Canvas.loadImage(premUser.Medal));
+	const medal = (!premUser || premUser.Medal == "blank") ? "blank" : (await Canvas.loadImage(premUser.Medal));
 
 	
 	const profilepic = await Canvas.loadImage(userScope.avatarURL({ format: "jpg"}));
@@ -43,9 +43,8 @@ exports.run = async (client, message, args) => {
 	
 	//These are temp. Will add to database when fully complete.
 
-	if(premUser && premUser.Medal != "blank") {
+	if(premUser && premUser.Medal != `blank`) {
 		ctx.drawImage(medal, 425, 0, 50, 50);
-	
 	}
 	
 	
