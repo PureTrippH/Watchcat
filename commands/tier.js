@@ -1,3 +1,5 @@
+const redis = require("../utils/redis");
+
 /*-----------------------------------------------
 This code is very Buggy and needs to be cleaned up.
 Going through the cleaning process right now. Not
@@ -8,6 +10,7 @@ exports.run = async (client, message, args) => {
 	const ms = require("ms");
 	const fs = require("fs");
 	const mongoose = require('mongoose');
+	const redis = require('../utils/redis');
 	const cron = require('node-cron');
 	const serverConfig = require("../utils/schemas/serverconfig.js");
 	const serverStats = require("../utils/schemas/serverstat.js");
@@ -207,12 +210,14 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 	  }
 	})
 
-	tagged.send(`
-	Tier: T${lastTier + 1}. 
-	Time: ${matchTier(user, dbResConfig, tierIndex, lastTier)}. 
-	Reason: ${reason}.
-	Invite: ${inviteStr}
-	`);
+	const redisClient = await redis()
+	try {
+		const redisKey = `banned-${tagged.id}`
+
+		redisClient.set(redisKey, 'true', 'EX', (seconds / 1000));
+	} finally {
+		redisClient.quit();
+	}
 
 	await tagged.ban(reason).catch(err => {
 		message.channel.send("Cant Kick User: Higher Permissions");
@@ -227,6 +232,15 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 	
 	//Ik its repetitive to have this declared twice but idc rn. I need to get this done ASAP for the server.
 
+
+	redis.expire(remessage => {
+		if(remessage.startsWith('muted-')) {
+			try {
+				message.guild.members.unban(tagged.id, {reason: "They have served their sentence"});
+			} catch (err) {console.log(err);}
+		}
+	});
+	/*
 	const dayOfTheMonthBan = new Date()
 	dayOfTheMonthBan.setDate(dayOfTheMonthBan.getDate() + days);
 
@@ -236,7 +250,7 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 			} catch(err) {console.log(err);}
 		job.stop();
 	  });
-
+*/
 }
 
 
@@ -317,6 +331,7 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 		},
 	  }
 	});
+
 	if(!tagged.roles.cache.has(dbResConfig.mutedRole)) {
 	await tagged.roles.set([]).then(()=> {
 		tagged.roles.add(dbResConfig.mutedRole);
@@ -330,7 +345,7 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 			} 
 			}
 	});*/
-		
+
 		console.log("Added Mute Role");
 	}
 	let dbResStatsUpdate = await serverStats.findOne(
@@ -361,43 +376,51 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	const dayOfTheMonth = new Date()
 	dayOfTheMonth.setDate(dayOfTheMonth.getDate() + days);
 
-	console.log(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonth.getDate()} ${dayOfTheMonth.getMonth() + 1} *`);
+	const redisClient = await redis()
+	try {
+		const redisKey = `muted-${tagged.id}`
 
-	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonth.getDate()} ${dayOfTheMonth.getMonth() + 1} *`, function() {
-		try {
-			tagged.roles.remove(dbResConfig.mutedRole);
-			(arrayVal).forEach(role => {
-				if(!(role == '725293383731380271')) {
-				try {
-					tagged.roles.add(role);
-				} catch(err) {
-				}
-				} 
-			});
-			tagged.send({embed: {
-				color: 0xff0000,
-				author: {
-					name: client.user.username,
-					icon_url: client.user.avatarURL
-				},
-				description: `Tier Expired`,
-				title: `User: ${message.guild.member(tagged).displayName}`,
-				timestamp: new Date(),
-				fields: [
-					{
-						name: `Mute Expired!`,
-						value: `If you arent unmuted or your roles are not back, please use (serverprefix)ticket (message)`,
+		redisClient.set(redisKey, 'true', 'EX', (seconds / 1000));
+	} finally {
+		redisClient.quit();
+	}
+
+	redis.expire(remessage => {
+		if(remessage.startsWith('muted-')) {
+			try {
+				tagged.roles.remove(dbResConfig.mutedRole);
+				(arrayVal).forEach(role => {
+					if(!(role == '725293383731380271')) {
+					try {
+						tagged.roles.add(role);
+					} catch(err) {
+					}
+					} 
+				});
+				tagged.send({embed: {
+					color: 0xff0000,
+					author: {
+						name: client.user.username,
+						icon_url: client.user.avatarURL
 					},
-					],
-				footer: {
-					icon_url: client.user.avatarURL,
-					text: client.user.username
-				},
-				}
-			})
-		} catch(err) {console.log(err);}
-		job.stop();
-	  });
+					description: `Tier Expired`,
+					title: `User: ${message.guild.member(tagged.id).displayName}`,
+					timestamp: new Date(),
+					fields: [
+						{
+							name: `Mute Expired!`,
+							value: `If you arent unmuted or your roles are not back, please use (serverprefix)ticket (message)`,
+						},
+						],
+					footer: {
+						icon_url: client.user.avatarURL,
+						text: client.user.username
+					},
+					}
+				})
+			} catch(err) {console.log(err);}
+		}
+	})
 	}
 
 const getUnbanDay = () => {
