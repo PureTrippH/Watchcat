@@ -34,7 +34,6 @@ exports.run = async (client, message, args) => {
 
 	//Checks for Permissions and Args validity
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
-	if(args[0] || args[1] == undefined) return message.author.send("Tier or User not found");
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tiering");
 
