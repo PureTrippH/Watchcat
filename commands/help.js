@@ -65,6 +65,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
   name: "Help",
   type: "user",
+  aliases: [],
 	desc: "This shows how to use commands and what they are",
 	usage: "l^help {command}"
 }

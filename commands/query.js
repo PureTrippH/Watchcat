@@ -41,6 +41,7 @@ console.log(queryServerStats);
 
 module.exports.help = {
 	name: "Query",
+	aliases: [],
 	type: "utility",
 	desc: "Queries your Information (Meant for testing)",
 	usage: "!!query"

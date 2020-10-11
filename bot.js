@@ -24,9 +24,10 @@ fs.readdir('./events', (err, files) => {
 });
 
 client.commands = new Discord.Collection();
+client.aliases = new Discord.Collection();
 client.once('ready', async() => {
     const guildCount = await client.shard.fetchClientValues('guilds.cache.size');
-    console.log("Laela's Watchdog Ready to Guard");
+    console.log("Laela's Watchcat Ready to Guard");
     client.user.setPresence({ activity: { name: `Watching: ${guildCount} Servers!!` }, status: 'idle' });
     //eggHunt.run(client);
 
@@ -36,7 +37,10 @@ commandFiles.forEach(file => {
     const command = require(`./commands/${file}`);
     let commandName = file.split(".")[0];
     client.commands.set(commandName.toLowerCase(), command);
-    console.log(`Gem Bot has registered ${commandName}`)
+    command.help.aliases.forEach(alias => {
+        client.aliases.set(alias, command);
+    })
+    console.log(`Watchcat has registered ${commandName}`);
 });
 
 mongoose.init();

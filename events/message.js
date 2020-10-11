@@ -47,7 +47,11 @@ setTimeout(() => {
     const args = message.content.slice(client.prefix.length).trim().split(/ +/g); 
     const command = args.shift().toLowerCase();
     //Get command from the ../commands file
-    const cmd = client.commands.get(command);
+    let cmd = client.commands.get(command);
+    if(!cmd) {
+      cmd = client.aliases.get(command);
+    } 
+
     if (!cmd) return;
     cmd.run(client, message, args);
   };

@@ -29,6 +29,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
 	name: "Ticket",
 	type: "utility",
+	aliases: [],
 	desc: "Submits a Ticket to the Developer Server. You can expect a reponse from DMs.",
 	usage: "!!ticket (issue)"
 }

@@ -35,6 +35,7 @@ serverStats.findOneAndUpdate({
 module.exports.help = {
 	name: "Add Eggs",
 	type: "event",
+	aliases: [],
 	desc: "Adds to the tagged users eggs",
 	usage: "!!addeggs (user) (amount)"
 }

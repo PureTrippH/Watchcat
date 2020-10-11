@@ -24,6 +24,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
   name: "Information",
   type: "misc",
+  aliases: [],
 	desc: "Shows information and story about bot.",
 	usage: "!!info"
 }

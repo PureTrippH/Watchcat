@@ -66,6 +66,7 @@ exports.run = async (client, message, args) => {
 
 module.exports.help = {
   name: "Verify",
+  aliases: [],
   type: "user",
 	desc: "Verifies a User on the Server and removes Their Restricted Role (Defined in Config)",
 	usage: "l^verify"

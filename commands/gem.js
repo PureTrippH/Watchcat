@@ -48,6 +48,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
 	name: "Gem",
 	type: "moderation",
+	aliases: [],
 	desc: "DEV ONLY: Allows Gem#2003 To Access the Dev Panel",
 	usage: "!!gem (user) (Dev Arg)"
 }

@@ -156,6 +156,7 @@ const getUserLevel = async(msgCountCurrent) => {
 module.exports.help = {
 	name: "Tiers",
 	type: "moderation",
+	aliases: ["s", "rank"],
 	desc: "Shows server tiers",
 	usage: "!!tiers (view)"
 }

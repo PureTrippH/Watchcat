@@ -34,6 +34,7 @@ exports.run = async (client, message, args) => {
 
 	//Checks for Permissions and Args validity
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
+	if(args[0] || args[1] == undefined) return message.author.send("Tier or User not found");
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
 	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tiering");
 
@@ -105,7 +106,8 @@ module.exports.help = {
 	name: "Tier User",
 	type: "moderation",
 	desc: "Bans the User for the Tier Time. [ALSO, DO NOT JOKE WITH THIS COMMAND. This can lead to adding a tier NO MATTER WHAT!]",
-	usage: "!!tierban (user) (tier)"
+	usage: "!!tierban (user) (tier)",
+	aliases: ["t"]
 }
 
 /*-----------------------------------------------
@@ -234,7 +236,7 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 
 
 	redis.expire(remessage => {
-		if(remessage.startsWith('muted-')) {
+		if(remessage.startsWith('banned-')) {
 			try {
 				message.guild.members.unban(tagged.id, {reason: "They have served their sentence"});
 			} catch (err) {console.log(err);}
@@ -333,9 +335,15 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	});
 
 	if(!tagged.roles.cache.has(dbResConfig.mutedRole)) {
-	await tagged.roles.set([]).then(()=> {
-		tagged.roles.add(dbResConfig.mutedRole);
-	}); /*(tagged._roles).forEach(role => {
+		try {
+			await tagged.roles.set([]).then(()=> {
+			tagged.roles.add(dbResConfig.mutedRole);
+			});
+		 } catch(err) {
+				console.log("Cant Remove this Boi");
+			}
+		}; 
+	/*(tagged._roles).forEach(role => {
 		if(!(role == '725293383731380271')) {
 			/try {
 			console.log(role);
@@ -347,7 +355,6 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	});*/
 
 		console.log("Added Mute Role");
-	}
 	let dbResStatsUpdate = await serverStats.findOne(
 		{
 	  	 guildId: message.guild.id,
@@ -421,7 +428,8 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 			} catch(err) {console.log(err);}
 		}
 	})
-	}
+
+}
 
 const getUnbanDay = () => {
 	

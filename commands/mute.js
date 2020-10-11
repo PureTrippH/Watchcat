@@ -43,6 +43,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
   name: "Mute",
   type: "moderation",
+  aliases: [],
 	desc: "Mutes a User for 10 minutes",
 	usage: "l^mute (tagged user) [optional reason]"
 }

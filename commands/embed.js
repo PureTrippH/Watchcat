@@ -145,6 +145,7 @@ const hasImageCheck = (client, message, args, collectedtext, filter, fields, col
 module.exports.help = {
   name: "Embed",
   type: "utility",
+  aliases: [],
 	desc: "Opens the Embed Editor to create Discord Embeds",
 	usage: "!!embed [channel] [id]"
 }

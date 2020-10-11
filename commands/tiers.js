@@ -67,6 +67,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
 	name: "Tiers",
 	type: "moderation",
+	aliases: [],
 	desc: "Shows server tiers",
 	usage: "!!tiers (view)"
 }

@@ -102,6 +102,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
     name: "Skyblock",
     type: "user",
+    aliases: [],
 	desc: "View a Minecraft Players Hypixel Skyblock Statistics",
 	usage: "l^Skyblock (MC Username), (Profile #)"
 }

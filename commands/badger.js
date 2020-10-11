@@ -30,6 +30,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
   name: "Nothing To See Here",
   type: "fun",
+  aliases: [],
 	desc: "This is Hidden. Dont Run it!",
 	usage: "l^badger"
 }

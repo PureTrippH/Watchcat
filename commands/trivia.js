@@ -139,6 +139,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
     name: "Trivia",
     type: "fun",
+    aliases: [],
 	desc: "View a Trivia question an Answer it.",
 	usage: "!!trivia"
 }
