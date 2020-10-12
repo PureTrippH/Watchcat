@@ -11,7 +11,9 @@ module.exports = async (client, member) => {
   const welcomeEmb = new Discord.MessageEmbed();
   const mongoose = require('mongoose');
 
+  const queries = require('../utils/queries/queries');
 
+  queries.queryUser(member.guild.id, member.id);
 
 	const dbResConfig = await serverConfig.findOne({
 		guildId: member.guild.id
