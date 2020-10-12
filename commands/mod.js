@@ -1,63 +1,50 @@
 exports.run = async (client, message, args) => {
-    const serverSettings = require("../data/serversettings.json");
-    const reason = args.slice(1).join(" ") || "Unknown Reason";
-    const fs = require("fs");
-    const tagged = message.mentions.users.first();
-    if(message.member.hasPermission('KICK_MEMBERS') || message.author.id == '168695206575734784') {
-    if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tempban");
-    message.delete({ timeout: 200 });
-        tagged.send({embed: {
-            color: 0xeba134,
-            author: {
-              name: message.author.username,
-              icon_url: client.user.avatarURL
-            },
-            title: `Laela's Watchdog's Mod Panel`,
-            timestamp: new Date(),
-            description: `This Citation was created by: ${message.author}`,
-            fields: [
-              {
-                name: 'Image :',
-                value: message.guild.name
-              },
-                {
-                    name: 'Warning:',
-                    value: reason
-                }
-            ],
-            footer: {
-              icon_url: client.user.avatarURL,
-              text: client.user.username
-            },
-          }
-        }).then(msg => {
-          msg.react("1️⃣");
-          msg.react("2️⃣");
+  const serverSettings = require("../data/serversettings.json");
+  const reason = args.slice(1).join(" ") || "Unknown Reason";
+  const fs = require("fs");
+  const Discord = require("discord.js");
+  const embed = new Discord.MessageEmbed();
+  const action = new Discord.MessageEmbed();
+  const tagged = message.mentions.users.first();
+  message.delete({ timeout: 200 });
+  embed.setTitle("Mod Panel");
+  embed.setColor("#56315e");
+  embed.addFields(
+    { name: `Freeze Chat - 1️⃣`, value: `Freezes The Current Chat`, inline: false },
+    { name: `Thaw Chat - 2️⃣`, value: `Allows People To Speak Again`, inline: false }
+  )
+message.channel.send(embed).then(msg =>{
+  msg.react('1️⃣');
+  msg.react('2️⃣');
+  msg.awaitReactions((reaction, user) => user.id == message.author.id, {
+    max: 1,
+    time: 25000
+  }).then(reaction => {
+    const reactionName = reaction.first().emoji.name;
+    switch(reactionName) {
+      case '1️⃣':
+        message.channel.updateOverwrite(message.channel.guild.roles.everyone, {SEND_MESSAGES: false});
+        action.setTitle(`Freezing Channel`);
+        action.setImage("https://media1.tenor.com/images/986a8d2cb28d13f72cdab7649b9475e4/tenor.gif?itemid=18636464");
+        message.channel.send(action);
+      break;
 
-          msg.awaitReactions((reaction, user) => user.id == message.author.id, {
-            max: 1,
-            time: 25000
-          }.then(reaction => {
-            const reactionName = reaction.first().emoji.name;
-            switch(reactionName) {
-              case '1️⃣':
-                
-                break;
-              case '2️⃣':
-
-                break;
-            }
-          }));
-        });
-        return;
+      case '2️⃣':!
+        message.channel.updateOverwrite(message.channel.guild.roles.everyone, {SEND_MESSAGES: true});
+        action.setTitle(`Thawing Channel`);
+        action.setImage("https://media1.giphy.com/media/WTpPuEnlEZIAImjtJK/giphy.gif");
+        message.channel.send(action);
+      break;
+    }
+  });
+})
+return;
 };
 
-}
-
 module.exports.help = {
-  name: "Warn",
+  name: "Mod",
   type: "moderation",
   aliases: [],
-	desc: "Sends a user a DM warning them of an offense, but doesn't add a tier",
-	usage: "l^warn (user) [reason]"
+	desc: "Opens The Mod Panel for The Channel",
+	usage: "!!mod"
 }
