@@ -27,6 +27,24 @@ exports.run = async (client, message, args) => {
 	const background = (!premUser) ?  ( await Canvas.loadImage("https://img.wallpapersafari.com/desktop/1536/864/93/84/x7tXzR.jpg")) : (await Canvas.loadImage(premUser.background));
 	const medal = (!premUser || premUser.Medal == "blank") ? "blank" : (await Canvas.loadImage(premUser.Medal));
 
+
+	const userInf = await getUserLevel(user.guildMembers[0].messageCount)
+
+	let userLevel = userInf.level;
+
+
+	console.log(userLevel);
+	userInf.totalMsg.pop();
+
+	let lastMessageCount = (userInf.totalMsg.reduce((a, b) => a + b, 0));
+	const difUser = user.guildMembers[0].messageCount - lastMessageCount;
+	const dif = userInf.msgCount - lastMessageCount;
+
+	const percentOf300 = (difUser/dif) * 300;
+
+	console.log(percentOf300);
+
+
 	
 	const profilepic = await Canvas.loadImage(userScope.avatarURL({ format: "jpg"}));
 
@@ -67,10 +85,10 @@ exports.run = async (client, message, args) => {
 	
 
 		ctx.fillStyle = "#d6a7eb";
-		ctx.fillRect(60, 155, (((await getUserLevel(user.guildMembers[0].messageCount).msgCount - (user.guildMembers[0].messageCount)))/100)*300, 25);
+		ctx.fillRect(60, 155, percentOf300, 25);
 		ctx.fill();
+		ctx.stroke();
 
-		console.log(((await getUserLevel(user.guildMembers[0].messageCount)).msgCount - (user.guildMembers[0].messageCount))/100);
 		ctx.beginPath();
 		ctx.lineWidth = 4;
 		ctx.strokeStyle = "#000000"
@@ -93,10 +111,8 @@ exports.run = async (client, message, args) => {
 	ctx.closePath();
 	ctx.clip();
 	ctx.drawImage(profilepic, 335, 55, 134, 134);
-	
-	let userLevel = await (await getUserLevel(user.guildMembers[0].messageCount)).level;
 
-	console.log((await getUserLevel(user.guildMembers[0].messageCount)).msgCount);
+
 	
 	ctx.font = "70px Arial";
 	ctx.textAlign = "center";
@@ -132,12 +148,11 @@ exports.run = async (client, message, args) => {
 }
 
 const getUserLevel = async(msgCountCurrent) => {
-	let sumArr = []
-	let sumTot = 0
-	let levelCount = 0
+	let sumArr = [];
+	let sumTot = 0;
+	let levelCount = 0;
 	let msgCount = 0;
-	  
-	  let respArray = []
+	let respArray = [];
 
 	for(let i = 0 ; msgCount < msgCountCurrent ; i++) {
 	sumTot = 100*(i)^(1/2);
@@ -147,9 +162,12 @@ const getUserLevel = async(msgCountCurrent) => {
 	};
 	respArray.push(levelCount, msgCount);
 
+	console.log(`Full Array: ${sumArr}`);
+
 	return {
 		level: levelCount,
-		msgCount: msgCount
+		msgCount: msgCount,
+		totalMsg: sumArr
 	};
 }
 
