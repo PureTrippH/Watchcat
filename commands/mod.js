@@ -6,6 +6,7 @@ exports.run = async (client, message, args) => {
   const embed = new Discord.MessageEmbed();
   const action = new Discord.MessageEmbed();
   const tagged = message.mentions.users.first();
+  if(!(message.member.hasPermission('BAN_MEMBERS'))) return message.author.send('You do not have access to the mod panel');
   message.delete({ timeout: 200 });
   embed.setTitle("Mod Panel");
   embed.setColor("#56315e");
