@@ -1,50 +1,61 @@
 exports.run = async (client, message, args) => {
 	const fs = require("fs");
 	const Discord = require('discord.js');
+	
 	const embed = new Discord.MessageEmbed();
 
 	embed.setColor('#92cfd6');
 	embed.setTitle('Watchcat - Image Roulette');
 	embed.setFooter('Note - The Developer of This Bot is not Responisble for any images on here. All of it lies in Imgurs system. If you see any content which is deemed inappropriate to the site, please report it to Imgur.');
+
+	const link = await validLink();
+
 	
-	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	let linkArr = []
-
-	let imgurString = 'https://i.imgur.com/'
-
-	let strLength = 5;
-
-	console.log(Math.floor((Math.random() * 6) + 5));
-
-
-	for(let i = 0 ; i < strLength ; i++) {
-		
-		let randomChar = (chars.charAt(Math.floor(Math.random() * chars.length)));
-		linkArr.push(randomChar);
-		console.log(randomChar);
-	}
-	let charLink = (linkArr.reduce((a, b) => a + b));
-
-	console.log(charLink);
+	embed.setImage(link);
 	
-	let newLink = imgurString + charLink + ('.jpg' || '.png');
-
-	embed.setImage(newLink);
 
 	message.author.send(embed).then(msg => {
 		msg.delete({ timeout: 10000 });
 	})
 
-	console.log(newLink);
-
-	
-	linkArr = [];
-
 }
 module.exports.help = {
 	name: "Role",
-	type: "utility",
-	aliases: ['roulette', 'roul', 'randimg'],
-	desc: "Add or Remove a role from a user",
-	usage: "!!role (user) (add/remove) (role)"
+	type: "fun",
+	aliases: ['roulette', 'roul', 'randimg', 'luck'],
+	desc: "Serves a Random Image in your DMs (NOTE: Watchcat Developer not responsible for content of images)",
+	usage: "!!roulette"
+}
+
+const getRandomUrl = (linkArr, randAmt) => {
+	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	let rand = Math.floor(Math.random() * 7) + 5;
+
+	for(let i = 0 ; i < randAmt ; i++) {
+		let randomChar = (chars.charAt(Math.floor(Math.random() * chars.length)));
+		linkArr.push(randomChar);
+	}
+	return (linkArr.reduce((a, b) => a + b));
+}
+
+
+const validLink = async () => {
+	
+
+	let linkArr = [];
+
+	const Canvas = require('canvas');
+
+	let imgurString = 'https://i.imgur.com/';
+
+	let newLink = imgurString + getRandomUrl(linkArr, 5) + '.jpg'
+
+	const background = await Canvas.loadImage(newLink);
+
+	if(background.width == 161) {
+		newLink = '';
+		return validLink();
+	} else {
+		return newLink;
+	}
 }
