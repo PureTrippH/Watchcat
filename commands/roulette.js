@@ -10,6 +10,7 @@ exports.run = async (client, message, args) => {
 
 	const link = await validLink();
 
+	message.delete({ timeout: 2000 });
 	
 	embed.setImage(link);
 	
@@ -20,7 +21,7 @@ exports.run = async (client, message, args) => {
 
 }
 module.exports.help = {
-	name: "Role",
+	name: "Roulette",
 	type: "fun",
 	aliases: ['roulette', 'roul', 'randimg', 'luck'],
 	desc: "Serves a Random Image in your DMs (NOTE: Watchcat Developer not responsible for content of images)",

@@ -1,5 +1,3 @@
-const redis = require("../utils/redis");
-
 /*-----------------------------------------------
 This code is very Buggy and needs to be cleaned up.
 Going through the cleaning process right now. Not

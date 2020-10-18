@@ -24,7 +24,7 @@ module.exports = async (client, member) => {
     redisClient.get(`muted-${member.id}`, (err, res) => {
       if(err) console.error('Error Getting Redis:', err);
 
-      if(result) {
+      if(res) {
         dbResConfig.roles.add(dbResConfig.mutedRole);
       }
     })

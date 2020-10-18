@@ -6,7 +6,7 @@ const eggHunt = require("./commands/laelaevents/easteregg.js");
 const settings = require('./settings.json');
 
 
-const client = new Discord.Client();
+const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 client.prefix = settings.prefix;
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith(".js"));
 
