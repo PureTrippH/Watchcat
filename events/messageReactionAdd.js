@@ -8,10 +8,10 @@ module.exports = async (client, reaction) => {
 
   redisClient.get(redisKey, (err, result) => {
     console.log(result);
+    redisClient.quit();
     if(result) {
       const Discord = require('discord.js');
       const channel = reaction.message.channel;
-      redisClient.quit();
 
       const oldEmb = reaction.message.embeds[0];
       const oldEmbForm = new Discord.MessageEmbed(oldEmb);
