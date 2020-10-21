@@ -12,13 +12,14 @@ module.exports = async (client, member) => {
   const mongoose = require('mongoose');
 
   const queries = require('../utils/queries/queries');
-
+  console.log*
   queries.queryUser(member.guild.id, member.id);
 
 	const dbResConfig = await serverConfig.findOne({
 		guildId: member.guild.id
   });
 
+  console.log("haiii");
   const redisClient = await redis();
   try {
     redisClient.get(`muted-${member.id}`, (err, res) => {
@@ -33,8 +34,8 @@ module.exports = async (client, member) => {
   }
 
 
-  welcomeEmb.setTitle(`Verification Reminder: ${guild.name}`);
-  welcomeEmb.setDescription(`Welcome to ${guild.name}! If you are seeing this message, you need to verify. You can go to the Verification channel and type the message below`);
+  welcomeEmb.setTitle(`Verification Reminder: ${member.guild.name}`);
+  welcomeEmb.setDescription(`Welcome to ${member.guild.name}! If you are seeing this message, you need to verify. You can go to the Verification channel and type the message below`);
   welcomeEmb.addFields(
     { name: `!!Verify`, value: `^^ Verification Command`, inline: false }
   );

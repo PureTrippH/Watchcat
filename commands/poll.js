@@ -5,7 +5,7 @@ exports.run = async (client, message, args) => {
     const Canvas = require('canvas');
     const ms = require('ms');
     const poll = new Discord.MessageEmbed();
-    if(!message.member.hasPermission('MANAGE_CHANNELS')) message.author.send
+    if(!message.member.hasPermission('MANAGE_CHANNELS')) message.author.send('You Need permission to cast a poll');
     if(!args[0]) return message.author.send("You MUST need a Poll Time");
     if(!args[1]) return message.author.send("You MUST need a Poll Title to start a Poll");
 
