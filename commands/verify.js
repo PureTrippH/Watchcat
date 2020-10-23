@@ -3,6 +3,7 @@ exports.run = async (client, message, args) => {
     const channel = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].channel;
     const role = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].role;
     const fs = require("fs");
+    const Discord = require("discord.js");
 
     const mongoose = require('mongoose');
 	const serverConfig = require("../utils/schemas/serverconfig.js");
@@ -62,6 +63,15 @@ exports.run = async (client, message, args) => {
           }
         });
     }
+    try{
+      const embedVer = new Discord.MessageEmbed();
+      embedVer.setTitle(`USER VERIFIED: ${message.author}`);
+      embedVer.setDescription(`#00ff00`);
+      embedVer.setFooter(new Date());
+      client.channels.cache.get(dbRes.logChannel).send(embedVer);
+  } catch {
+    console.log("ERROR: NO LOG CHANNEL SPECIFIED");
+  }
 };
 
 module.exports.help = {
