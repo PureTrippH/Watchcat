@@ -6,11 +6,8 @@ even my mom can make this spaghetti.
 exports.run = async (client, message, args) => {
 //Defined Required Modules and Packages.
 	const ms = require("ms");
-	const fs = require("fs");
-	const mongoose = require('mongoose');
 	const redis = require('../utils/redis');
 	const cron = require('node-cron');
-	const serverConfig = require("../utils/schemas/serverconfig.js");
 	const serverStats = require("../utils/schemas/serverstat.js");
 	const queries = require("../utils/queries/queries.js");
 
@@ -40,8 +37,6 @@ exports.run = async (client, message, args) => {
 			maxUses: 1
 		}).then (async function(newInvite){
 			let inviteStr = ("https://discord.gg/" + newInvite.code);
-
-			const tierArray = dbResConfig.serverTiers[tierIndex].TierTimes;
 			const lastTier = (typeof user.guildMembers[0].punishmentsTiers[user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : user.guildMembers[0].punishmentsTiers[user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
 			const seconds = matchTier(user, dbResConfig, tierIndex, lastTier);
 
@@ -138,7 +133,7 @@ const addTier = async(client, message, tagged, user, tierArg, serverStats, dbRes
 		console.log("Adding to set");
 		serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": tagged.id} , {
 			$addToSet:{
-			  "guildMembers.$.punishmentsTiers": {
+			"guildMembers.$.punishmentsTiers": {
 				tierName: dbResConfig.serverTiers[tierIndex].TierName,
 				dateOfTier: date.mm + '/' + date.dd + '/' + date.yyyy,
 				tierLevel: 1,
@@ -146,28 +141,28 @@ const addTier = async(client, message, tagged, user, tierArg, serverStats, dbRes
 				OffenderMsgCount: user.guildMembers[0].messageCount,
 				tierTime: seconds,
 				pastRoles: arrayOfRoles
-			  }
-			}}, {upsert: true}).exec();
-		} else {
-			console.log("Updating set");
-			serverStats.updateOne({
-				guildId: message.guild.id, 
-				"guildMembers.userID": tagged.id,
-			}, 
-			{
-				$set:{
-					"guildMembers.$.punishmentsTiers.$[punishmentName].pastRoles": {
-						arrayOfRoles,
-					},
+			}
+		}}, {upsert: true}).exec();
+	} else {
+		console.log("Updating set");
+		serverStats.updateOne({
+			guildId: message.guild.id, 
+			"guildMembers.userID": tagged.id,
+		}, 
+		{
+			$set:{
+				"guildMembers.$.punishmentsTiers.$[punishmentName].pastRoles": {
+					arrayOfRoles,
 				},
-				"guildMembers.$.punishmentsTiers.$[punishmentName].tierTime": seconds,
-				$inc:{
-				  "guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
-				},
-			 },
-			  { "arrayFilters": [
-					{ "punishmentName.tierName": dbResConfig.serverTiers[tierIndex].TierName }
-				] }).exec();
+			},
+			"guildMembers.$.punishmentsTiers.$[punishmentName].tierTime": seconds,
+			$inc:{
+				"guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
+			},
+			},
+			{ "arrayFilters": [
+				{ "punishmentName.tierName": dbResConfig.serverTiers[tierIndex].TierName }
+			] }).exec();
 		}
 
 }
@@ -176,8 +171,8 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 	await tagged.send({embed: {
 		color: 0xff0000,
 		author: {
-		  name: client.user.username,
-		  icon_url: client.user.avatarURL
+		name: client.user.username,
+		icon_url: client.user.avatarURL
 		},
 		title: `You Have Been Tiered!`,
 		timestamp: new Date(),
@@ -203,10 +198,10 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 			},
 		],
 		footer: {
-		  icon_url: client.user.avatarURL,
-		  text: client.user.username
+			icon_url: client.user.avatarURL,
+			text: client.user.username
 		},
-	  }
+	}
 	})
 
 	const redisClient = await redis()
@@ -227,7 +222,6 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 	let days = seconds/(60*60*24*1000);
 	let hours = ((days % 1)*24 );
 	let min = ((hours % 1)*60 );
-	let sec = ((min % 1)*60 );
 	
 	//Ik its repetitive to have this declared twice but idc rn. I need to get this done ASAP for the server.
 
@@ -258,17 +252,17 @@ const awaitWarn = async(client, message, tagged, user, date, lastTier, reason, a
 	tagged.send({embed: {
 		color: 0xeba134,
 		author: {
-		  name: message.author.username,
-		  icon_url: client.user.avatarURL
+		name: message.author.username,
+		icon_url: client.user.avatarURL
 		},
 		title: `Laela's Watchcat's`,
 		timestamp: new Date(),
 		description: `This Citation was created by: ${message.author}`,
 		fields: [
-		  {
+		{
 			name: 'Citation on:',
 			value: message.guild.name
-		  },
+		},
 			{
 				name: 'Warning:',
 				value: reason
@@ -279,10 +273,10 @@ const awaitWarn = async(client, message, tagged, user, date, lastTier, reason, a
 			}
 		],
 		footer: {
-		  icon_url: client.user.avatarURL,
-		  text: client.user.username
+		icon_url: client.user.avatarURL,
+		text: client.user.username
 		},
-	  }
+	}
 	});
 
 	message.channel.send(`Sucessfully warned <@${tagged.id}> for  Tier ${lastTier + 1}`);
@@ -298,8 +292,8 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	await tagged.send({embed: {
 		color: 0xff0000,
 		author: {
-		  name: client.user.username,
-		  icon_url: client.user.avatarURL
+		name: client.user.username,
+		icon_url: client.user.avatarURL
 		},
 		title: `You Have Been Tiered!`,
 		timestamp: new Date(),
@@ -325,10 +319,10 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 			},
 		],
 		footer: {
-		  icon_url: client.user.avatarURL,
-		  text: client.user.username
+		icon_url: client.user.avatarURL,
+		text: client.user.username
 		},
-	  }
+	}
 	});
 
 	if(!tagged.roles.cache.has(dbResConfig.mutedRole)) {
@@ -336,10 +330,10 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 			await tagged.roles.set([]).then(()=> {
 			tagged.roles.add(dbResConfig.mutedRole);
 			});
-		 } catch(err) {
+		} catch(err) {
 				console.log("Cant Remove this Boi");
 			}
-		}; 
+		}
 	/*(tagged._roles).forEach(role => {
 		if(!(role == '725293383731380271')) {
 			/try {
@@ -353,26 +347,24 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 
 		console.log("Added Mute Role");
 	let dbResStatsUpdate = await serverStats.findOne(
+	{
+	guildId: message.guild.id,
+	"guildMembers.userID": message.author.id
+	}, 
 		{
-	  	 guildId: message.guild.id,
-	  	"guildMembers.userID": message.author.id
- 	 }, 
-		{
-	  	guildMembers: {
+	guildMembers: {
 			$elemMatch: 
 			{
-		 	 	userID: tagged.id
+		userID: tagged.id
 			}}});
 	const mentionedTier = (dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
 	const arrayVal = ((typeof dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles) == 'undefined') ? dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles : dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles
 	console.log(mentionedTier);
 	message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
 
-	let month = seconds/(60*60*24*1000*12);
 	let days = seconds/(60*60*24*1000);
 	let hours = ((days % 1)*24 );
 	let min = ((hours % 1)*60 );
-	let sec = ((min % 1)*60 );
 
 	console.log();
 	console.log();
@@ -398,7 +390,7 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 					try {
 						tagged.roles.add(role);
 					} catch(err) {
-					}
+				}
 					} 
 				});
 				tagged.send({embed: {
@@ -426,9 +418,5 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 		}
 	})
 
-}
-
-const getUnbanDay = () => {
-	
 }
 	

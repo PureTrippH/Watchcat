@@ -1,7 +1,4 @@
 exports.run = async (client, message, args) => {
-	const fs = require("fs");
-	const serverConfig = require("../utils/schemas/serverconfig.js");
-	const serverStats = require("../utils/schemas/serverstat.js");
 	const add = require("../commands/rolecmd/add.js");
 	const remove = require("../commands/rolecmd/remove.js");
 	const tagged = message.mentions.members.first();

@@ -1,11 +1,5 @@
-const { Mongoose } = require("mongoose");
-
-exports.run = async (client, message, args) => {
-	const serverSettings = require("../data/serversettings.json");
+exports.run = async (client, message) => {
 	const filter = m => m.author.id === message.author.id;
-    const tagged = message.mentions.users.first();
-	const time = args[1];
-	const reason = args.slice(2).join(" ") || "Unknown Reason";
 	const ms = require("ms");
 	
 	const mongoose = require('mongoose');
@@ -37,13 +31,12 @@ exports.run = async (client, message, args) => {
 	let dbRes = await thisConfig.findOne({
 		guildId: message.guild.id
 	});
-	const fs = require("fs");
 	if(message.member.hasPermission('ADMINISTRATOR') || message.author.id == '168695206575734784') {
 	message.channel.send({embed: {
 		color: 0x00ff00,
 		author: {
-		  name: client.user.username,
-		  icon_url: client.user.avatarURL
+		name: client.user.username,
+		icon_url: client.user.avatarURL
 		},
 		title: `Laela's Watchdog's Config - React to Emoji to Edit Config`,
 		timestamp: new Date(),
@@ -90,10 +83,10 @@ exports.run = async (client, message, args) => {
 			}
 		],
 		footer: {
-		  icon_url: client.user.avatarURL,
-		  text: client.user.username
+		icon_url: client.user.avatarURL,
+		text: client.user.username
 		},
-	  }
+	}
 	}).then(msg => {
 		msg.react('1️⃣');
 		msg.react('2️⃣');
@@ -105,8 +98,8 @@ exports.run = async (client, message, args) => {
 		msg.react('📜');
 	
 		msg.awaitReactions((reaction, user) => user.id == message.author.id,
-	  { max: 1, time: 50000 }).then(collected => {
-		  const reaction = collected.first().emoji.name;
+	{ max: 1, time: 50000 }).then(collected => {
+		const reaction = collected.first().emoji.name;
 		console.log(reaction);
 		if(collected.first().emoji.name == '1️⃣') {
 			message.channel.send("Please send a Role");
@@ -190,29 +183,26 @@ exports.run = async (client, message, args) => {
 						if(punishType.first().content.toLowerCase() == "warning" || punishType.first().content.toLowerCase() ==  "ban" || punishType.first().content.toLowerCase() ==  "mute") {
 							thisConfig.findOneAndUpdate(
 								{
-								  guildId: message.guild.id
-								  }, 
+									guildId: message.guild.id
+								}, 
 									{
-									  $addToSet: {
+									$addToSet: {
 										serverTiers: {
-										  TierName: tierName.first().content.toLowerCase(),
-										  TierForgiveness: forgiveness.first().content,
-										  TierTimes: [ms(time.first().content)],
-										  banOrMute: [punishType.first().content.toLowerCase()]
+										TierName: tierName.first().content.toLowerCase(),
+										TierForgiveness: forgiveness.first().content,
+										TierTimes: [ms(time.first().content)],
+										banOrMute: [punishType.first().content.toLowerCase()]
 										}
-									  }
-								  }).exec()
-								  message.channel.send("Successfully created tier");
+									}
+								}).exec()
+							message.channel.send("Successfully created tier");
 						
 						} else return message.channel.send("Punishment does not exist. Try using Mute, Warning, or Ban");
 					});
-
-				});
-						
+				});		
 				});
 			});
 		}
-
 		if(collected.first().emoji.name == '5️⃣') {
 			message.channel.send("Tier Editor: Enter the Key Name of the Tier (Ex: IrrImg)");
 			message.channel.awaitMessages(filter, {
@@ -340,14 +330,6 @@ exports.run = async (client, message, args) => {
 });
 	} else {
 		message.member.send("No Permissions")
-	}
-};
-
-const ifNull = (val) => {
-	if(!val) {
-		return "None"
-	} else {
-		return val
 	}
 };
 

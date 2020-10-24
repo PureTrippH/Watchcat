@@ -1,11 +1,7 @@
-const { kStringMaxLength } = require("buffer");
 
 exports.run = async (client, message, args) => {
-    const fs = require("fs");
-	const ms = require("ms");
 	const Discord = require('discord.js');
 	const embed = new Discord.MessageEmbed();
-	const serverStats = require("../utils/schemas/serverstat.js");
 	const queries = require("../utils/queries/queries.js");
 	const Canvas = require('canvas');
 	const userScope = (!message.mentions.users.first()) ? message.author : message.mentions.users.first();

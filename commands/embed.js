@@ -42,8 +42,8 @@ exports.run = async (client, message, args) => {
 
 const func = async(client, message, args, collectedtext, filter, fields, color, embedTar, hasImage) => {
   if(isNaN(parseInt(collectedtext.first().content))) return message.author.send("Error! Number Specified was Not a Number!");
-for(i = 0; i < parseInt(collectedtext.first().content); i++) {
-  await new Promise((res, rej) => {
+for(let i = 0; i < parseInt(collectedtext.first().content); i++) {
+  await new Promise((res) => {
     message.channel.send("First Message: Header Text");
     message.channel.send("Second Message: First: Header Text");
     message.channel.awaitMessages(filter, {
