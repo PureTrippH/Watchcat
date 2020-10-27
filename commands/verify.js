@@ -1,19 +1,10 @@
 exports.run = async (client, message, args) => {
-    const serverSettings = require("../data/serversettings.json");
-    const channel = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].channel;
-    const role = (!serverSettings[message.guild.id]) ? null : serverSettings[message.guild.id].role;
-    const fs = require("fs");
-    const Discord = require("discord.js");
-
-    const mongoose = require('mongoose');
-	const serverConfig = require("../utils/schemas/serverconfig.js");
-
-    const dbRes = await serverConfig.findOne({
-      guildId: message.guild.id
-    });
+  const Discord = require("discord.js");
+  const queries = require('../utils/queries/queries');
+  const server = await queries.queryServerConfig(message.guild.id);
 
     message.delete({ timeout: 10});
-    if(!dbRes) {
+    if(!server) {
         message.author.send({embed: {
             color: 0xff0000,
             author: {
@@ -25,7 +16,7 @@ exports.run = async (client, message, args) => {
             fields: [
                 {
                     name: 'ERROR:',
-                    value: "The Server Admins have NOT set the channel OR the Role for verification. Please DM and Admin for info!",
+                    value: "The Server Admins have NOT set the channel OR the Role for verification. Please DM an Admin for info!",
                     
                 }
             ],
@@ -37,10 +28,8 @@ exports.run = async (client, message, args) => {
         });
         return;
     }
-    if(message.channel != dbRes.verChannel) {
-        message.author.send("You have already verified yourself. Dont try.");
-    } else {
-        message.member.roles.remove(dbRes.removedRole);
+    if(!message.member.roles.cache.has(server.removedRole)) return message.author.send("You have already verified yourself. Dont try.");
+        message.member.roles.remove(server.removedRole);
         message.author.send({embed: {
             color: 0x00ff00,
             author: {
@@ -62,13 +51,12 @@ exports.run = async (client, message, args) => {
             },
           }
         });
-    }
     try{
       const embedVer = new Discord.MessageEmbed();
       embedVer.setTitle(`USER VERIFIED: ${message.author}`);
       embedVer.setDescription(`#00ff00`);
       embedVer.setFooter(new Date());
-      client.channels.cache.get(dbRes.logChannel).send(embedVer);
+      client.channels.cache.get(server.logChannel).send(embedVer);
   } catch {
     console.log("ERROR: NO LOG CHANNEL SPECIFIED");
   }

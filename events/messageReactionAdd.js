@@ -1,4 +1,3 @@
-const { Message } = require("discord.js");
 const redis = require("../utils/redis");
 
 module.exports = async (client, reaction) => {
@@ -7,7 +6,6 @@ module.exports = async (client, reaction) => {
   const redisKey = `poll-${reaction.message.id}`
 
   redisClient.get(redisKey, (err, result) => {
-    console.log(result);
     redisClient.quit();
     if(result) {
       const Discord = require('discord.js');
@@ -15,13 +13,10 @@ module.exports = async (client, reaction) => {
 
       const oldEmb = reaction.message.embeds[0];
       const oldEmbForm = new Discord.MessageEmbed(oldEmb);
-      const reactionInfo = reaction.message.reactions.cache.array();
 
       let countX = 0;
       let countCheck = 0;
 
-      //Check 766801202297045002
-      //X 767067602144854046
       reaction.message.reactions.cache.forEach(emoji => {
         switch(emoji.emoji.id) {
           case '766801202297045002':
@@ -33,8 +28,6 @@ module.exports = async (client, reaction) => {
         }
       });
 
-
-      console.log(countCheck + countX);
       const poll = channel.messages.cache.get(reaction.message.id);
         oldEmbForm.fields = [];
         oldEmbForm.addFields({ name: `Positive:`, value: getAverages(countCheck/(countCheck + countX), "pos").join(""), inline: true }, { name: `Negative:`, value: getAverages(countX/(countCheck + countX), "neg").join(""), inline: true });
@@ -47,9 +40,8 @@ module.exports = async (client, reaction) => {
 const getAverages = (num, posneg) => {
   let arr = new Array(10);
 
-  roundedNum = Math.round(num*10);
+  let roundedNum = Math.round(num*10);
 
-  console.log(`DEBUG: ${roundedNum} Pos or Neg: ${posneg}`);
 
   for(let it = 0 ; it < 10 ; it++) {
     switch(posneg) {
