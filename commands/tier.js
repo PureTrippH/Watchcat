@@ -7,7 +7,6 @@ exports.run = async (client, message, args) => {
 //Defined Required Modules and Packages.
 	const ms = require("ms");
 	const redis = require('../utils/redis');
-	const cron = require('node-cron');
 	const serverStats = require("../utils/schemas/serverstat.js");
 	const queries = require("../utils/queries/queries.js");
 
@@ -83,11 +82,11 @@ exports.run = async (client, message, args) => {
 					awaitWarn(client, message, tagged, user, date, lastTier, reason, args);
 				break;
 				case "ban":
-					awaitBan(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, cron);
+					awaitBan(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redis);
 				break;
 
 				case "mute":
-					awaitMute(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, cron);
+					awaitMute(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redis);
 				break;
 			}	
 		});
@@ -127,7 +126,7 @@ const punishVar = (user, dbResConfig, tierIndex, lastTier) => {
 
 
 //Adds Tier to the User
-const addTier = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, ms) => {
+const addTier = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds) => {
 	let arrayOfRoles = tagged._roles
 	if((user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
 		console.log("Adding to set");
@@ -167,7 +166,7 @@ const addTier = async(client, message, tagged, user, tierArg, serverStats, dbRes
 
 }
 
-const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, cron) => {
+const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redis) => {
 	await tagged.send({embed: {
 		color: 0xff0000,
 		author: {
@@ -206,7 +205,7 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 
 	const redisClient = await redis()
 	try {
-		const redisKey = `banned-${tagged.id}`
+		const redisKey = `banned-${tagged.id}-${message.guild.id}`
 
 		redisClient.set(redisKey, 'true', 'EX', (seconds / 1000));
 	} finally {
@@ -218,32 +217,20 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 		throw err;
 	})
 	message.channel.send(`Sucessfully banned <@${tagged.id}> for T${lastTier + 1}`);
-
-	let days = seconds/(60*60*24*1000);
-	let hours = ((days % 1)*24 );
-	let min = ((hours % 1)*60 );
 	
 	//Ik its repetitive to have this declared twice but idc rn. I need to get this done ASAP for the server.
 
 
 	redis.expire(remessage => {
 		if(remessage.startsWith('banned-')) {
+			let str = remessage.split('-');
+			let selectedGuild = client.guilds.cache.get(str[2]);
+			let selectedMember = selectedGuild.members.cache.get(str[1]);
 			try {
-				message.guild.members.unban(tagged.id, {reason: "They have served their sentence"});
+				message.guild.members.unban(selectedMember, {reason: "They have served their sentence"});
 			} catch (err) {console.log(err);}
 		}
 	});
-	/*
-	const dayOfTheMonthBan = new Date()
-	dayOfTheMonthBan.setDate(dayOfTheMonthBan.getDate() + days);
-
-	const job = cron.schedule(`${((Math.trunc(sec) <= 0 ) ? '*' :  Math.trunc(sec)  )} ${((Math.trunc(min) <= 0 ) ? '*' :  Math.trunc(min)  )} ${((Math.trunc(hours) <= 0 ) ? '*' :  Math.trunc(hours)  )} ${dayOfTheMonthBan.getDate()} ${dayOfTheMonthBan.getMonth() + 1} *`, function() {
-		try {
-			message.guild.members.unban(tagged.id, {reason: "They have served their sentence"});
-			} catch(err) {console.log(err);}
-		job.stop();
-	  });
-*/
 }
 
 
@@ -287,7 +274,7 @@ const awaitWarn = async(client, message, tagged, user, date, lastTier, reason, a
 	
 
 
-const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, cron) => {
+const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redis) => {
 	console.log("Muted!");
 	await tagged.send({embed: {
 		color: 0xff0000,
@@ -334,18 +321,6 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 				console.log("Cant Remove this Boi");
 			}
 		}
-	/*(tagged._roles).forEach(role => {
-		if(!(role == '725293383731380271')) {
-			/try {
-			console.log(role);
-			tagged.roles.remove(role).catch(err => {console.log(`Probably Server Booster Role or Staff: ${err}`)});
-			} catch(err) {
-				throw new Exception("Cant Take Role, but lets continue");
-			} 
-			}
-	});*/
-
-		console.log("Added Mute Role");
 	let dbResStatsUpdate = await serverStats.findOne(
 	{
 	guildId: message.guild.id,
@@ -363,8 +338,6 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
 
 	let days = seconds/(60*60*24*1000);
-	let hours = ((days % 1)*24 );
-	let min = ((hours % 1)*60 );
 
 	console.log();
 	console.log();
@@ -374,7 +347,7 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 
 	const redisClient = await redis()
 	try {
-		const redisKey = `muted-${tagged.id}`
+		const redisKey = `muted-${tagged.id}-${message.guild.id}`
 
 		redisClient.set(redisKey, 'true', 'EX', (seconds / 1000));
 	} finally {
@@ -382,25 +355,31 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	}
 
 	redis.expire(remessage => {
-		if(remessage.startsWith('muted-')) {
+		console.log(remessage);
+		if(remessage.startsWith(`muted-`)) {
+			let str = remessage.split('-');
+			let selectedGuild = client.guilds.cache.get(str[2]);
+			let selectedMember = selectedGuild.members.cache.get(str[1]);
+
 			try {
-				tagged.roles.remove(dbResConfig.mutedRole);
+				selectedMember.roles.remove(dbResConfig.mutedRole);
 				(arrayVal).forEach(role => {
 					if(!(role == '725293383731380271')) {
 					try {
-						tagged.roles.add(role);
+						selectedMember.roles.add(role);
 					} catch(err) {
-				}
+						console.log(err);
+					}
 					} 
 				});
-				tagged.send({embed: {
+				selectedMember.send({embed: {
 					color: 0xff0000,
 					author: {
 						name: client.user.username,
 						icon_url: client.user.avatarURL
 					},
 					description: `Tier Expired`,
-					title: `User: ${message.guild.member(tagged.id).displayName}`,
+					title: `User: ${message.guild.member(selectedMember.id).displayName}`,
 					timestamp: new Date(),
 					fields: [
 						{

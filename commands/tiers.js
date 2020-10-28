@@ -1,8 +1,5 @@
 exports.run = async (client, message, args) => {
-    const fs = require("fs");
-	const ms = require("ms");
 	const Discord = require('discord.js');
-	const serverStats = require("../utils/schemas/serverstat.js");
 	const queries = require("../utils/queries/queries.js");
 	let tagged = (!message.mentions.users.first()) ? message.author.id : await queries.queryUser(message.guild.id, message.mentions.users.first().id);
     const tierList = new Discord.MessageEmbed();
@@ -19,8 +16,8 @@ exports.run = async (client, message, args) => {
 
 			(tagged.guildMembers[0].punishmentsTiers).forEach(tier => {
 				tierList.addFields(
-					{ name: `${tier.tierName} - Level: ${tier.tierLevel}`, value: `Message Count - (${tagged.guildMembers[0].messageCount - tier.OffenderMsgCount}:${tier.TierForgiveness})`, inline: true }
-				  )
+					{ name: `${tier.tierName} - Level: ${tier.tierLevel}`, value: `Message Count - (${(tagged.guildMembers[0].messageCount - tier.OffenderMsgCount).toString()}:${(tier.TierForgiveness).toString()})`, inline: true }
+				)
 			});
 			message.channel.send(tierList);
 			return;
@@ -34,11 +31,11 @@ exports.run = async (client, message, args) => {
 
 	dbRes.serverTiers.forEach(tier => {
 		tierList.addFields(
-			{ name: `${tier.TierName}`, value: `${ms(tier.TierTimes)}`, inline: false }
-		  )
+			{ name: `${tier.TierName}`, value: `${tier.TierTimes}`, inline: false }
+	)
 		tierList.addFields(
-			{ name: `${tier.TierName} Forgiveness`, value: `${tier.TierForgiveness} Messages`, inline: false }
-		  )
+			{ name: `${tier.TierName} Forgiveness`, value: `${(tier.TierForgiveness).toString()} Messages`, inline: false }
+	)
 	});
 
 	message.channel.send(tierList);
@@ -54,7 +51,7 @@ exports.run = async (client, message, args) => {
 			(user.guildMembers[0].punishmentsTiers).forEach(tier => {
 				tierList.addFields(
 					{ name: `${tier.tierName} - Level: ${tier.tierLevel}`, value: `Message Count - (${user.guildMembers[0].messageCount - tier.OffenderMsgCount}:${tier.TierForgiveness})`, inline: true }
-				  )
+				)
 			})
 		if((user.guildMembers[0].punishmentsTiers).length == 0) return message.author.send('No Tiers Found');
 		console.log(user.guildMembers[0].punishmentsTiers);
