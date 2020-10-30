@@ -1,19 +1,8 @@
 module.exports = async (client, guild) => {
+  console.log("Hi");
   const mongoose = require('mongoose');
-  const dbResStats = await serverStats.findOne({
-    guildId: message.guild.id
-  }, (err, guildStats) => {
-    if(!guildStats) {
-      console.log("No Data Found!");
-      //Creates a New Stats Schema
-      const newStats = new serverStats({
-        _id: mongoose.Types.ObjectId(),
-        guildId: message.guild.id,
-        messageCountTotal: 0,
-        guildMembersInt: client.guilds.cache.get(message.guild.id).memberCount,
-        guildMembers: []
-      });
-      newStats.save();
-    }
-  });
+  const queries = require('../utils/queries/queries');
+  let stats = await queries.queryServerStats(guild.id);
+  await queries.queryServerConfig(guild.id);
+  console.log(stats);
 }

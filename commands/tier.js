@@ -211,6 +211,7 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 	} finally {
 		redisClient.quit();
 	}
+	redisClient.quit();
 
 	await tagged.ban(reason).catch(err => {
 		message.channel.send("Cant Kick User: Higher Permissions");
@@ -353,6 +354,7 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	} finally {
 		redisClient.quit();
 	}
+	redisClient.quit();
 
 	redis.expire(remessage => {
 		console.log(remessage);

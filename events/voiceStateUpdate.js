@@ -1,7 +1,5 @@
 const queries = require('../utils/queries/queries');
-const mongoose = require('mongoose');
 const serverStats = require("../utils/schemas/serverstat.js");
-const serverConfig = require("../utils/schemas/serverconfig.js");
 
 module.exports = async (client, oldMember, newMember) => {
   
@@ -11,7 +9,7 @@ module.exports = async (client, oldMember, newMember) => {
 
   console.log(oldMember.selfDeaf);
 
-  if((oldUserChannel === null || oldUserChannel === undefined) && newUserChannel !== null && (oldMember.selfDeaf == false || newMember.selfDeaf == false)) {
+  if((oldUserChannel === null || oldUserChannel === undefined) && newUserChannel !== null && (oldMember.selfDeaf == false || newMember.selfDeaf == false) && newMember.selfMute == false) {
     
     console.log("User joined");
 
@@ -28,7 +26,7 @@ module.exports = async (client, oldMember, newMember) => {
      
 
 
-  } else if(newUserChannel === null || oldMember.selfDeaf == true || newMember.selfDeaf == true) {
+  } else if(newUserChannel === null || oldMember.selfDeaf == true || newMember.selfDeaf == true || newMember.selfMute == true) {
     console.log("User Left");
     const user = await queries.queryUser(oldMember.guild.id, oldMember.id);
 
@@ -43,7 +41,7 @@ module.exports = async (client, oldMember, newMember) => {
     },
     {
       $inc:{
-        "guildMembers.$.messageCount":msInbetween*4
+        "guildMembers.$.messageCount":msInbetween*3
       }
     },
      {upsert: true}).exec();

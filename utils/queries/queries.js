@@ -34,7 +34,8 @@ const user = await serverStats.findOne(
                 medals: []
               }
             }
-          })}
+          }).exec()
+        }
         }).limit(1).lean().select({});
         
         return user;
@@ -51,7 +52,7 @@ const queryServerStats = async(guild, client) => {
         _id: mongoose.Types.ObjectId(),
         guildId: guild,
         messageCountTotal: 0,
-        guildMembersInt: client.guilds.cache.get(guild).memberCount,
+        guildMembersInt: 1,
         guildMembers: []
       });
       newStats.save();
@@ -88,6 +89,27 @@ const queryServerConfig = async(guild) => {
   },{upsert:true}).limit(1).lean();
 };
 
-module.exports = {queryPremUser, queryServerConfig, queryUser, queryServerStats}
+
+const newServerStats = async(guild, client) => {
+  return await serverStats.findOne({
+    guildId: guild
+  }, (err, guildStats) => {
+    if(!guildStats) {
+      console.log("No Data Found! - Stats");
+      //Creates a New Stats Schema
+      const newStats = new serverStats({
+        _id: mongoose.Types.ObjectId(),
+        guildId: guild,
+        messageCountTotal: 0,
+        guildMembersInt: 1,
+        guildMembers: []
+      });
+      newStats.save();
+    }
+  },{upsert:true}).limit(1).lean();
+};
+
+
+module.exports = {queryPremUser, queryServerConfig, queryUser, queryServerStats, newServerStats}
 
 //Hi

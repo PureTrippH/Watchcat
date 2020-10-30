@@ -20,7 +20,7 @@ console.log("adding a user.");
 
 
 const [ user, dbResConfig] = await Promise.all([queries.queryUser(message.guild.id, message.author.id), queries.queryServerConfig(message.guild.id)]);
-
+console.log(user);
 
 
 
@@ -56,7 +56,7 @@ setTimeout(() => {
     cmd.run(client, message, args);
   };
 
- const addOne = (message, client, mongoose, serverStats, dbResConfig, user) => {
+ const addOne = (message, client, mongoose, serverStats,) => {
         serverStats.updateOne(
           {
             guildId: message.guild.id, 
