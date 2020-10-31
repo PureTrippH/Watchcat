@@ -91,13 +91,69 @@ exports.run = async (client, message, args) => {
 			}	
 		});
 	}
+
+	redis.expire(async remessage => {
+		if(remessage.startsWith(`muted-`)) {
+			let str = remessage.split('-');
+			console.log("1 Time: " + remessage);
+			let selectedGuild = client.guilds.cache.get(str[2]);
+			let selectedMember = selectedGuild.members.cache.get(str[1]);
+
+			let dbResStatsUpdate = await serverStats.findOne(
+				{
+				guildId: selectedGuild.id,
+				"guildMembers.userID": selectedMember.id
+				}, 
+					{
+				guildMembers: {
+						$elemMatch: 
+						{
+					userID: selectedMember.id
+						}}});
+				const mentionedTier = (dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
+				const arrayVal = ((typeof dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles) == 'undefined') ? dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles : dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles
+
+			try {
+				selectedMember.roles.remove(dbResConfig.mutedRole);
+				selectedMember.roles.set(arrayVal);
+				selectedMember.send({embed: {
+					color: 0xff0000,
+					author: {
+						name: client.user.username,
+						icon_url: client.user.avatarURL
+					},
+					description: `Tier Expired`,
+					title: `User: ${message.guild.member(selectedMember.id).displayName}`,
+					timestamp: new Date(),
+					fields: [
+						{
+							name: `Mute Expired!`,
+							value: `If you arent unmuted or your roles are not back, please use (serverprefix)ticket (message)`,
+						},
+						],
+					footer: {
+						icon_url: client.user.avatarURL,
+						text: client.user.username
+					},
+					}
+				})
+			} catch(err) {console.log(`ERROR: ${err}`);}
+		} else if(remessage.startsWith('banned-')) {
+			let str = remessage.split('-');
+			let selectedGuild = client.guilds.cache.get(str[2]);
+			let selectedMember = selectedGuild.members.cache.get(str[1]);
+			try {
+				message.guild.members.unban(selectedMember, {reason: "They have served their sentence"});
+			} catch (err) {console.log(`ERROR: ${err}`);}
+		}
+	})
 };
 
 module.exports.help = {
 	name: "Tier User",
 	type: "moderation",
-	desc: "Bans the User for the Tier Time. [ALSO, DO NOT JOKE WITH THIS COMMAND. This can lead to adding a tier NO MATTER WHAT!]",
-	usage: "!!tierban (user) (tier)",
+	desc: "Punishes the User for the Tier Time and Tier Type (ban, mute, warn, etc)",
+	usage: "!!tier (user) (tier)",
 	aliases: ["t"]
 }
 
@@ -203,7 +259,7 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 	}
 	})
 
-	const redisClient = await redis()
+	const redisClient = await redis();
 	try {
 		const redisKey = `banned-${tagged.id}-${message.guild.id}`
 
@@ -211,7 +267,6 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 	} finally {
 		redisClient.quit();
 	}
-	redisClient.quit();
 
 	await tagged.ban(reason).catch(err => {
 		message.channel.send("Cant Kick User: Higher Permissions");
@@ -220,18 +275,6 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 	message.channel.send(`Sucessfully banned <@${tagged.id}> for T${lastTier + 1}`);
 	
 	//Ik its repetitive to have this declared twice but idc rn. I need to get this done ASAP for the server.
-
-
-	redis.expire(remessage => {
-		if(remessage.startsWith('banned-')) {
-			let str = remessage.split('-');
-			let selectedGuild = client.guilds.cache.get(str[2]);
-			let selectedMember = selectedGuild.members.cache.get(str[1]);
-			try {
-				message.guild.members.unban(selectedMember, {reason: "They have served their sentence"});
-			} catch (err) {console.log(err);}
-		}
-	});
 }
 
 
@@ -322,31 +365,10 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 				console.log("Cant Remove this Boi");
 			}
 		}
-	let dbResStatsUpdate = await serverStats.findOne(
-	{
-	guildId: message.guild.id,
-	"guildMembers.userID": message.author.id
-	}, 
-		{
-	guildMembers: {
-			$elemMatch: 
-			{
-		userID: tagged.id
-			}}});
-	const mentionedTier = (dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
-	const arrayVal = ((typeof dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles) == 'undefined') ? dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles : dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles
-	console.log(mentionedTier);
+	
 	message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
 
-	let days = seconds/(60*60*24*1000);
-
-	console.log();
-	console.log();
-	
-	const dayOfTheMonth = new Date()
-	dayOfTheMonth.setDate(dayOfTheMonth.getDate() + days);
-
-	const redisClient = await redis()
+	const redisClient = await redis();
 	try {
 		const redisKey = `muted-${tagged.id}-${message.guild.id}`
 
@@ -354,50 +376,5 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 	} finally {
 		redisClient.quit();
 	}
-	redisClient.quit();
-
-	redis.expire(remessage => {
-		console.log(remessage);
-		if(remessage.startsWith(`muted-`)) {
-			let str = remessage.split('-');
-			let selectedGuild = client.guilds.cache.get(str[2]);
-			let selectedMember = selectedGuild.members.cache.get(str[1]);
-
-			try {
-				selectedMember.roles.remove(dbResConfig.mutedRole);
-				(arrayVal).forEach(role => {
-					if(!(role == '725293383731380271')) {
-					try {
-						selectedMember.roles.add(role);
-					} catch(err) {
-						console.log(err);
-					}
-					} 
-				});
-				selectedMember.send({embed: {
-					color: 0xff0000,
-					author: {
-						name: client.user.username,
-						icon_url: client.user.avatarURL
-					},
-					description: `Tier Expired`,
-					title: `User: ${message.guild.member(selectedMember.id).displayName}`,
-					timestamp: new Date(),
-					fields: [
-						{
-							name: `Mute Expired!`,
-							value: `If you arent unmuted or your roles are not back, please use (serverprefix)ticket (message)`,
-						},
-						],
-					footer: {
-						icon_url: client.user.avatarURL,
-						text: client.user.username
-					},
-					}
-				})
-			} catch(err) {console.log(err);}
-		}
-	})
-
 }
 	

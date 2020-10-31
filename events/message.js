@@ -1,9 +1,7 @@
 const isMessageCooldown = new Set();
 module.exports = async (client, message) => {
-    const serverSettings = require("../data/serversettings.json");
     const mongoose = require('mongoose');
     const serverStats = require("../utils/schemas/serverstat.js");
-    const serverConfig = require("../utils/schemas/serverconfig.js");
     const queries = require('../utils/queries/queries.js');
     if(message.author.bot) return;
 

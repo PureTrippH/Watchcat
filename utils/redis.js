@@ -31,7 +31,3 @@ module.exports.expire = (callback) => {
     const pub = redis.createClient({ url: settings.redisPath});
     pub.send_command('config', ['set', 'notify-keyspace-events', 'Ex'], expired());
 }
-
-//Redis Password OYcyK1CCpCvDynHU4buPLr5T9se6exAa
-
-//Endpt: redis-17672.c84.us-east-1-2.ec2.cloud.redislabs.com:17672
