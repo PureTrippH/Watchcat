@@ -1,9 +1,9 @@
 const fs = require('fs');
 const Discord = require('discord.js');
-const { stringify } = require('querystring');
 const mongoose = require('./utils/mongoose');
-const eggHunt = require("./commands/laelaevents/easteregg.js");
 const settings = require('./settings.json');
+const redis = require('./utils/redis');
+const queries = require("./utils/queries/queries.js");
 
 
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
@@ -46,3 +46,61 @@ commandFiles.forEach(file => {
 mongoose.init();
 client.login(settings.token);
 
+
+redis.expire(async remessage => {
+
+    const serverStats = require("./utils/schemas/serverstat.js");
+    
+    if(remessage.startsWith(`muted-`)) {
+        let str = remessage.split('-');
+        console.log("1 Time: " + remessage);
+        let selectedGuild = client.guilds.cache.get(str[2]);
+        let selectedMember = selectedGuild.members.cache.get(str[1]);
+        let tierArg = str[3];
+        console.log(tierArg);
+        const dbResConfig = await queries.queryServerConfig(selectedGuild.id);
+        let dbResStatsUpdate = await serverStats.findOne(
+            {
+            guildId: selectedGuild.id,
+            "guildMembers.userID": selectedMember.id
+            }, 
+                {
+            guildMembers: {
+                    $elemMatch: 
+                    {
+                userID: selectedMember.id
+                    }}});
+            const mentionedTier = (dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
+            const arrayVal = ((typeof dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles) == 'undefined') ? dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles : dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles
+            selectedMember.roles.remove(dbResConfig.mutedRole);
+            selectedMember.roles.set(arrayVal);
+            selectedMember.send({embed: {
+                color: 0xff0000,
+                author: {
+                    name: client.user.username,
+                    icon_url: client.user.avatarURL
+                },
+                description: `Tier Expired`,
+                title: `User: ${selectedGuild.member(selectedMember.id).displayName}`,
+                timestamp: new Date(),
+                fields: [
+                    {
+                        name: `Mute Expired!`,
+                        value: `If you arent unmuted or your roles are not back, please use (serverprefix)ticket (message)`,
+                    },
+                    ],
+                footer: {
+                    icon_url: client.user.avatarURL,
+                    text: client.user.username
+                },
+                }
+            })
+    } else if(remessage.startsWith('banned-')) {
+        let str = remessage.split('-');
+        let selectedGuild = client.guilds.cache.get(str[2]);
+        let selectedMember = selectedGuild.members.cache.get(str[1]);
+        try {
+            selectedGuild.members.unban(selectedMember, {reason: "They have served their sentence"});
+        } catch (err) {console.log(`ERROR: ${err}`);}
+    }
+});

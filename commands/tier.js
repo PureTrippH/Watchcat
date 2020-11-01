@@ -77,76 +77,22 @@ exports.run = async (client, message, args) => {
 				})
 			}
 			const tierType = punishVar(user, dbResConfig, tierIndex, lastTier);
+			let redisClient = await redis();
 			switch(tierType) {
 				case "warning":
-					awaitWarn(client, message, tagged, user, date, lastTier, reason, args);
+					await awaitWarn(client, message, tagged, user, date, lastTier, reason, args);
 				break;
 				case "ban":
-					awaitBan(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redis);
+					await awaitBan(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redisClient);
 				break;
 
 				case "mute":
-					awaitMute(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redis);
+					await awaitMute(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redisClient);
 				break;
-			}	
+			}
+			redisClient.quit();
 		});
 	}
-
-	redis.expire(async remessage => {
-		if(remessage.startsWith(`muted-`)) {
-			let str = remessage.split('-');
-			console.log("1 Time: " + remessage);
-			let selectedGuild = client.guilds.cache.get(str[2]);
-			let selectedMember = selectedGuild.members.cache.get(str[1]);
-
-			let dbResStatsUpdate = await serverStats.findOne(
-				{
-				guildId: selectedGuild.id,
-				"guildMembers.userID": selectedMember.id
-				}, 
-					{
-				guildMembers: {
-						$elemMatch: 
-						{
-					userID: selectedMember.id
-						}}});
-				const mentionedTier = (dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) ? 0 : dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg); 
-				const arrayVal = ((typeof dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles) == 'undefined') ? dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles : dbResStatsUpdate.guildMembers[0].punishmentsTiers[mentionedTier].pastRoles.arrayOfRoles
-
-			try {
-				selectedMember.roles.remove(dbResConfig.mutedRole);
-				selectedMember.roles.set(arrayVal);
-				selectedMember.send({embed: {
-					color: 0xff0000,
-					author: {
-						name: client.user.username,
-						icon_url: client.user.avatarURL
-					},
-					description: `Tier Expired`,
-					title: `User: ${message.guild.member(selectedMember.id).displayName}`,
-					timestamp: new Date(),
-					fields: [
-						{
-							name: `Mute Expired!`,
-							value: `If you arent unmuted or your roles are not back, please use (serverprefix)ticket (message)`,
-						},
-						],
-					footer: {
-						icon_url: client.user.avatarURL,
-						text: client.user.username
-					},
-					}
-				})
-			} catch(err) {console.log(`ERROR: ${err}`);}
-		} else if(remessage.startsWith('banned-')) {
-			let str = remessage.split('-');
-			let selectedGuild = client.guilds.cache.get(str[2]);
-			let selectedMember = selectedGuild.members.cache.get(str[1]);
-			try {
-				message.guild.members.unban(selectedMember, {reason: "They have served their sentence"});
-			} catch (err) {console.log(`ERROR: ${err}`);}
-		}
-	})
 };
 
 module.exports.help = {
@@ -222,7 +168,7 @@ const addTier = async(client, message, tagged, user, tierArg, serverStats, dbRes
 
 }
 
-const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redis) => {
+const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redisClient) => {
 	await tagged.send({embed: {
 		color: 0xff0000,
 		author: {
@@ -258,14 +204,11 @@ const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbRe
 		},
 	}
 	})
-
-	const redisClient = await redis();
 	try {
 		const redisKey = `banned-${tagged.id}-${message.guild.id}`
 
 		redisClient.set(redisKey, 'true', 'EX', (seconds / 1000));
 	} finally {
-		redisClient.quit();
 	}
 
 	await tagged.ban(reason).catch(err => {
@@ -318,9 +261,8 @@ const awaitWarn = async(client, message, tagged, user, date, lastTier, reason, a
 	
 
 
-const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redis) => {
-	console.log("Muted!");
-	await tagged.send({embed: {
+const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redisClient) => {
+	tagged.send({embed: {
 		color: 0xff0000,
 		author: {
 		name: client.user.username,
@@ -365,16 +307,13 @@ const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbR
 				console.log("Cant Remove this Boi");
 			}
 		}
-	
-	message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
-
-	const redisClient = await redis();
-	try {
-		const redisKey = `muted-${tagged.id}-${message.guild.id}`
-
+		
+		
+		const redisKey = `muted-${tagged.id}-${message.guild.id}-${tierArg}`
 		redisClient.set(redisKey, 'true', 'EX', (seconds / 1000));
-	} finally {
-		redisClient.quit();
-	}
+		message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
+		console.log(redisClient.connected);
+		
 }
 	
+

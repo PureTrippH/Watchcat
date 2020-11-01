@@ -8,10 +8,14 @@ module.exports = async() => {
         })
 
         client.on('error', (err) => {
-            console.error("Error in The Redis Mute Server")
+            console.error("Error in The Redis Mute Server: " + err);
             client.quit()
             reject(err)
         })
+        client.on('end', () => {
+            console.log("Client has disconnected");
+        })
+
         client.on('ready', () => {
             resolve(client);
         })
