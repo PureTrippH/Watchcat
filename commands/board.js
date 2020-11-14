@@ -1,7 +1,5 @@
 /*-----------------------------------------------
-This code is very Buggy and needs to be cleaned up.
-Going through the cleaning process right now. Not
-even my mom can make this spaghetti.
+Still a WIP Feature
 -----------------------------------------------*/
 exports.run = async (client, message, args) => {
 	const Discord = require('discord.js');
