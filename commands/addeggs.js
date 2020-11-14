@@ -3,7 +3,6 @@ exports.run = async(client, message, args) => {
 	const serverStats = require("../utils/schemas/serverstat.js");
 	const fs = require("fs");
 	const queries = require('../utils/queries/queries');
-	const serverStats = queries.queryServerStats(message.guild.id);	
 
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 		if(!tagged) return message.channel.send("Please Tag A User To Add To Their Eggs!");

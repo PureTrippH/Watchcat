@@ -1,9 +1,13 @@
 //Most Likely should Optimize this Spaghetti Code.
 exports.run = async (client, message, args) => {
     const Discord = require('discord.js');
+    const instructionEmbed = new Discord.MessageEmbed();
     let fields = [];
     const exampleEmbed = new Discord.MessageEmbed();
     const filter = m => m.author.id === message.author.id;
+
+    instructionEmbed.setTitle("Embed Creator:");
+    instructionEmbed.setColor("#d395f0")
 
     if(message.member.hasPermission('ADMINISTRATOR') || message.author.id == '168695206575734784') {
     message.delete();

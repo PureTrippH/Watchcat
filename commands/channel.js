@@ -11,7 +11,6 @@ exports.run = async (client, message, args) => {
 			message.author.send("No Command Found. Try again");
 
 		break;
-
 	}
 }
 }

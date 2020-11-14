@@ -1,16 +1,16 @@
 const { Mongoose } = require("mongoose");
 
 exports.run = async (client, message, args) => {
+	const Discord = require('discord.js');
 	const queries = require("../utils/queries/queries.js");
 	const premUser = require("../utils/schemas/premuser.js");
 
+	const embed = new Discord.MessageEmbed();
 	const filter = m => m.author.id === message.author.id;
-
 	const queriedPrem = await queries.queryPremUser(message.guild, message.author.id);
 
 
-	console.log(queriedPrem);
-	if(queriedPrem === null) return message.author.send("You Are Not A Premium User of Watchcat. You can sign up by going to the website to get access to cool perks! If you are part of Laelaserv, This Perk is Free. Just DM Gem for it.");
+	if(queriedPrem === null) return message.author.send("You Are Not A Premium User of Watchcat. You can sign up by going to the website to get access to cool perks! If you are part of Los Lechugas, This Perk is Free. Just DM Gem#2003 for it.");
 	message.channel.send({embed: {
 		color: 0x00ff00,
 		description: "Thank you for Supporting the Development of Watchcat!",
@@ -44,7 +44,7 @@ exports.run = async (client, message, args) => {
 			message.channel.awaitMessages(filter, {
 				max: 1
 			}).then(collectedtext => {
-				if((collectedtext.first().content).endsWith(".jpeg") || (collectedtext.first().content).endsWith(".jpg") || (collectedtext.first().content).endsWith(".png")) {
+				if((collectedtext.first().content).endsWith(".jpeg") || (collectedtext.first().content).endsWith(".jpg") || (collectedtext.first().content).endsWith(".png") || (collectedtext.first().content).endsWith(".gif")) {
 				
 				premUser.findOneAndUpdate({
 					discordId: message.author.id

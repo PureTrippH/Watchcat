@@ -1,5 +1,4 @@
 exports.run = async (client, message, args) => {
-    const serverSettings = require("../data/serversettings.json");
     const reason = args.slice(1).join(" ") || "Unknown Reason";
     const fs = require("fs");
     const tagged = message.mentions.users.first();
@@ -41,5 +40,5 @@ module.exports.help = {
   type: "moderation",
   aliases: [],
 	desc: "Sends a user a DM warning them of an offense, but doesn't add a tier",
-	usage: "l^warn (user) [reason]"
+	usage: "!!warn (user) [reason]"
 }
