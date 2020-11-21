@@ -38,6 +38,7 @@ commandFiles.forEach(file => {
     let commandName = file.split(".")[0];
     client.commands.set(commandName.toLowerCase(), command);
     command.help.aliases.forEach(alias => {
+        console.log(`Watchcat Registering ${alias}`);
         client.aliases.set(alias, command);
     })
     console.log(`Watchcat has registered ${commandName}`);

@@ -6,8 +6,7 @@ exports.run = async (client, message, args) => {
     const exampleEmbed = new Discord.MessageEmbed();
     const filter = m => m.author.id === message.author.id;
 
-    instructionEmbed.setTitle("Embed Creator:");
-    instructionEmbed.setColor("#d395f0")
+    instructionEmbed.setTitle("Embed Creator!");
 
     if(message.member.hasPermission('ADMINISTRATOR') || message.author.id == '168695206575734784') {
     message.delete();
@@ -38,10 +37,16 @@ exports.run = async (client, message, args) => {
     
     });
   });
+}
+}
 
-
-} else return message.author.send("This is an Admin Command. If this is an error, consult Gem#2003");
-} 
+module.exports.help = {
+  name: "Embed",
+  type: "utility",
+  aliases: [],
+	desc: "Opens the Embed Editor to create Discord Embeds",
+	usage: "!!embed [channel] [id]"
+}
 
 
 const func = async(client, message, args, collectedtext, filter, fields, color, embedTar, hasImage) => {
@@ -114,6 +119,7 @@ const wantDesc = (client, message, args, collectedtext, filter, fields, color, e
 
 const hasImageCheck = (client, message, args, collectedtext, filter, fields, color, embedTar, hasImage) => {
   let parsedChannel = args[0].replace('<#', '').replace('>', "");
+  console.log(parsedChannel);
   const channelRecipient = ((args[0] == null)) ? message.channel : message.guild.channels.cache.get(parsedChannel);
   if(hasImage == true) {
     message.channel.send("Image Selected: Type the image link:")
@@ -146,10 +152,3 @@ const hasImageCheck = (client, message, args, collectedtext, filter, fields, col
 }
 
 
-module.exports.help = {
-  name: "Embed",
-  type: "utility",
-  aliases: [],
-	desc: "Opens the Embed Editor to create Discord Embeds",
-	usage: "!!embed [channel] [id]"
-}

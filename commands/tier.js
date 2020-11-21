@@ -1,8 +1,3 @@
-/*-----------------------------------------------
-This code is very Buggy and needs to be cleaned up.
-Going through the cleaning process right now. Not
-even my mom can make this spaghetti.
------------------------------------------------*/
 exports.run = async (client, message, args) => {
 //Defined Required Modules and Packages.
 	const ms = require("ms");
@@ -24,6 +19,12 @@ exports.run = async (client, message, args) => {
 	const yyyy = date.getFullYear();
 	const banDate = { dd: dd, mm: mm, yyyy: yyyy}
 	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg);
+
+
+	const dependencies = {
+		redis,
+		ms,
+	}
 	
 
 	//Checks for Permissions and Args validity
