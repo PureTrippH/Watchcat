@@ -5,7 +5,6 @@ exports.run = async (client, message, args) => {
 	const ms = require("ms");
 	
 	const redis = require('../utils/redis');
-	const serverStats = require("../utils/schemas/serverstat.js");
 	const serverConfig = require("../utils/schemas/serverconfig.js");
 	const queries = require("../utils/queries/queries.js");
 
@@ -20,34 +19,28 @@ exports.run = async (client, message, args) => {
 	const user = await queries.queryUser(message.guild.id, tagged.id);
 
 	const tierAction = require('../utils/queries/tierUtils/tierUtils.js');
-
-	const dependencies = {
-		redis,
-		ms,
-	}
 	
 
 	//Checks for Permissions and Args validity
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 
-	const tier = await serverConfig.findOne(
-		{
-		  guildId: message.guild.id,
-		}, 
-		{
-		  serverTiers: {
-			$elemMatch: 
+		const tier = await serverConfig.findOne(
 			{
-				TierName: tierArg
-			}
-		  }
-		});
+				guildId: message.guild.id,
+			}, 
+			{
+				serverTiers: {
+					$elemMatch: 
+					{
+						TierName: tierArg
+					}
+				}
+			});
 
 		if((tier.serverTiers).length == 0) return message.channel.send("No Tier Found");
 		let punishArray = user.guildMembers[0].punishmentsTiers;
 		let userRoles = tagged._roles;
 		
-
 		const lastTier = (typeof punishArray[punishArray.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : punishArray[punishArray.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
 		
 
@@ -68,6 +61,16 @@ exports.run = async (client, message, args) => {
 					await awaitMute(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, redisClient, ms, message);
 				break;
 			}
+			embedTemp.setTitle("You Have Been Tiered!");
+			embedTemp.setColor("#ff0000");
+			embedTemp.setDescription(`Mod: ${message.author}`)
+			embedTemp.addFields({ name: `Tier:`, value: `${tierArg}`, inline: false });
+			embedTemp.addFields({ name: `Type:`, value: `${await tierAction.matchPunishment(tier, dbResConfig, lastTier)}`, inline: false });
+			embedTemp.addFields({ name: `Time:`, value: `${ms(await tierAction.matchTier(tier, dbResConfig, lastTier))}`, inline: false });
+			embedTemp.addFields({ name: `Reason:`, value: `${reason}`, inline: false });
+			tagged.send(embedTemp);
+		
+
 			redisClient.quit();
 
 	}
@@ -75,25 +78,10 @@ exports.run = async (client, message, args) => {
 
 
 const awaitWarn = async(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, redisClient, ms, message) => {
-	console.log("warn");
-	embedTemp.setTitle("You Have Been Tiered!");
-	embedTemp.setColor("#ff0000");
-	embedTemp.addFields({ name: `Tier:`, value: `${tierArg}`, inline: false });
-	embedTemp.addFields({ name: `Type:`, value: `${tierAction.matchPunishment(tier, dbResConfig, lastTier)}`, inline: false });
-	embedTemp.addFields({ name: `Time:`, value: `${ms(await tierAction.matchTier(tier, dbResConfig, lastTier))}`, inline: false });
-	embedTemp.addFields({ name: `Reason:`, value: `${reason}`, inline: false });
-	tagged.send(embedTemp);
+	message.channel.send(`Sucessfully Warned <@${tagged.id}> for T${lastTier + 1}`);
 }
 
 const  awaitMute = async(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, redisClient, ms, message) => {
-	console.log("mute");
-	embedTemp.setTitle("You Have Been Tiered!");
-	embedTemp.setColor("#ff0000");
-	embedTemp.addFields({ name: `Tier:`, value: `${tierArg}`, inline: false });
-	embedTemp.addFields({ name: `Type:`, value: `${await tierAction.matchPunishment(tier, dbResConfig, lastTier)}`, inline: false });
-	embedTemp.addFields({ name: `Time:`, value: `How much Time?: ${ms(await tierAction.matchTier(tier, dbResConfig, lastTier))}`, inline: false });
-	embedTemp.addFields({ name: `Reason:`, value: `${reason}`, inline: false });
-	tagged.send(embedTemp);
 
 	if(!tagged.roles.cache.has(dbResConfig.mutedRole)) {
 		try {
@@ -113,20 +101,13 @@ const  awaitMute = async(tierAction, embedTemp, tier, tagged, reason, tierArg, d
 
 
 const awaitBan = async(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, redisClient, ms, message) => {
-	console.log("ban");
-	embedTemp.setTitle("You Have Been Tiered!");
-	embedTemp.setColor("#ff0000");
-	embedTemp.addFields({ name: `Tier:`, value: `${tierArg}`, inline: false });
-	embedTemp.addFields({ name: `Type:`, value: `${tierAction.matchPunishment(tier, dbResConfig, lastTier)}`, inline: false });
-	embedTemp.addFields({ name: `Time:`, value: `${ms(await tierAction.matchTier(tier, dbResConfig, lastTier))}`, inline: false });
-	embedTemp.addFields({ name: `Reason:`, value: `${reason}`, inline: false });
-	tagged.send(embedTemp);
 
 	try {
 		const redisKey = `banned-${tagged.id}-${message.guild.id}`
 
 		redisClient.set(redisKey, 'true', 'EX', (await tierAction.matchTier(tier, dbResConfig, lastTier) / 1000));
 	} finally {
+		console.log("Muted User");
 	}
 
 	await tagged.ban(reason).catch(err => {
