@@ -28,7 +28,7 @@ client.aliases = new Discord.Collection();
 client.once('ready', async() => {
     const guildCount = await client.shard.fetchClientValues('guilds.cache.size');
     console.log("Laela's Watchcat Ready to Guard");
-    client.user.setPresence({ activity: { name: `Watching: ${guildCount} Servers!!` }, status: 'idle' });
+    client.user.setPresence({ activity: { name: `Watching: ${guildCount} Servers!! Ty!` }, status: 'idle' });
     //eggHunt.run(client);
 
 });
