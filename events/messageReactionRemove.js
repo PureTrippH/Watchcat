@@ -21,10 +21,10 @@ module.exports = async (client, reaction) => {
       //X 767067602144854046
       reaction.message.reactions.cache.forEach(emoji => {
         switch(emoji.emoji.id) {
-          case '766801202297045002':
+          case '767083818199810088':
             countCheck = emoji.count;
           break;
-          case '766801174543728660':
+          case '767083772440608778':
             countX = emoji.count;
           break; 
         }
