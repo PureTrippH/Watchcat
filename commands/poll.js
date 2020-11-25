@@ -22,8 +22,8 @@ exports.run = async (client, message, args) => {
 
     
    const pollmsg = await message.channel.send(poll);
-        pollmsg.react(client.emojis.resolveIdentifier("766801202297045002"));
-        pollmsg.react(client.emojis.resolveIdentifier("766801174543728660"));
+        pollmsg.react(client.emojis.resolveIdentifier("767083818199810088"));
+        pollmsg.react(client.emojis.resolveIdentifier("767083772440608778"));
 
                 
     try {
