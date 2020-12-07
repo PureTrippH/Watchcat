@@ -14,8 +14,8 @@ module.exports = async (client, reaction) => {
       const oldEmb = reaction.message.embeds[0];
       const oldEmbForm = new Discord.MessageEmbed(oldEmb);
 
-      let countX = 0;
-      let countCheck = 0;
+      let countX = -1;
+      let countCheck = -1;
 
       //Check 766801202297045002
       //X 767067602144854046

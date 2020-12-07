@@ -89,7 +89,6 @@ const queryServerConfig = async(guild) => {
   },{upsert:true}).limit(1).lean();
 };
 
-
 const newServerStats = async(guild, client) => {
   return await serverStats.findOne({
     guildId: guild

@@ -14,8 +14,8 @@ module.exports = async (client, reaction) => {
       const oldEmb = reaction.message.embeds[0];
       const oldEmbForm = new Discord.MessageEmbed(oldEmb);
 
-      let countX = 0;
-      let countCheck = 0;
+      let countX = -1;
+      let countCheck = -1;
 
       reaction.message.reactions.cache.forEach(emoji => {
         console.log(emoji.emoji.id);

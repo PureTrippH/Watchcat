@@ -49,7 +49,16 @@ client.login(settings.token);
 
 
 redis.expire(async remessage => {
-    
+    if(remessage.startsWith(`clubVC-`)) {
+        let str = remessage.split('-');
+        console.log(str);
+        let selectedGuild = client.guilds.cache.get(str[3]);
+        let selectedVC = selectedGuild.channels.cache.get(str[1]);
+        let selectedClubRole = selectedGuild.roles.cache.get(str[2]);
+        selectedClubRole.delete();
+        selectedVC.delete();
+    }
+
     if(remessage.startsWith(`muted-`)) {
         let str = remessage.split('-');
         console.log("1 Time: " + remessage);

@@ -20,13 +20,6 @@ exports.run = async (client, message, args) => {
 	const banDate = { dd: dd, mm: mm, yyyy: yyyy}
 	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg);
 
-
-	const dependencies = {
-		redis,
-		ms,
-	}
-	
-
 	//Checks for Permissions and Args validity
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
 	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
