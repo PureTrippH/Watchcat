@@ -4,6 +4,7 @@ const clubSchema = mongoose.Schema({
     guildId: String,
     clubName: String,
     thumbnail: String,
+    desc: String,
     channelCount: Number,
     leader: String,
     members: [{type: String}]   

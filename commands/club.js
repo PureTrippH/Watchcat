@@ -1,11 +1,11 @@
 exports.run = async (client, message, args) => {
-	const Discord = require('discord.js');
-	const mongoose = require('mongoose');
+	const create = require('./clubmod/create');
 	const createVC = require('./clubmod/vccreate');
 	const infoCard = require('./clubmod/info');
 	const joinClub = require('./clubmod/joinclub');
 	const disbandClub = require('./clubmod/disband');
 	const leaveClub = require('./clubmod/leaveclub');
+	const config = require('./clubmod/config');
 
 	const clubSchema = require("../utils/schemas/club");
 
@@ -17,40 +17,7 @@ exports.run = async (client, message, args) => {
 	switch(args[0].toLowerCase()) {
 		
 		case "create":
-			message.channel.send("Please Insert A Club Name And A Club Thumbnail (In Separate Messages Please):");
-
-			message.channel.awaitMessages(filter, {max:2}).then(async collected => {
-
-				const clubInfo = {
-					title: collected.first().content,
-					thumbnail: collected.last().content,
-				};
-				let embed = new Discord.MessageEmbed();
-				embed.setTitle(`Confirm ${clubInfo.title}?`);
-				embed.setThumbnail(clubInfo.thumbnail);
-				message.channel.send(embed).then(msg => {
-				msg.react('✅');
-				msg.react('❌');
-				msg.awaitReactions((reaction, user) => user.id == message.author && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
-					{ max: 1, time: 50000 }).then(collected => {
-					console.log(collected.first().emoji.name);
-					if(collected.first().emoji.name == '✅') {
-						message.author.send("Club For Server Created!");
-						const newClub = new clubSchema({
-							_id: mongoose.Types.ObjectId(),
-							guildId: message.guild.id,
-							clubName: (clubInfo.title).toLowerCase(),
-							channelCount: 0,
-							thumbnail: clubInfo.thumbnail,
-							leader: message.author.id,
-							members: [message.author.id]
-						});
-						newClub.save();
-					}
-					});
-				});
-
-				});
+			create.create(client, message);
 		break;
 
 		case "channel":
@@ -69,6 +36,11 @@ exports.run = async (client, message, args) => {
 		case "join":
 			await joinClub.joinClub(client, message, filter, clubSchema);
 		break;
+
+		case "config":
+			await config.config(client, message, filter, clubSchema);
+		break;
+
 
 		case "disband":
 			await disbandClub.disband(client, message);

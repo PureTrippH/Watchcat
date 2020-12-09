@@ -8,12 +8,15 @@ message.channel.awaitMessages(filter, {max:1}).then(async collected => {
             clubName: (collected.first().content).toLowerCase()
         });
         if((memberClub.members).includes(message.author.id)) return message.author.send("Cant Join this Club. You Are Already A MEMEber!");
+        console.log(memberClub);
         memberClub.updateOne({
             $push: {
                 members: message.author.id
             }
+        }).then(() => {
+            message.author.send("Successfully Joined Club");
         });
     console.log(memberClub);
-    message.author.send("Successfully Joined Club");
+    
 });
 };
