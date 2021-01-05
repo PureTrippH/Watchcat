@@ -12,8 +12,7 @@ module.exports = async (client, member) => {
   const mongoose = require('mongoose');
 
   const queries = require('../utils/queries/queries');
-  console.log*
-  queries.queryUser(member.guild.id, member.id);
+  await queries.queryUser(member.guild.id, member.id);
 
 	const dbResConfig = await serverConfig.findOne({
 		guildId: member.guild.id
@@ -21,17 +20,6 @@ module.exports = async (client, member) => {
 
   console.log("haiii");
   const redisClient = await redis();
-  try {
-    redisClient.get(`muted-${member.id}`, (err, res) => {
-      if(err) console.error('Error Getting Redis:', err);
-
-      if(res) {
-        dbResConfig.roles.add(dbResConfig.mutedRole);
-      }
-    })
-  } finally {
-    redisClient.quit()
-  }
 
 
   welcomeEmb.setTitle(`Verification Reminder: ${member.guild.name}`);

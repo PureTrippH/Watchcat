@@ -3,6 +3,12 @@ exports.create = async (client, message) => {
 	const clubSchema = require("../../utils/schemas/club");
 	const serverConfig = require("../../utils/schemas/clubConfig");
 
+	const clubConfig = require('../../utils/schemas/clubConfig');
+    
+    const thisClubServ = await clubConfig.findOne({
+		guildId: message.guild.id
+	});
+
 	const clubInfo = {
 		title: null,
 		thumbnail: null,
@@ -26,7 +32,7 @@ exports.create = async (client, message) => {
 				clubInfo.leader = collected.first().content;
 			});
 		}
-	message.channel.send("Please Insert A Club Name And A Club Thumbnail (In Separate Messages Please):");
+	message.channel.send("Please Insert A Club Name, Club Description, A Club Thumbnail (In Separate Messages Please):");
 	if(clubInfo.leader == "none") clubInfo.leader = message.author.id;
 	message.channel.awaitMessages(filter, {max:3}).then(async collected => {
 
@@ -45,20 +51,37 @@ exports.create = async (client, message) => {
 		msg.react('✅');
 		msg.react('❌');
 		msg.awaitReactions((reaction, user) => user.id == message.author && (reaction.emoji.name == '✅' || reaction.emoji.name == '❌'),
-			{ max: 1, time: 50000 }).then(collected => {
+			{ max: 1, time: 50000 }).then(async collected => {
 			console.log(collected.first().emoji.name);
 			if(collected.first().emoji.name == '✅') {
-				const newClub = new clubSchema({
-					_id: mongoose.Types.ObjectId(),
-					guildId: message.guild.id,
-					clubName: (clubInfo.title).toLowerCase(),
-					channelCount: 0,
-					desc: clubInfo.desc,
-					thumbnail: clubInfo.thumbnail,
-					leader: clubInfo.leader,
-					members: [clubInfo.leader]
+
+				message.guild.channels.create(`${(clubInfo.title).toLowerCase()}-text`, {
+					permissionOverwrites: [{
+						id: message.guild.id,
+						deny: ['SEND_MESSAGES', 'VIEW_CHANNEL']
+					},
+					{
+						id: message.author.id,
+						allow: ['SEND_MESSAGES', 'VIEW_CHANNEL']
+					}]
+				}).then(async textChat => {
+					console.log(textChat.id);
+					textChat.setParent(thisClubServ.category);
+					const newClub = new clubSchema({
+						_id: mongoose.Types.ObjectId(),
+						guildId: message.guild.id,
+						clubName: (clubInfo.title).toLowerCase(),
+						channelCount: 0,
+						desc: clubInfo.desc,
+						thumbnail: clubInfo.thumbnail,
+						leader: clubInfo.leader,
+						textChat: textChat.id,
+						members: [clubInfo.leader],
+						events: []
+					});
+					newClub.save();
 				});
-				newClub.save();
+				
 				let user = message.guild.members.cache.get(clubInfo.leader)
 				embed.setTitle(`Created Club for: ${user} - ${clubInfo.title}`);
 				embed.setImage(clubInfo.thumbnail);
@@ -70,3 +93,23 @@ exports.create = async (client, message) => {
 		});
 
 };
+
+
+const makePermOvArray = async(arr, message) => {
+	let mast = [{
+		id: message.guild.id,
+		deny: ['SEND_MESSAGES', 'VIEW_CHANNEL']
+	}];
+	arr.forEach(member => {
+		if(member != message.author.id) {
+		let JSON = {
+			id: member,
+			allow: ['SEND_MESSAGES', 'VIEW_CHANNEL']
+		};
+		console.log(JSON);
+		mast.push(JSON);
+	}
+	});
+		console.log(mast);
+	return mast;
+}

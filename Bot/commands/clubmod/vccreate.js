@@ -20,34 +20,33 @@ exports.runClub = async (client, message) => {
 	});
 	if(memberClub.channelCount >= 1) return message.author.send("You Have Reached the Max VC Count!");
 	if(!memberClub || (message.author.id != memberClub.leader)) return message.author.send("You Are Not A Club Leader!");
-			const clubRole = await message.guild.roles.create({
-				data: {
-				name: `${memberClub.clubName}`,
-			}, reason: 'Club Requested a VC',
-		});
-
-
+	
 			const vc = await message.guild.channels.create(`${memberClub.clubName} - VC`, {
 				type: 'voice',
-				permissionOverwrites: [
-					{
-						id: clubRole.id,
-						allow: ['VIEW_CHANNEL', 'CONNECT', 'SPEAK', 'STREAM']
-					},
-					{
-						id: message.guild.id,
-						deny: ['VIEW_CHANNEL', 'CONNECT', 'SPEAK', 'STREAM']
-					}]
+				permissionOverwrites: await makePermOvArray(memberClub.members, message.guild.id),
 			});
 			vc.setParent(thisConf.category);
 
-		await redisClient.set(`clubVC-${vc.id}-${clubRole.id}-${message.guild.id}`, 'true', 'EX', 3600);
-
-		memberClub.members.forEach(mem => {
-			console.log(mem);
-			(message.guild.members.cache.get(mem)).roles.add(clubRole);
-		})
+		await redisClient.set(`clubVC-${vc.id}-${message.guild.id}`, 'true', 'EX', 20);
 
 		
 
 		}
+
+
+const makePermOvArray = async(arr, guildId) => {
+	let mast = [{
+		id: guildId,
+		deny: ['VIEW_CHANNEL', 'CONNECT', 'SPEAK', 'STREAM']
+	}];
+	arr.forEach(member => {
+		let JSON = {
+			id: member,
+			allow: ['VIEW_CHANNEL', 'CONNECT', 'SPEAK', 'STREAM']
+		};
+		console.log(JSON);
+		mast.push(JSON);
+	});
+		console.log(mast);
+	return mast;
+}

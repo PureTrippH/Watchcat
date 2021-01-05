@@ -21,8 +21,8 @@ exports.run = async (client, message, args) => {
       embed.setFooter(new Date());
       message.author.send(embed).then(() => {
         try{
-          embed.setTitle(`USER VERIFIED: `);
-          embed.setColor(`#00ff00`);
+          embed.setTitle(`USER VERIFIED: ${message.guild.member(message.author).displayName}`);
+          embed.setColor(`#RANDOM`);
           embed.setDescription(`User Verified: ${message.author}`);
           embed.setFooter(new Date());
           client.channels.cache.get(server.logChannel).send(embed);

@@ -7,7 +7,9 @@ const clubSchema = mongoose.Schema({
     desc: String,
     channelCount: Number,
     leader: String,
-    members: [{type: String}]   
+    textChat: String,
+    members: [{type: String}],
+    events: [{type: String}]   
 });
 
 module.exports = mongoose.model("Club", clubSchema, 'clubs');

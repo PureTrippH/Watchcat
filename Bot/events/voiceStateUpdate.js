@@ -41,7 +41,7 @@ module.exports = async (client, oldMember, newMember) => {
     },
     {
       $inc:{
-        "guildMembers.$.messageCount":msInbetween*3
+        "guildMembers.$.messageCount":msInbetween*2
       }
     },
      {upsert: true}).exec();

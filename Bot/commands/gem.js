@@ -1,3 +1,5 @@
+const { queryUser, queryServerStats } = require("../utils/queries/queries.js");
+
 exports.run = async (client, message, args) => {
 	const fs = require("fs");
 	const Discord = require('discord.js');
@@ -9,11 +11,18 @@ exports.run = async (client, message, args) => {
 	const tagged = message.mentions.members.first();
 	
 	if(message.author.id == '168695206575734784') {
-	if(!tagged) return message.author.send("No User Was Mentioned Dev Options");
+	const user = await queryUser(message.guild.id, args[1]);
+	if(user || !tagged) return message.author.send("No User Was Mentioned For Dev Options");
+	console.log(user);
 	switch(args[0].toLowerCase()) {
 		case "msg":
 			msgAdder.addmsg(client, message, args, tagged);
 
+		break;
+
+		case "index":
+			message.author.send(`Index of User: ${await queryServerStats(message.guild.id).then(stats => { stats.guildMembers.findIndex(userObj => userObj.userID === tagged.id)})}`);
+			console.log(await queryServerStats(message.guild.id));
 		break;
 
 		case "addprem":

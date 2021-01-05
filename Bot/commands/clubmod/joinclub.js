@@ -7,13 +7,15 @@ message.channel.awaitMessages(filter, {max:1}).then(async collected => {
             guildId: message.guild.id,
             clubName: (collected.first().content).toLowerCase()
         });
-        if((memberClub.members).includes(message.author.id)) return message.author.send("Cant Join this Club. You Are Already A MEMEber!");
-        console.log(memberClub);
+        if(!memberClub) return message.author.send("Club Does Not Exist");
+
         memberClub.updateOne({
             $push: {
                 members: message.author.id
             }
         }).then(() => {
+            console.log(message.guild.channels.cache.get(memberClub.textChat));
+            message.guild.channels.cache.get(memberClub.textChat).updateOverwrite(message.author.id, {SEND_MESSAGES: true, VIEW_CHANNEL: true});
             message.author.send("Successfully Joined Club");
         });
     console.log(memberClub);

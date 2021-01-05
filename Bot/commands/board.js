@@ -21,18 +21,19 @@ exports.run = async (client, message, args) => {
 					'guildMembers.messageCount': -1
 				}}
 		]).limit(10);
-
-		console.log(topUser);
+		topUser.forEach(user => {
+			console.log(user.guildMembers.userID);
+		})
 		leaderBoard.setTitle("Watchcat Server Leaderboard");
 		leaderBoard.setColor('#e3bcf7');
 		leaderBoard.setFooter('No Life Board', "https://assets.stickpng.com/thumbs/580b57fbd9996e24bc43bb8a.png");
 		leaderBoard.setThumbnail('https://assets.stickpng.com/thumbs/58adf251e612507e27bd3c32.png');
 		leaderBoard.setAuthor(`Laela's WatchCat`, 'https://assets.stickpng.com/thumbs/580b57fbd9996e24bc43bb8a.png');
-		topUser.forEach(user => {
+		topUser.forEach(async user => {
 			
-			let userName = message.guild.member(user.guildMembers.userID);
+			let userName = message.guild.members.cache.get(user.guildMembers.userID);
 			let level = getUserLevel(user.guildMembers.messageCount);
-			leaderBoard.addFields({ name: `${amount}: ${userName.displayName}`, value: `Level: **${level.level}**`, inline: true });
+			leaderBoard.addFields({ name: `${amount}:  **(Level ${level.level})**`, value: `Level: **<@${user.guildMembers.userID}>**`, inline: true });
 			amount++
 		})
 

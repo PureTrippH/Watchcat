@@ -6,16 +6,20 @@ const serverStats = require("../../schemas/serverstat.js");
 
 
 const addTier = async(client, message, user, tier, userRoles, tierArg, lastTier, tagged) => {
-	if(tier) {
+	if(user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg) == -1) {
+		console.log("ITS TRUE!");
+		console.log(`Tier Name: ${tier.serverTiers[0].TierName}`);
+		console.log(`Tier Forgiveness: ${tier.serverTiers[0].TierForgiveness*(lastTier + 1)}`);
+
 		console.log("Adding to set");
 		serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": tagged.id} , {
 			$addToSet:{
 			"guildMembers.$.punishmentsTiers": {
 				tierName: tier.serverTiers[0].TierName,
 				tierLevel: 1,
-				TierForgiveness: tier.serverTiers[0]*(lastTier + 1),
+				TierForgiveness: tier.serverTiers[0].TierForgiveness*(lastTier + 1),
 				OffenderMsgCount: user.guildMembers[0].messageCount,
-				tierTime: tier.serverTiers[0].TierTimes * (lastTier + 1),
+				tierTime: tier.serverTiers[0].TierTimes[(lastTier + 1)],
 				pastRoles: userRoles
 			}
 		}}, {upsert: true}).exec();
@@ -26,18 +30,14 @@ const addTier = async(client, message, user, tier, userRoles, tierArg, lastTier,
 			"guildMembers.userID": tagged.id,
 		}, 
 		{
-			$set:{
-				"guildMembers.$.punishmentsTiers.$[punishmentName].pastRoles": {
-					userRoles,
-				},
-			},
-			"guildMembers.$.punishmentsTiers.$[punishmentName].tierTime": tier.serverTiers[0].TierTimes * (lastTier + 1),
+			"guildMembers.$.punishmentsTiers.$[punishmentName].pastRoles": userRoles,
+			"guildMembers.$.punishmentsTiers.$[punishmentName].tierTime": tier.serverTiers[0].TierTimes[(lastTier + 1)],
 			$inc:{
 				"guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
 			},
 			},
 			{ "arrayFilters": [
-				{ "punishmentName.tierName": tier.serverTiers[0].TierName }
+				{ "punishmentName.tierName": (tier.serverTiers[0].TierName) }
 			] }).exec();
 		}
 

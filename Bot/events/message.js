@@ -9,16 +9,8 @@ if(message.guild) {
 
 
 //Is the User in the Cooldown for message count?
-if(isMessageCooldown.has(message.author.id)) {
-
-  console.log(isMessageCooldown);
-
-} else {
-console.log("adding a user.");
-
-
+if(!isMessageCooldown.has(message.author.id)) {
 const [ user, dbResConfig] = await Promise.all([queries.queryUser(message.guild.id, message.author.id), queries.queryServerConfig(message.guild.id)]);
-console.log(user);
 
 
 
