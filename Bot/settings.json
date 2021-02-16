@@ -1,6 +1,10 @@
 {
     "prefix": "!!",
     "token": "NzI4NzAyMjIxMDk2ODQ1MzUy.Xv-O1A.TYliiferu_aT4lrR5ZPzOHYM9w8",
+<<<<<<< HEAD
     "mongoose": "mongodb+srv://admin:r1WiBBKj13AyJuUp@laelaswatchdog.cqjtg.mongodb.net/LaelasWatchdog?retryWrites=true&w=majority",
+=======
+    "mongoose": "No",
+>>>>>>> b054cd0de3e1bb505399de56466ca83744065f6c
     "redisPath": "//redis-17672.c84.us-east-1-2.ec2.cloud.redislabs.com:17672?password=OYcyK1CCpCvDynHU4buPLr5T9se6exAa"
 }
