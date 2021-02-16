@@ -5,15 +5,18 @@ exports.run = async (client, message, args) => {
   const mongoose = require('mongoose');
   const embEd = require('./embedbuilder/editor');
   const embed = new Discord.MessageEmbed();
+  if(!message.member.hasPermission('MANAGE_MESSAGES')) return message.author.send("You Cant Use Embeds");
   embed.setTitle("Edit Embed");
   embed.setDescription("Welcome to the New Embed Builder. Choose An Option Below.");
   embed.addFields({ name: `1️⃣`, value: `Create A New Embed`});
   embed.addFields({ name: `2️⃣`, value: `Edit an Old Embed`});
   embed.addFields({ name: `3️⃣`, value: `Post an Embed`});
+  embed.addFields({ name: `4️⃣`, value: `Edit a Posted Embed`});
   message.channel.send(embed).then(msg => {
 		msg.react('1️⃣');
 		msg.react('2️⃣');
 		msg.react('3️⃣');
+    msg.react('4️⃣');
   msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(async collected => {
 			let reaction = collected.first().emoji.name;
 			console.log(reaction);
@@ -23,28 +26,27 @@ exports.run = async (client, message, args) => {
           embEd.editor(await collectMsg(message), new Discord.MessageEmbed(), message);
 				break;
         case '2️⃣':
-          message.channel.send("Enter the Embed ID: (This is what you type to send the embed or edit it)");
-          //Im Tired and I need to finish this. Ill combine the variables and repeat code laters.
-          let searchedID = await collectMsg(message);
-				  let savedEmbed = await embedSchem.findOne({
-            guildId: message.guild.id,
-            embedId: searchedID.toLowerCase(),
-          });
+          let savedEmbed = await collectID(message, embedSchem);
           if(!savedEmbed) return message.channel.send("Embed Does Not Exist. Try again.");
           
           embEd.editor(await collectMsg(message), new Discord.MessageEmbed(savedEmbed.embedInfo), message);
 				break;
         case '3️⃣':
-          message.channel.send("Enter the Embed ID: (This is what you type to send the embed or edit it)");
-          let searchedIDLoad = await collectMsg(message);
-				  let loadedEmb = await embedSchem.findOne({
-            guildId: message.guild.id,
-            embedId: searchedIDLoad.toLowerCase(),
-          });
+          let loadedEmb = await collectID(message, embedSchem);
           if(!loadedEmb) return message.channel.send("Embed Does Not Exist. Try again.");
           
           message.channel.send(new Discord.MessageEmbed(loadedEmb.embedInfo));
 				break;
+
+        case '4️⃣':
+          message.channel.send("Please Send The Channel.");
+          let channel = message.guild.channels.cache.get(await collectMsg(message));
+          message.channel.send("Please send the Message ID");
+          channel.messages.fetch(await collectMsg(message)).then(async msg => {
+            msg.edit(new Discord.MessageEmbed((await collectID(message, embedSchem)).embedInfo));
+          });
+				break;
+
       }
       });
   });
@@ -55,6 +57,17 @@ const collectMsg = async(message) => {
 			max: 1
 		})
 		return msg.first().content;
+}
+
+const collectID = async(message, embedSchem) => {
+  message.channel.send("Enter the Embed ID: (This is what you type to send the embed or edit it)");
+    let searchedIDLoad = await collectMsg(message);
+    let loadedEmb = await embedSchem.findOne({
+      guildId: message.guild.id,
+      embedId: searchedIDLoad.toLowerCase(),
+    });
+  return loadedEmb;
+      
 }
 
 
