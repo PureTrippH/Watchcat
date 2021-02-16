@@ -1,8 +1,9 @@
 const queries = require('../utils/queries/queries');
 const serverStats = require("../utils/schemas/serverstat.js");
 
+
 module.exports = async (client, oldMember, newMember) => {
-  
+  const tInf = await require('../commands/trivmode').getTrivChannels();
   let newUserChannel = newMember.channelID
   let oldUserChannel = oldMember.channelID
 
@@ -12,7 +13,10 @@ module.exports = async (client, oldMember, newMember) => {
   if((oldUserChannel === null || oldUserChannel === undefined) && newUserChannel !== null && (oldMember.selfDeaf == false || newMember.selfDeaf == false) && newMember.selfMute == false) {
     
     console.log("User joined");
-
+    console.log(newMember);
+    if(tInf.has(newMember.channelID)) {
+      newMember.voice.serverMute(true);
+    }
     const joinDate = new Date();
 
     serverStats.findOneAndUpdate({
@@ -32,7 +36,10 @@ module.exports = async (client, oldMember, newMember) => {
 
     const vcLeaveDate = new Date();
     const vcJoinedDate = new Date(user.guildMembers[0].vcJoin);
-
+    if(tInf.has(oldMember.channelID)) {
+      console.log("yes");
+      oldMember.voice.setMute(false);
+    }
     const msInbetween = Math.trunc((vcLeaveDate - vcJoinedDate)/(1000*60));  
     console.log(msInbetween);
     serverStats.findOneAndUpdate({
@@ -41,7 +48,7 @@ module.exports = async (client, oldMember, newMember) => {
     },
     {
       $inc:{
-        "guildMembers.$.messageCount":msInbetween*2
+        "guildMembers.$.messageCount":(msInbetween*2)
       }
     },
      {upsert: true}).exec();

@@ -1,9 +1,19 @@
 exports.run = async (client, message, args) => {
 //Defined Required Modules and Packages.
+	const Discord = require("discord.js");
+
+	const embedTemp = new Discord.MessageEmbed();
+	const logEmbed = new Discord.MessageEmbed();
+	const chatEmbed = new Discord.MessageEmbed();
+
 	const ms = require("ms");
-	const redis = require('../utils/redis');
-	const serverStats = require("../utils/schemas/serverstat.js");
+	const mongoose = require('mongoose');
+
+	const punishSchem = require("../utils/schemas/punishment");
+	
+	const serverConfig = require("../utils/schemas/serverconfig.js");
 	const queries = require("../utils/queries/queries.js");
+
 
 	const tierArg = args[1].toLowerCase();
 	const reason = args.slice(2).join(" ") || "Unknown Reason";
@@ -12,82 +22,120 @@ exports.run = async (client, message, args) => {
 
 	const dbResConfig = await queries.queryServerConfig(message.guild.id);
 	const user = await queries.queryUser(message.guild.id, tagged.id);
+
+	const tierAction = require('../utils/queries/tierUtils/tierUtils.js');
 	
-	const date = new Date();
-	const dd = String(date.getDate()).padStart(2, '0');
-	const mm = String(date.getMonth() + 1).padStart(2, '0'); 
-	const yyyy = date.getFullYear();
-	const banDate = { dd: dd, mm: mm, yyyy: yyyy}
-	const tierIndex = dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg);
 
 	//Checks for Permissions and Args validity
 	if(message.member.hasPermission('BAN_MEMBERS') || message.author.id == '168695206575734784') {
-	if(dbResConfig.serverTiers.findIndex(tier => tier.TierName === tierArg) == -1) return message.channel.send("Tier Not Found! Try Again");
-	if(!tagged || !args.length) return message.channel.send("No User Was Mentioned for the tiering");
-
-        message.channel.createInvite({
-			maxAge: 86400,
-			maxUses: 1
-		}).then (async function(newInvite){
-			let inviteStr = ("https://discord.gg/" + newInvite.code);
-			const lastTier = (typeof user.guildMembers[0].punishmentsTiers[user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : user.guildMembers[0].punishmentsTiers[user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
-			const seconds = matchTier(user, dbResConfig, tierIndex, lastTier);
-
-			//Adds the Tier to the User
-			addTier(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, banDate, lastTier, seconds);
-
-			if(user.logChannel != "blank") {
-				const logChannel = client.channels.cache.get(dbResConfig.logChannel);
-				//Creates Log Channel Embed
-				logChannel.send({embed: {
-					color: 0xff0000,
-					author: {
-						name: client.user.username,
-						icon_url: client.user.avatarURL
-					},
-					description: `Tier By: ${message.author}`,
-					title: `User: ${message.guild.member(tagged).displayName}`,
-					timestamp: new Date(),
-					fields: [
-						{
-							name: `Tier:`,
-							value: dbResConfig.serverTiers[tierIndex].TierName,
-						},
-						{
-							name: 'Time:',
-							value: ms(matchTier(user, dbResConfig, tierIndex, lastTier), { long: true }),
-								
-						},
-						{
-							name: 'Reason:',
-							value: reason,	
-						}
-						],
-					footer: {
-						icon_url: client.user.avatarURL,
-						text: client.user.username
-					},
+		if(!args.length || !args[1]) return message.channel.send("No User Was Mentioned for the tiering or no tier found");
+		const tier = await serverConfig.findOne(
+			{
+				guildId: message.guild.id,
+			}, 
+			{
+				serverTiers: {
+					$elemMatch: 
+					{
+						TierName: tierArg
 					}
-				})
-			}
-			const tierType = punishVar(user, dbResConfig, tierIndex, lastTier);
-			let redisClient = await redis();
+				}
+			});
+
+		if((tier.serverTiers).length == 0) return message.channel.send("No Tier Found");
+		let punishArray = user.guildMembers[0].punishmentsTiers;
+		let userRoles = tagged._roles;
+		
+		const lastTier = (typeof punishArray[punishArray.findIndex(tierObj => tierObj.tierName === tierArg)] === 'undefined')? 0 : punishArray[punishArray.findIndex(tierObj => tierObj.tierName === tierArg)].tierLevel;
+			let inv = await message.channel.createInvite(
+				{
+					maxAge: 604800,
+					maxUses: 1
+				});
+			embedTemp.setTitle(`Tier: ${args[1]}`);
+			embedTemp.setColor("#ff0000");
+			embedTemp.setThumbnail(message.guild.iconURL());
+			embedTemp.setDescription(`
+			Server: ${message.guild}
+			Mod: ${message.author}`)
+			embedTemp.addFields({ name: `Tier:`, value: `${tierArg}`, inline: false });
+			embedTemp.addFields({ name: `Type:`, value: `${await tierAction.matchPunishment(tier, dbResConfig, lastTier)}`, inline: false });
+			embedTemp.addFields({ name: `Time:`, value: `${ms(await tierAction.matchTier(tier, dbResConfig, lastTier))}`, inline: false });
+			embedTemp.addFields({ name: `Reason:`, value: `${reason}`, inline: false });
+			embedTemp.setFooter(`Server Invite if Needed - ${inv}`);
+			tagged.send(embedTemp);
+
+		tierAction.addTier(client, message, user, tier, userRoles, tierArg, lastTier, tagged);
+		const tierType = await tierAction.matchPunishment(tier, dbResConfig, lastTier);
+		console.log(tierType);
+		chatEmbed.setColor('RANDOM');
+		chatEmbed.setThumbnail("https://cdn.discordapp.com/attachments/709865845504868447/799855951967420446/0B36A559-0C8C-471A-8F99-F599072F0755.jpeg");
 			switch(tierType) {
 				case "warning":
-					await awaitWarn(client, message, tagged, user, date, lastTier, reason, args);
+					await awaitWarn(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, ms, message, chatEmbed);
 				break;
 				case "ban":
-					await awaitBan(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redisClient);
+					await fillDB(punishSchem, "ban", await tierAction.matchTier(tier, dbResConfig, lastTier)/1000, tagged, reason, message, tier.serverTiers[0].TierName, mongoose);
+					await awaitBan(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, ms, message, chatEmbed);
 				break;
 
 				case "mute":
-					await awaitMute(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redisClient);
+					await fillDB(punishSchem, "mute", await tierAction.matchTier(tier, dbResConfig, lastTier)/1000, tagged, reason, message, tier.serverTiers[0].TierName, mongoose);
+					await awaitMute(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, ms, message, chatEmbed);
 				break;
 			}
-			redisClient.quit();
-		});
+			
+			logEmbed.setTitle(`User Tiered: ${tagged.displayName}`);
+			logEmbed.setColor('RANDOM');
+			logEmbed.setThumbnail("https://www.freeiconspng.com/thumbs/hammer-icon/hammer-icon-6.png");
+			logEmbed.setDescription(`Mod: ${message.author}
+			Type: ${tierType}
+			Reason: ${reason}
+			User @: ${tagged}
+			`);
+			if(dbResConfig) {
+				client.channels.fetch(dbResConfig.logChannel).then(channel => {channel.send(logEmbed)});
+			}
+
+			chatEmbed.setTitle(`Tier ${lastTier+1}: ${tagged.displayName}`);
+			chatEmbed.addFields({ name: `Time:`, value: `${ms(await tierAction.matchTier(tier, dbResConfig, lastTier))}`, inline: false });
+			message.channel.send(chatEmbed);
+			
+		
+
 	}
 };
+
+
+const awaitWarn = async(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, ms, message, chatEmbed) => {
+	chatEmbed.setDescription(`Sucessfully Warned <@${tagged.id}> for T${lastTier + 1}`);
+}
+
+const  awaitMute = async(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, ms, message, chatEmbed) => {
+
+	if(!tagged.roles.cache.has(dbResConfig.mutedRole)) {
+		try {
+			await tagged.roles.set([]).then(()=> {
+			tagged.roles.add(dbResConfig.mutedRole);
+			});
+		} catch(err) {
+				tagged.roles.add(dbResConfig.mutedRole);
+				console.log("Cant Remove this Boi");
+			}
+		}
+		
+		
+		chatEmbed.setDescription(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
+}
+
+
+const awaitBan = async(tierAction, embedTemp, tier, tagged, reason, tierArg, dbResConfig, lastTier, ms, message, chatEmbed) => {
+	await tagged.ban(reason).catch(err => {
+		message.channel.send("Cant Kick User: Higher Permissions");
+		throw err;
+	})
+	chatEmbed.setDescription(`Sucessfully banned <@${tagged.id}> for T${lastTier + 1} `);
+}
 
 module.exports.help = {
 	name: "Tier User",
@@ -97,217 +145,21 @@ module.exports.help = {
 	aliases: ["t"]
 }
 
-/*-----------------------------------------------
-Definition of Functions
------------------------------------------------*/
-
-	//Get the Tier the Current User is on
-const matchTier = (user, dbResConfig, tierIndex, lastTier) => {
-	if(parseInt(lastTier) >= (parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) - 1)) {
-		return (dbResConfig.serverTiers[tierIndex].TierTimes[parseInt(dbResConfig.serverTiers[tierIndex].TierTimes.length) -1])
-	} else {
-		return dbResConfig.serverTiers[tierIndex].TierTimes[lastTier]
-	}
-};
-
-	//Gets the Type of Punishment
-const punishVar = (user, dbResConfig, tierIndex, lastTier) => {
-	if(parseInt(lastTier) >= (parseInt(dbResConfig.serverTiers[tierIndex].banOrMute.length) - 1)) {
-		return (dbResConfig.serverTiers[tierIndex].banOrMute[parseInt(dbResConfig.serverTiers[tierIndex].banOrMute.length) -1])
-	} else {
-		return dbResConfig.serverTiers[tierIndex].banOrMute[lastTier]
-	}
-};
-
-
-
-//Adds Tier to the User
-const addTier = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds) => {
-	let arrayOfRoles = tagged._roles
-	if((user.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg)) == -1) {
-		console.log("Adding to set");
-		serverStats.updateOne({guildId: message.guild.id, "guildMembers.userID": tagged.id} , {
-			$addToSet:{
-			"guildMembers.$.punishmentsTiers": {
-				tierName: dbResConfig.serverTiers[tierIndex].TierName,
-				dateOfTier: date.mm + '/' + date.dd + '/' + date.yyyy,
-				tierLevel: 1,
-				TierForgiveness: (dbResConfig.serverTiers[tierIndex].TierForgiveness*(lastTier + 1)),
-				OffenderMsgCount: user.guildMembers[0].messageCount,
-				tierTime: seconds,
-				pastRoles: arrayOfRoles
-			}
-		}}, {upsert: true}).exec();
-	} else {
-		console.log("Updating set");
-		serverStats.updateOne({
-			guildId: message.guild.id, 
-			"guildMembers.userID": tagged.id,
-		}, 
-		{
-			$set:{
-				"guildMembers.$.punishmentsTiers.$[punishmentName].pastRoles": {
-					arrayOfRoles,
-				},
-			},
-			"guildMembers.$.punishmentsTiers.$[punishmentName].tierTime": seconds,
-			$inc:{
-				"guildMembers.$.punishmentsTiers.$[punishmentName].tierLevel":1
-			},
-			},
-			{ "arrayFilters": [
-				{ "punishmentName.tierName": dbResConfig.serverTiers[tierIndex].TierName }
-			] }).exec();
-		}
-
-}
-
-const awaitBan = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redisClient) => {
-	await tagged.send({embed: {
-		color: 0xff0000,
-		author: {
-		name: client.user.username,
-		icon_url: client.user.avatarURL
-		},
-		title: `You Have Been Tiered!`,
-		timestamp: new Date(),
-		fields: [
-			{
-				name: `Tier ${lastTier + 1}:`,
-				value: dbResConfig.serverTiers[tierIndex].TierName,
-			},
-			{
-				name: 'Time:',
-				value: ms(matchTier(user, dbResConfig, tierIndex, lastTier), { long: true }),
-				
-			},
-			{
-				name: 'Reason:',
-				value: reason,
-				
-			},
-			{
-				name: 'Invite (Expires When You Join Back):',
-				value: inviteStr,
-				
-			},
-		],
-		footer: {
-			icon_url: client.user.avatarURL,
-			text: client.user.username
-		},
-	}
-	})
-	try {
-		const redisKey = `banned-${tagged.id}-${message.guild.id}`
-
-		redisClient.set(redisKey, 'true', 'EX', (seconds / 1000));
-	} finally {
-	}
-
-	await tagged.ban(reason).catch(err => {
-		message.channel.send("Cant Kick User: Higher Permissions");
-		throw err;
-	})
-	message.channel.send(`Sucessfully banned <@${tagged.id}> for T${lastTier + 1}`);
-	
-	//Ik its repetitive to have this declared twice but idc rn. I need to get this done ASAP for the server.
-}
-
-
-
-const awaitWarn = async(client, message, tagged, user, date, lastTier, reason, args) => {
-	tagged.send({embed: {
-		color: 0xeba134,
-		author: {
-		name: message.author.username,
-		icon_url: client.user.avatarURL
-		},
-		title: `Laela's Watchcat's`,
-		timestamp: new Date(),
-		description: `This Citation was created by: ${message.author}`,
-		fields: [
-		{
-			name: 'Citation on:',
-			value: message.guild.name
-		},
-			{
-				name: 'Warning:',
-				value: reason
-			},
-			{
-				name: 'Tier:',
-				value: args[1]
-			}
-		],
-		footer: {
-		icon_url: client.user.avatarURL,
-		text: client.user.username
-		},
-	}
-	});
-
-	message.channel.send(`Sucessfully warned <@${tagged.id}> for  Tier ${lastTier + 1}`);
-
-	return;
-
-};
 	
 
-
-const awaitMute = async(client, message, tagged, user, tierArg, serverStats, dbResConfig, tierIndex, date, lastTier, seconds, reason, args, inviteStr, ms, redisClient) => {
-	tagged.send({embed: {
-		color: 0xff0000,
-		author: {
-		name: client.user.username,
-		icon_url: client.user.avatarURL
-		},
-		title: `You Have Been Tiered!`,
-		timestamp: new Date(),
-		fields: [
-			{
-				name: `Tier ${lastTier + 1}:`,
-				value: dbResConfig.serverTiers[tierIndex].TierName,
-			},
-			{
-				name: 'Time:',
-				value: ms(matchTier(user, dbResConfig, tierIndex, lastTier), { long: true }),
-				
-			},
-			{
-				name: 'Reason:',
-				value: reason,
-				
-			},
-			{
-				name: 'Invite (Expires When You Join Back):',
-				value: inviteStr,
-				
-			},
-		],
-		footer: {
-		icon_url: client.user.avatarURL,
-		text: client.user.username
-		},
-	}
-	});
-
-	if(!tagged.roles.cache.has(dbResConfig.mutedRole)) {
-		try {
-			await tagged.roles.set([]).then(()=> {
-			tagged.roles.add(dbResConfig.mutedRole);
-			});
-		} catch(err) {
-				console.log("Cant Remove this Boi");
-			}
-		}
-		
-		
-		const redisKey = `muted-${tagged.id}-${message.guild.id}-${tierArg}`
-		redisClient.set(redisKey, 'true', 'EX', (seconds / 1000));
-		message.channel.send(`Sucessfully muted <@${tagged.id}> for T${lastTier + 1}`);
-		console.log(redisClient.connected);
-		
+const fillDB = async(punishSchem, type, time, tagged, reason, message, tier, mongoose) => {
+	const expires = new Date();
+	console.log(time);
+	expires.setSeconds(expires.getSeconds() + time);
+	await new punishSchem({
+		_id: mongoose.Types.ObjectId(),
+		userID: tagged.id,
+		reason,
+		guildID: message.guild.id,
+		modID: message.author.id,
+		type,
+		tier,
+		expires,
+		stale: false
+	}).save();
 }
-	
-

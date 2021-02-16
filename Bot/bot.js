@@ -3,11 +3,12 @@ const Discord = require('discord.js');
 const mongoose = require('./utils/mongoose');
 const settings = require('./settings.json');
 const queries = require("./utils/queries/queries.js");
+const express = require("express");
 
 const serverStats = require("./utils/schemas/serverstat");
 const punishSchema = require("./utils/schemas/punishment");
-const { RuleTester } = require('eslint');
 
+const app = express();
 
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 client.prefix = settings.prefix;
@@ -31,7 +32,7 @@ client.aliases = new Discord.Collection();
 client.once('ready', async() => {
     const guildCount = await client.shard.fetchClientValues('guilds.cache.size');
     console.log("Laela's Watchcat Ready to Guard");
-    client.user.setPresence({ activity: { name: `Watching: ${guildCount} Servers!! Ty!` }, status: 'idle' });
+    client.user.setPresence({ activity: { name: `𝓸𝓷 ${guildCount} 𝓢𝓮𝓻𝓿𝓮𝓻𝓼! 𝓣𝔂!`, type:"STREAMING", url:"https://www.twitch.tv/fextralife" }});
     //eggHunt.run(client);
     console.log("Hi");
     checkPunishments()
@@ -54,6 +55,21 @@ mongoose.init();
 client.login(settings.token);
 
 
+
+//API Routes///////////////////////////////////////////////////
+const cors = require('cors');
+app.use(cors());
+
+app.get('/', (req, res) => {
+    res.send(Array.from(client.commands, ([name, value]) => ({ name, value })));
+})
+
+app.listen(3016, () => console.log("Bot Command API Open"));
+
+///////////////////////////////////////////////////////////////
+
+
+//Check Tiers
 const checkPunishments = async() => {
     console.log("CHECKING DATA");
         const now = new Date();
@@ -67,12 +83,14 @@ const checkPunishments = async() => {
         const punishments = await punishSchema.find(cond);
         if(punishments) {
             for(const result of punishments) {
-                console.log("Looping");
+                console.log("Checking Punishments");
                 let selectedGuild = await client.guilds.cache.get(result.guildID);
                 
                 console.log(result.type);
                 if(result.type == "mute") {
+                    try {
                     let selectedMember = await selectedGuild.members.fetch(result.userID);
+                    if(!selectedMember) return setTimeout(checkPunishments, 1000 * 30);
                     let tierArg = result.tier;
                     const dbResConfig = await queries.queryServerConfig(selectedGuild.id);
                     let dbResStatsUpdate = await serverStats.findOne(
@@ -92,15 +110,28 @@ const checkPunishments = async() => {
                     const index = dbResStatsUpdate.guildMembers[0].punishmentsTiers.findIndex(tierObj => tierObj.tierName === tierArg);
                     console.log(dbResStatsUpdate.guildMembers[0].punishmentsTiers);
                     await selectedMember.roles.remove(dbResConfig.mutedRole);
+                    try {
                     await selectedMember.roles.set(dbResStatsUpdate.guildMembers[0].punishmentsTiers[index].pastRoles);
+                    } catch {
+                        console.log(`User has no Past Roles`);
+                    }
                     console.log("Unmuted");
-                } else {
+                } catch (err) {
+                    console.log(`Error! Bot Caught Error While Unmuting: ${err}` );
+                    
+                }
+                } else if(result.type == "ban") {
+                    let selectedGuild = await client.guilds.cache.get(result.guildID);
                     try {
                         selectedGuild.members.unban(result.userID, {reason: "They have served their sentence"});
-                    } catch (err) {console.log(`UNBAN ERROR: ${err}`);}
+                    } catch (err) {console.log("Hey There: " + selectedGuild); console.log(`UNBAN ERROR: ${err}`);}
+                } else {
+                    
                 }
             }
             await punishSchema.deleteMany(cond);
+            return setTimeout(checkPunishments, 1000 * 30);
         }
-        setTimeout(checkPunishments, 1000 * 180);
+        setTimeout(checkPunishments, 1000 * 30);
     }
+

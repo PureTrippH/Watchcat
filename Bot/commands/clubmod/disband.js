@@ -3,11 +3,26 @@ exports.disband = async (client, message) => {
     const Discord = require("discord.js");
     const embed = new Discord.MessageEmbed();
 
-    let memberClub = await clubSchema.findOne({
-        guildId: message.guild.id,
-        leader: message.author.id
-    })
+    
+    if(message.member.hasPermission('ADMINISTRATOR')) {
+        message.channel.send("Enter Club Name");
+        const msg = message.channel.awaitMessages(m => m.author.id === message.author.id, {
+			max: 1
+		}).then(async collection => {
+            let memberClub = await clubSchema.findOne({
+                clubName: (collection.first().content).toLowerCase()
+            })
+            memberClub.deleteOne().then(() => {
+                return message.author.send("Successfully Disbanded Club");
+            });
+        })
+    }
     if(memberClub) {
+        let memberClub = await clubSchema.findOne({
+            guildId: message.guild.id,
+            leader: message.author.id
+        })
+
         embed.setTitle(`Disband: ${memberClub.clubName}?`);
         embed.setThumbnail(memberClub.thumbnail);
         embed.setColor("#ff0000");

@@ -55,7 +55,7 @@ exports.create = async (client, message) => {
 			console.log(collected.first().emoji.name);
 			if(collected.first().emoji.name == '✅') {
 
-				message.guild.channels.create(`${(clubInfo.title).toLowerCase()}-text`, {
+				message.guild.channels.create(`${(clubInfo.title).toLowerCase()}`, {
 					permissionOverwrites: [{
 						id: message.guild.id,
 						deny: ['SEND_MESSAGES', 'VIEW_CHANNEL']

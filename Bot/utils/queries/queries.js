@@ -21,7 +21,7 @@ const user = await serverStats.findOne(
     }
   }, async(err, foundUser) => {
         if(!foundUser) {
-        await serverStats.findOneAndUpdate(
+        let newUser = await serverStats.findOneAndUpdate(
           {
             guildId: guild
             }, 
@@ -34,7 +34,8 @@ const user = await serverStats.findOne(
                 medals: []
               }
             }
-          }).exec()
+          }).exec();
+          return newUser;
         }
         }).limit(1).lean().select({});
         

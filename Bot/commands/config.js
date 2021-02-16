@@ -1,93 +1,34 @@
 exports.run = async (client, message) => {
 	const filter = m => m.author.id === message.author.id;
+	//Library Modules
 	const ms = require("ms");
-	
 	const mongoose = require('mongoose');
 	const serverConfig = require("../utils/schemas/serverconfig.js");
+	
+	//File Paths & Queries
+	const query = require('../utils/queries/queries');
+	const thisServer = await query.queryServerConfig(message.author.id);
+	const Discord = require('discord.js');
 
-	const thisConfig = serverConfig.findOne({
-		guildId: message.guild.id
-	}, (err, guildConfig) => {
-		if(!guildConfig) {
-			console.log("No Data Found!");
-			const newConfig = new serverConfig({
-				_id: mongoose.Types.ObjectId(),
-				guildId: message.guild.id,
-				removedRole: "blank",
-				verChannel: "blank",
-				newUserRole: "blank",
-				mutedRole: "blank",
-				logChannel: "blank",
-				unverifiedRole: "blank",
-				serverTiers: []
-			});
+	//Variable Delcaration
+	let embed = new Discord.MessageEmbed();
 
-			newConfig.save();
-			
-			return message.channel.send("Server not Found! Adding Server to our Database");
-		}
-	},{upsert:true});
-
-	let dbRes = await thisConfig.findOne({
-		guildId: message.guild.id
-	});
 	if(message.member.hasPermission('ADMINISTRATOR') || message.author.id == '168695206575734784') {
-	message.channel.send({embed: {
-		color: 0x00ff00,
-		author: {
-		name: client.user.username,
-		icon_url: client.user.avatarURL
-		},
-		title: `Laela's Watchdog's Config - React to Emoji to Edit Config`,
-		timestamp: new Date(),
-		fields: [
-			{
-				name: '1️⃣ Verify Role:',
-				value: dbRes.removedRole,
-				
-			},
-			{
-				name: '2️⃣ Verification Channel:',
-				value: dbRes.verChannel,
-				
-			},
-			{
-				name: '3️⃣ New User Role:',
-				value: dbRes.newUserRole,
-				
-			},
-			{
-				name: '4️⃣ Create Tier:',
-				value: "Click 4 to Add Tier",
-				
-			},
-			{
-				name: '5️⃣ Edit Tier:',
-				value: "Click 5 to Edit Tier",
-				
-			},
-			{
-				name: '6️⃣ Mute Role:',
-				value: dbRes.mutedRole,
-				
-			},
-			{
-				name: '7️⃣ Restricted Role (The Role that makes it so no one can see the rest of the server):',
-				value: dbRes.unverifiedRole,
-				
-			},
-			{
-				name: '📜 Log Channel:',
-				value: dbRes.logChannel,
-				
-			}
-		],
-		footer: {
-		icon_url: client.user.avatarURL,
-		text: client.user.username
-		},
-	}
-	}).then(msg => {
+	embed.setTitle("Watchcat Config");
+	embed.setDescription("React to Emoji to Edit Config");
+	embed.setColor("#98ddfc");
+	embed.setThumbnail("https://lh3.googleusercontent.com/proxy/R-TqrLJjqTw4Skfirjskk-KZEEft6tsUHe9l1atC8KoIbEIu5XgLNtweALGLe_oRZcB4yJPdnQVhahvJAnLDAjElQmmiNX4");
+	embed.setTimestamp(new Date());
+	embed.addFields(
+		{ name: `1️⃣ Unverifed Role:`, value: `<@&${thisServer.removedRole}>`, inline: false },
+		{ name: `2️⃣ Verification Channel:`, value: `<#${thisServer.verChannel}>`, inline: false },
+		{ name: `3️⃣ New User Role:`, value: `<@&${thisServer.newUserRole}>`, inline: false },
+		{ name: `4️⃣ Create Tier:`, value: `Create A Punishment Tier Which Scales based on Offense Number`, inline: false },
+		{ name: `5️⃣ Edit Tier:`, value: `Click 5 to Edit Tier`, inline: false },
+		{ name: `6️⃣ Mute Role:`, value: `<@&${thisServer.mutedRole}>`, inline: false },
+		{ name: `7️⃣ Restricted Role :`, value: `<@&${thisServer.mutedRole}>`, inline: false },
+	  )
+	 message.channel.send(embed).then(msg => {
 		msg.react('1️⃣');
 		msg.react('2️⃣');
 		msg.react('3️⃣');
@@ -97,30 +38,53 @@ exports.run = async (client, message) => {
 		msg.react('7️⃣');
 		msg.react('📜');
 	
-		msg.awaitReactions((reaction, user) => user.id == message.author.id,
-	{ max: 1, time: 50000 }).then(collected => {
-		const reaction = collected.first().emoji.name;
-		console.log(reaction);
-		if(collected.first().emoji.name == '1️⃣') {
-			message.channel.send("Please send a Role");
-			message.channel.awaitMessages(filter, {
-				max: 1
-			}).then(collectedtext => {
-			let newText = collectedtext.first().content.replace('<@&', '').replace('>', "");
-			console.log(newText);
-			let newrole = message.guild.roles.cache.get(newText);
-			
-			if(!newrole) {
-				message.channel.send("No Role Found!");
-			} else {
+		msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(async collected => {
+			let reaction = collected.first().emoji.name;
+			console.log(reaction);
+			switch(reaction) {
+				case '1️⃣':
+					message.channel.send("Send a Role or role id");
+					const role = await collectMsg(message);
+					let newrole = message.guild.roles.cache.get(newText);
+					if(!newrole) {
+						message.channel.send("No Role Found!");
+					} else {
+					thisConfig.updateOne({
+						removedRole: (role.replace('<@&', '').replace('>', ""))
+					});	
+					}
+				break;
 
-				updateVer(thisConfig, "removedRole", newText);
-				thisConfig.updateOne({
-					removedRole: newText
-				});
-			}
-		});
+				case '2️⃣':
+					console.log("t");
+				break;
+
+				}
+			});
+	 	});
 	}
+
+			/*
+			if(collected.first().emoji.name == '1️⃣') {
+				message.channel.send("Please send a Role");
+				message.channel.awaitMessages(filter, {
+					max: 1
+				}).then(collectedtext => {
+				let newText = collectedtext.first().content.replace('<@&', '').replace('>', "");
+				console.log(newText);
+				let newrole = message.guild.roles.cache.get(newText);
+				
+				if(!newrole) {
+					message.channel.send("No Role Found!");
+				} else {
+
+					updateVer(thisConfig, "removedRole", newText);
+					thisConfig.updateOne({
+						removedRole: newText
+					});
+				}
+			});
+		}
 		if(collected.first().emoji.name == '2️⃣') {
 			message.channel.send("Please send a Channel");
 			message.channel.awaitMessages(filter, {
@@ -210,7 +174,7 @@ exports.run = async (client, message) => {
 			}).then(tierID => {
 				console.log(dbRes);
 				if(dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content.toLowerCase()) === -1) return message.channel.send("Tier Not Found! Try Again");
-				const tier = dbRes.serverTiers[dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content)];
+				const tier = dbRes.serverTiers[dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content.toLowerCase())];
 				console.log(tier);
 				message.channel.send(`${tier.TierName}: Please Enter the Next Tier Time You Want to Add (T${dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) - 1}) (Enter Delete to Delete Last Tier)`)
 				message.channel.awaitMessages(filter, {
@@ -324,13 +288,17 @@ exports.run = async (client, message) => {
 			}
 		});
 	}
+	
+	
 
 
 	});
 });
+
 	} else {
 		message.member.send("No Permissions")
 	}
+	*/
 };
 
 module.exports.help = {
@@ -346,4 +314,12 @@ const updateVer = async(thisConfig, field, val) => {
 		field: val
 	});
 
+}
+
+
+const collectMsg = async(message) => {
+		const msg = await message.channel.awaitMessages(m => m.author.id === message.author.id, {
+			max: 1
+		})
+		return msg.first().content;
 }

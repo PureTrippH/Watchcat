@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "canvas": "^2.6.1",
+    "cors": "^2.8.5",
     "cron": "^1.8.2",
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
