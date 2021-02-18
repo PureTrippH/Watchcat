@@ -8,6 +8,7 @@ exports.run = async (client, message, args) => {
     joinImg: null,
     leaveImg: null,
     welcomeChannel: null,
+    welcomeText: "[=---------------------------------------------------------------------------=]",
   }
     
   embed.setTitle("Edit Welcome Images");
@@ -15,6 +16,7 @@ exports.run = async (client, message, args) => {
   embed.addFields({ name: `1️⃣`, value: `Set Join Image`});
   embed.addFields({ name: `2️⃣`, value: `Set Leave Image`});
   embed.addFields({ name: `3️⃣`, value: `Set Welcome Channel`});
+  embed.addFields({ name: `4️⃣`, value: `Set Welcome Description`});
   embed.addFields({ name: `💾`, value: `Save Progress`});
 
   if(!message.member.hasPermission('MANAGE_MESSAGES')) return message.author.send("You Cant Use Embeds");
@@ -34,6 +36,7 @@ const reactCreator = async(embed, welcomeInfo, serverConf, client, message, args
 		msg.react('1️⃣');
 		msg.react('2️⃣');
     msg.react('3️⃣');
+    msg.react('4️⃣');
 		msg.react('💾');
   msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(async collected => {
 			let reaction = collected.first().emoji.name;
@@ -52,6 +55,11 @@ const reactCreator = async(embed, welcomeInfo, serverConf, client, message, args
         case '3️⃣':
           message.channel.send("Please Copy the **Channel ID** for the Welcome Channel");
           welcomeInfo.welcomeChannel = await collectMsg(message);
+          return this.welcomeMaker(embed, welcomeInfo, serverConf, client, message, args);
+				break;
+        case '4️⃣':
+          message.channel.send("Please Enter Welcome Text to display on User Joining");
+          welcomeInfo.welcomeText = await collectMsg(message);
           return this.welcomeMaker(embed, welcomeInfo, serverConf, client, message, args);
 				break;
         case '💾':

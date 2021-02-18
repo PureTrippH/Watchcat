@@ -4,6 +4,7 @@ module.exports = async (client, member) => {
   console.log("test");
   const serverConfig = require("../utils/schemas/serverconfig.js");
   const serverStats = require("../utils/schemas/serverstat.js");
+  const redis = require("../utils/redis");
   const ms = require("ms");
   const Discord = require('discord.js');
   const welcomeEmb = new Discord.MessageEmbed();
@@ -16,6 +17,9 @@ module.exports = async (client, member) => {
 		guildId: member.guild.id
   });
 
+  console.log("haiii");
+  const redisClient = await redis();
+
   if(dbResConfig.welcomeInfo) {
     const embed = new Discord.MessageEmbed();
     const welcomeBoard = Canvas.createCanvas(800, 300, {
@@ -26,7 +30,7 @@ module.exports = async (client, member) => {
 
     const ctx = welcomeBoard.getContext("2d");
     const profilepic = await Canvas.loadImage(member.user.avatarURL({ format: "jpg"}));
-    let background = await Canvas.loadImage(dbResConfig.welcomeInfo.joinImg);
+    let background = await Canvas.loadImage(dbResConfig.welcomeInfo.leaveImg);
     ctx.font = "20px Arial";
     ctx.fillText("Test", 4, 4);
     ctx.drawImage(background, 0, 0, welcomeBoard.width, welcomeBoard.height);
@@ -35,7 +39,7 @@ module.exports = async (client, member) => {
     ctx.fillRect(0,0,welcomeBoard.width, 50);
     ctx.font = "40px Arial";
     ctx.fillStyle = "white";
-    ctx.fillText(`Hey ${member.displayName}!`, 15, 40);
+    ctx.fillText(`Adios ${member.displayName}!`, 15, 40);
     ctx.fillText(`#${member.guild.members.cache.filter(member => !member.user.bot).size}`, 650, 40);
     ctx.fillStyle = "yellow";
 
@@ -50,17 +54,10 @@ module.exports = async (client, member) => {
     ctx.clip();
     ctx.drawImage(profilepic, 300, 74, 200, 200);
     
-    const exportImage = new Discord.MessageAttachment(welcomeBoard.toBuffer(), "welcomeBoard.png");
-    embed.setFooter('Be Sure to Verify with !!verify');
+    const exportImage = new Discord.MessageAttachment(welcomeBoard.toBuffer(), "leaveBoard.png");
+    embed.setFooter('We Will Miss You...');
     embed.setTimestamp();
 	  embed.attachFiles(exportImage);  
-    client.channels.fetch(dbResConfig.welcomeInfo.welcomeChannel).then(msg => {
-      msg.send(dbResConfig.welcomeInfo.welcomeText);
-      msg.send(embed);
-    })
+    client.channels.fetch(dbResConfig.welcomeInfo.welcomeChannel).then(msg => {msg.send(embed);})
   }
-
-  if(!(dbResConfig.unverifiedRole == "blank")) {
-    member.roles.add(dbResConfig.unverifiedRole);
-  }
-  };
+}
