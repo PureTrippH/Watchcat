@@ -46,8 +46,8 @@ exports.run = async (client, message, args) => {
 	tierList.setTitle(`Active Tiers`);
 	tierList.setColor('#c9cf59');
 	
-	const user = await queries.queryServerStats(message.guild.id, message.author.id);
-
+	const user = await queries.queryUser(message.guild.id, message.author.id);
+			console.log(user.guildMembers[0]);
 			(user.guildMembers[0].punishmentsTiers).forEach(tier => {
 				tierList.addFields(
 					{ name: `${tier.tierName} - Level: ${tier.tierLevel}`, value: `Message Count - (${user.guildMembers[0].messageCount - tier.OffenderMsgCount}:${tier.TierForgiveness})`, inline: true }

@@ -20,5 +20,6 @@ module.exports.help = {
 	type: "fun",
 	aliases: ['cud'],
 	desc: "Reaction Gif: Cuddle With the Targetted User",
-	usage: "!!cuddle (tagged user)"
+	usage: "!!cuddle (tagged user)",
+	gif: "https://cdn.discordapp.com/attachments/812820817363599380/812821046612852756/2021-02-20_17-59-11_1.gif"
 }

@@ -171,6 +171,7 @@ module.exports.help = {
 	name: "Stats/Rank",
 	type: "fun",
 	aliases: ["s", "rank"],
-	desc: "Shows you your server Level and Exp",
-	usage: "!!(stats, rank, s) [user]"
+	desc: "Open your Stat Card for WatchCat. Here, you can see your server activity level, activity points, EXP, Donator/Los Lechugas Background, and Special Dev medals only granted by Gem. Credit to CEOOfRacism for Helping me out with the Level Equation",
+	usage: "!!(stats, rank, s) [user]",
+	gif: "https://cdn.discordapp.com/attachments/812820817363599380/812821159077740604/2021-02-20_18-00-15.gif"
 }

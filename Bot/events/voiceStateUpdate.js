@@ -7,13 +7,9 @@ module.exports = async (client, oldMember, newMember) => {
   let newUserChannel = newMember.channelID
   let oldUserChannel = oldMember.channelID
 
-
-  console.log(oldMember.selfDeaf);
-
   if((oldUserChannel === null || oldUserChannel === undefined) && newUserChannel !== null && (oldMember.selfDeaf == false || newMember.selfDeaf == false) && newMember.selfMute == false) {
     
     console.log("User joined");
-    console.log(newMember);
     if(tInf.has(newMember.channelID)) {
       newMember.voice.serverMute(true);
     }
@@ -42,13 +38,14 @@ module.exports = async (client, oldMember, newMember) => {
     }
     const msInbetween = Math.trunc((vcLeaveDate - vcJoinedDate)/(1000*60));  
     console.log(msInbetween);
+    let realTime = (msInbetween*2);
     serverStats.findOneAndUpdate({
       guildId: oldMember.guild.id, 
       "guildMembers.userID": oldMember.id
     },
     {
       $inc:{
-        "guildMembers.$.messageCount":(msInbetween*2)
+        "guildMembers.$.messageCount": realTime
       }
     },
      {upsert: true}).exec();

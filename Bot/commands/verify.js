@@ -37,5 +37,6 @@ module.exports.help = {
   aliases: ["v"],
   type: "user",
 	desc: "Verifies a User on the Server and removes Their Restricted Role (Defined in Config)",
-	usage: "!!verify"
+	usage: "!!verify",
+  gif: "https://res.cloudinary.com/duahwr7um/image/upload/v1605194160/verification.gif"
 }

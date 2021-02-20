@@ -83,8 +83,8 @@ exports.run = async (client, message, args) => {
 
 module.exports.help = {
 	name: "club",
-	type: "fun",
+	type: "utility",
 	aliases: [],
-	desc: "DEV ONLY: Allows Gem#2003 To Access the Dev Panel",
+	desc: "Club Management Command for All Club Related Commands.",
 	usage: "!!gem (user) (Dev Arg)"
 }

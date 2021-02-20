@@ -17,6 +17,7 @@ module.exports.help = {
 	name: "Ping",
 	type: "utility",
 	aliases: [],
-	desc: "Returns the bot's ping",
-	usage: "!!ping"
+	desc: "Returns and Embed with all of the Bot's Statistics (obviously stuff such as the ping), but also the shard count of the bot. If you need to error report, run this first to check the bot's speed",
+	usage: "!!ping",
+	gif: "https://cdn.discordapp.com/attachments/812811887305031720/812812274104402010/2021-02-20_17-22-58.gif"
 }

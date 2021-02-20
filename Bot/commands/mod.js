@@ -46,6 +46,7 @@ module.exports.help = {
   name: "Mod",
   type: "moderation",
   aliases: [],
-	desc: "Opens The Mod Panel for The Channel",
-	usage: "!!mod"
+	desc: "Opens the mod panel. In the mod panel, you are able to freeze and thaw the chat. By freezing a chat, you are making it so only mods and other admins can chat in the channel. This can help with locking verification or calming chat down if they get too dramatic",
+	usage: "!!mod",
+  gif:"https://cdn.discordapp.com/attachments/812822011227275354/812822537755033630/2021-02-20_18-04-43.gif"
 }

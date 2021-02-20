@@ -4,7 +4,6 @@ module.exports = async (client, member) => {
   console.log("test");
   const serverConfig = require("../utils/schemas/serverconfig.js");
   const serverStats = require("../utils/schemas/serverstat.js");
-  const redis = require("../utils/redis");
   const ms = require("ms");
   const Discord = require('discord.js');
   const welcomeEmb = new Discord.MessageEmbed();
@@ -18,7 +17,7 @@ module.exports = async (client, member) => {
   });
 
   console.log("haiii");
-  const redisClient = await redis();
+
 
   if(dbResConfig.welcomeInfo) {
     const embed = new Discord.MessageEmbed();

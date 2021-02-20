@@ -19,6 +19,7 @@ module.exports.help = {
 	name: "slap",
 	type: "fun",
 	aliases: ['sl'],
-	desc: "Reaction Gif: Slaps The Tagged User",
-	usage: "!!slap (tagged user)"
+	desc: "Reaction Gif: Slaps The Tagged User. Originally created to slap Cindy on Los Lechugas after the removal of Mantaro. Since then, she has inspired me to create other reaction commands on Watchcat",
+	usage: "!!slap (tagged user)",
+	gif: "https://cdn.discordapp.com/attachments/812821579142266900/812821904222191666/2021-02-20_18-02-49.gif"
 }

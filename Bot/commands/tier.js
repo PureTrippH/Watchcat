@@ -140,9 +140,11 @@ const awaitBan = async(tierAction, embedTemp, tier, tagged, reason, tierArg, dbR
 module.exports.help = {
 	name: "Tier User",
 	type: "moderation",
-	desc: "Punishes the User for the Tier Time and Tier Type (ban, mute, warn, etc)",
+	desc: `A Tier is Part of the Watchcat Punishment System. Essentially, A Tier is a Stacked Punishment which can decay after a certain amount of activity (Voice chat or Messages). 
+	A tier can start out as a warning, but can quickly spiral into something like a ban, mute, or another warning (You specificy which it is) if your tier does not decay. You can create and edit tiers to your liking with !!config.`,
 	usage: "!!tier (user) (tier)",
-	aliases: ["t"]
+	aliases: ["t"],
+	gif: "https://cdn.discordapp.com/attachments/812814054597984256/812814418278613042/2021-02-20_17-33-13.gif"
 }
 
 	

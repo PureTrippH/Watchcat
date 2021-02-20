@@ -45,7 +45,8 @@ module.exports.help = {
     name: "Poll",
     type: "Unity",
     aliases: [],
-	desc: "Creates a Poll For Users to Respond to for a certain amount of time.",
-	usage: "!!poll (time) (Question [Can have spaces])"
+	desc: "Creates a Poll For Users to Respond to for a certain amount of time. You can either respond with Check (yes) or X (No), and Watchcat will reflect the change",
+	usage: "!!poll (time) (Question [Can have spaces])",
+    gif: "https://cdn.discordapp.com/attachments/812811887305031720/812813059826909184/2021-02-20_17-25-12.gif"
 }
 
