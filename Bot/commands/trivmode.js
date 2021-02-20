@@ -43,6 +43,9 @@ module.exports.help = {
 	name: "Trivia Mode",
 	type: "event",
 	aliases: ['tm'],
-	desc: "Sets VC to Trivia Mode",
-	usage: "!!trivmode"
+	desc: `Sets VC to Live Trivia Mode. In this mode, everyone in the VC is server muted. Any mod can unmute themselves to be the host of the Live Trivia session. 
+	A user can buzz in using !!buzzer and be able to speak for 5 seconds. Once the 5 seconds is over, they are muted again. If you leave the VC, 
+	you are unmuted from the server's VCs`,
+	usage: "!!trivmode",
+	gif: "https://cdn.discordapp.com/attachments/812823074801975297/812824173822476308/2021-02-20_18-10-14_1.gif"
 }

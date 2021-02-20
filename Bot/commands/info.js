@@ -24,6 +24,7 @@ module.exports.help = {
   name: "Information",
   type: "misc",
   aliases: [],
-	desc: "Shows information and story about bot.",
-	usage: "!!info"
+	desc: "Shows information and story about bot. You will Receive a DM from Watchcat.",
+	usage: "!!info",
+  gif: "https://cdn.discordapp.com/attachments/812824734860312587/812824979425984532/2021-02-20_18-15-21.gif"
 }

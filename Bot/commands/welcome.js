@@ -82,8 +82,10 @@ module.exports.help = {
   name: "Welcome Editor",
   type: "utility",
   aliases: [],
-	desc: "Opens the Welcome Image Builder for Images in your server's Welcome Channel",
-	usage: "!!welcome"
+	desc: `Opens the Welcome Image Builder for Images in your server's Welcome Channel. With this, you can design your server's welcome images. 
+  Essentially, Welcome Images are an Image that is sent whenever a user Joins or Leaves a server. Their name, profile picture, and member # is displayed on the custom image. `,
+	usage: "!!welcome",
+  gif: "https://cdn.discordapp.com/attachments/812826911281119293/812827985903091752/2021-02-20_18-25-38.gif"
 }
 
 

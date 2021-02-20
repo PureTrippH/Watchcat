@@ -17,6 +17,7 @@ module.exports.help = {
 	name: "lewd",
 	type: "fun",
 	aliases: ['lewd'],
-	desc: "Reaction Gif: lewd",
-	usage: "!!cuddle (tagged user)"
+	desc: "Reaction Gif: lewd... LOOK ITS NOT WHAT YOU THINK",
+	usage: "!!lewd (tagged user)",
+	gif: "https://cdn.discordapp.com/attachments/812825316564926534/812825707158831150/2021-02-20_18-18-10.gif"
 }
