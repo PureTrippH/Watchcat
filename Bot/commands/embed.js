@@ -76,7 +76,8 @@ module.exports.help = {
   type: "utility",
   aliases: [],
 	desc: "Opens the Embed Editor to create Discord Embeds",
-	usage: "!!embed"
+	usage: "!!embed",
+  gif: "https://cdn.discordapp.com/attachments/817804441130369066/817898679641833492/2021-03-06_11-50-16_1.gif"
 }
 
 

@@ -87,7 +87,7 @@ const queryServerConfig = async(guild) => {
 
 			newConfig.save();
 		}
-  },{upsert:true}).limit(1).lean();
+  },{upsert:true}).limit(1);
 };
 
 const newServerStats = async(guild, client) => {

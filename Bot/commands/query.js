@@ -44,5 +44,6 @@ module.exports.help = {
 	aliases: [],
 	type: "utility",
 	desc: "Queries your Information (Meant for testing)",
-	usage: "!!query"
+	usage: "!!query",
+	hidden: "true"
 };

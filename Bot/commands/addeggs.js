@@ -26,5 +26,6 @@ module.exports.help = {
 	type: "event",
 	aliases: ['ae'],
 	desc: "Egg Event: Adds to the tagged users egg count",
-	usage: "!!addeggs (user) (amount)"
+	usage: "!!addeggs (user) (amount)",
+	hidden: "true"
 }

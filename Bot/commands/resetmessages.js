@@ -27,5 +27,6 @@ module.exports.help = {
 	type: "fun",
 	aliases: ['sl'],
 	desc: "Reaction Gif: Slaps The Tagged User",
-	usage: "!!slap (tagged user)"
+	usage: "!!slap (tagged user)",
+	hidden: "true"
 }

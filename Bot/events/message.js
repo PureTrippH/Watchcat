@@ -5,14 +5,14 @@ module.exports = async (client, message) => {
     const queries = require('../utils/queries/queries.js');
     if(message.author.bot) return;
 
+
+
 if(message.guild) {
 
 
 //Is the User in the Cooldown for message count?
 if(!isMessageCooldown.has(message.author.id)) {
 const [ user, dbResConfig] = await Promise.all([queries.queryUser(message.guild.id, message.author.id), queries.queryServerConfig(message.guild.id)]);
-
-
 
 addOne(message, client, mongoose, serverStats, dbResConfig);
   if(user.guildMembers[0].messageCount >= 161 && dbResConfig && message.member.roles.cache.has(dbResConfig.newUserRole)) {

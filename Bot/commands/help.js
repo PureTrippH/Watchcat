@@ -66,6 +66,7 @@ module.exports.help = {
   name: "Help",
   type: "user",
   aliases: [],
-	desc: "This shows how to use commands and what they are",
-	usage: "l^help {command}"
+	desc: "Shows Every Single Command Type on Watchcat. Here, you can search for Specific Commands, Usage, and Categories",
+	usage: "!!help {command}",
+  gif: "https://cdn.discordapp.com/attachments/735700449205813279/812832766811045928/2021-02-20_18-45-13_1.gif"
 }

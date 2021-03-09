@@ -19,5 +19,6 @@ module.exports.help = {
 	type: "utility",
 	aliases: [],
 	desc: "Add or Remove a role from a user",
-	usage: "!!role (user) (add/remove) (role)"
+	usage: "!!role (user) (add/remove) (role)",
+	hidden: "true"
 }

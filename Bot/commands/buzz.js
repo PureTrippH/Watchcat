@@ -29,9 +29,10 @@ exports.run = async(client, message, args) => {
 }
 
 module.exports.help = {
-	name: "Buzzer",
+	name: "Trivia Buzzer",
 	type: "event",
 	aliases: ['buzzer'],
-	desc: "Sets VC to Trivia Mode",
-	usage: "!!buzz"
+	desc: "Live Trivia Event: Whenever your VC is set to Live Trivia, you can use this command to buzz in. Once you buzz in, you are unmuted for 5 seconds, and no one else can buzz in until you finish. After 5 seconds, you are remuted and cant answer.",
+	usage: "!!buzz",
+	gif: "https://cdn.discordapp.com/attachments/812833327148826654/812834032089563216/2021-02-20_18-51-21.gif"
 }

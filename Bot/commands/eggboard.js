@@ -58,6 +58,7 @@ module.exports.help = {
 	name: "Egg Leaderboard",
 	type: "event",
 	aliases: [],
-	desc: "Shows Laelaserv Egg Leaderboard",
-	usage: "!!eggboard"
+	desc: "Egg Event (WIP): Shows the Leaderboard for your Server's Egg Hunt: ",
+	usage: "!!eggboard",
+	gif: "https://cdn.discordapp.com/attachments/812829546893541407/812831433562652703/Screenshot_344.png",
 }

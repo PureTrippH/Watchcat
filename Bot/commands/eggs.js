@@ -28,6 +28,7 @@ module.exports.help = {
 	name: "Eggs",
 	type: "event",
 	aliases: [],
-	desc: "Shows Your Egg Count",
-	usage: "!!eggs"
+	desc: "Egg Hunt Event: Shows Your Egg Count",
+	usage: "!!eggs",
+	gif: "https://cdn.discordapp.com/attachments/735700449205813279/812831834496696401/Screenshot_345.png"
 }

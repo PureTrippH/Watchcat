@@ -61,5 +61,6 @@ module.exports.help = {
 	type: "utility",
 	aliases: [],
 	desc: "Opens your Server's Config.",
-	usage: "l^config"
+	usage: "l^config",
+	hidden: "true"
 }

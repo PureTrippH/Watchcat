@@ -32,5 +32,6 @@ module.exports.help = {
 	type: "event",
 	aliases: [],
 	desc: "Deletes the tagged users eggs",
-	usage: "!!eggdel"
+	usage: "!!eggdel",
+	hidden: "true"
 }

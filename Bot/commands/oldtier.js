@@ -94,7 +94,8 @@ module.exports.help = {
 	type: "moderation",
 	desc: "Punishes the User for the Tier Time and Tier Type (ban, mute, warn, etc)",
 	usage: "!!tier (user) (tier)",
-	aliases: ["t"]
+	aliases: ["t"],
+	hidden: "true"
 }
 
 /*-----------------------------------------------

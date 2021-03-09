@@ -134,4 +134,3 @@ const checkPunishments = async() => {
         }
         setTimeout(checkPunishments, 1000 * 30);
     }
-

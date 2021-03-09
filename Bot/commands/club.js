@@ -85,6 +85,8 @@ module.exports.help = {
 	name: "club",
 	type: "utility",
 	aliases: [],
-	desc: "Club Management Command for All Club Related Commands.",
-	usage: "!!gem (user) (Dev Arg)"
+	desc: `This command is the sub command for EVERY SINGLE Club related feature of Watchcat. Clubs are basically PRIVATE channels and VCs created by YOUR USERS.
+	They can send DM announcements to each member, schedule events, or even create private VC where a club can meet for an hour. For example, I created an Anime Club on
+	Los Lechugas, then I opened a private VC and chatroom to stream The Promised Neverland S2 Episode 4 (The Disappointing One).`,
+	usage: "!!club (sub command) [args]"
 }

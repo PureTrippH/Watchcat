@@ -28,9 +28,11 @@ exports.run = async (client, message, args) => {
 };
 
 module.exports.help = {
-  name: "Nothing To See Here",
+  name: "Badger",
   type: "fun",
   aliases: [],
-	desc: "This is Hidden. Dont Run it!",
-	usage: "l^badger"
+	desc: `You know that song from Mr Weebl? Yes... this one... https://www.youtube.com/watch?v=EIyixC9NsLI&ab_channel=Weebl%27sStuff .... 
+  Well I made it into a command as my first command outside of the verification system. It sends the Badgers video in your DMS`,
+	usage: "!!badger",
+  gif: "https://cdn.discordapp.com/attachments/812829546893541407/812829739462426634/2021-02-20_18-34-28.gif"
 }
