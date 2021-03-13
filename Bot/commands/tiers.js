@@ -65,6 +65,6 @@ module.exports.help = {
 	name: "Tiers",
 	type: "moderation",
 	aliases: [],
-	desc: "Shows server tiers",
+	desc: "Using the Tier System of Bans and want to check what tiers you have acquired, just type !!tiers and all of your tiers for that server will be shown. If you are an admin, you can check what tiers have been made on your server using this command. You can also see other users tiers by typing !!tiers (ping user)",
 	usage: "!!tiers (view)"
 }

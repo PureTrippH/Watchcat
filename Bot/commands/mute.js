@@ -45,5 +45,6 @@ module.exports.help = {
   type: "moderation",
   aliases: [],
 	desc: "Mutes a User for 10 minutes",
-	usage: "l^mute (tagged user) [optional reason]"
+	usage: "l^mute (tagged user) [optional reason]",
+  hidden: "true"
 }

@@ -4,6 +4,8 @@ exports.run = async (client, message) => {
 	const ms = require("ms");
 	const mongoose = require('mongoose');
 	const serverConfig = require("../utils/schemas/serverconfig.js");
+	const tierEditor = require("./devcmd/tiereditor");
+
 	
 	//File Paths & Queries
 	const query = require('../utils/queries/queries');
@@ -20,13 +22,13 @@ exports.run = async (client, message) => {
 		embed.setThumbnail("https://lh3.googleusercontent.com/proxy/R-TqrLJjqTw4Skfirjskk-KZEEft6tsUHe9l1atC8KoIbEIu5XgLNtweALGLe_oRZcB4yJPdnQVhahvJAnLDAjElQmmiNX4");
 		embed.setTimestamp(new Date());
 		embed.addFields(
-			{ name: `1️⃣ Unverifed Role:`, value: `<@&${thisServer.removedRole}>`, inline: false },
-			{ name: `2️⃣ Verification Channel:`, value: `<#${thisServer.verChannel}>`, inline: false },
-			{ name: `3️⃣ New User Role:`, value: `<@&${thisServer.newUserRole}>`, inline: false },
-			{ name: `4️⃣ Create Tier:`, value: `Create A Punishment Tier Which Scales based on Offense Number`, inline: false },
-			{ name: `5️⃣ Edit Tier:`, value: `Click 5 to Edit Tier`, inline: false },
-			{ name: `6️⃣ Muted Role:`, value: `<@&${thisServer.mutedRole}>`, inline: false },
-			{ name: `7️⃣ Restricted Role :`, value: `<@&${thisServer.mutedRole}>`, inline: false },
+			{ name: `1️⃣ Unverifed Role:`, value: `<@&${thisServer.removedRole}> - Gives to All New Members`, inline: false },
+			{ name: `2️⃣ Verification Channel:`, value: `<#${thisServer.verChannel}> - Channel to Verify In`, inline: false },
+			{ name: `3️⃣ New User Role:`, value: `<@&${thisServer.newUserRole}> - Role Given to All Newly Verified Members. Allow Users to Greet them!`, inline: false },
+			{ name: `4️⃣ Create Tier:`, value: `Create A Punishment Tier Which Scales based on Offense Number. For example, if you spam once,
+			you can run !!tier (user) spam and it will automatically warn them. Next time they spam, its automatically a mute. Setup options here.`, inline: false },
+			{ name: `5️⃣ Edit Tier:`, value: `Click 5 to Edit Tiers and Tier Levels`, inline: false },
+			{ name: `6️⃣ Muted Role:`, value: `<@&${thisServer.mutedRole}> - Role Given When a User is Muted with Watchcat`, inline: false },
 		  )
 		 message.channel.send(embed).then(msg => {
 			msg.react('1️⃣');
@@ -54,6 +56,7 @@ exports.run = async (client, message) => {
 								removedRole: newrole.id
 							});	
 						}
+						return this.run(client, message);
 					break;
 					case '2️⃣':
 						message.channel.send("Please send a Channel");
@@ -66,6 +69,7 @@ exports.run = async (client, message) => {
 								verChannel: newText.replace('<#', '').replace('>', "")
 							});
 						}
+						return this.run(client, message);
 					break;
 	
 					case '3️⃣':
@@ -79,28 +83,26 @@ exports.run = async (client, message) => {
 								newUserRole: newNewRole.id
 							});	
 						}
+						return this.run(client, message);
 					break;
 	
 					case '4️⃣':
 						message.channel.send("Tier Maker: Enter in the Name of Your Tier (NOTE! The Mod Will Type this Broad Name to activate its tiers. ALSO NO SPACES!");
 						let tierName = await collectMsg(message, 1);
-						message.channel.send(`${tierName.first().content}: Enter in the T1 Punishment time (Example: 1s = 1 second)`);
+						message.channel.send(`${tierName}: Enter in the T1 Punishment time (Example: 1s = 1 second)`);
 						let tierTime = await collectMsg(message, 1);
-						message.channel.send(`${tierName.first().content}: Enter in the T1 Punishment Forgiveness message count. (Example: User loses a tier after sending 1000 msges)`);
+						message.channel.send(`${tierName}: Enter in the T1 Punishment Forgiveness message count. (Example: User loses a tier after sending 1000 msges)`);
 						let forgiveness = await collectMsg(message, 1);
-						message.channel.send(`${tierName.first().content}: Send Your Punishment type (Warning, Mute, or Ban).`);
+						message.channel.send(`${tierName}: Send Your Punishment type (Warning, Mute, or Ban).`);
 						let punishType = await collectMsg(message, 1);
-						if(punishType.first().content.toLowerCase() == "warning" || punishType.first().content.toLowerCase() ==  "ban" || punishType.first().content.toLowerCase() ==  "mute") {
-							await thisServer.findOneAndUpdate(
-								{
-									guildId: message.guild.id
-								}, 
+						if(punishType.toLowerCase() == "warning" || punishType.toLowerCase() ==  "ban" || punishType.toLowerCase() ==  "mute") {
+							await thisServer.updateOne(
 									{
 									$addToSet: {
 										serverTiers: {
 										TierName: tierName.toLowerCase(),
 										TierForgiveness: forgiveness,
-										TierTimes: [ms(time)],
+										TierTimes: [ms(tierTime)],
 										banOrMute: [punishType.toLowerCase()]
 										}
 									}
@@ -108,49 +110,14 @@ exports.run = async (client, message) => {
 							message.channel.send("Successfully created tier");
 						
 						} else return message.channel.send("Punishment does not exist. Try using Mute, Warning, or Ban");
+						return this.run(client, message);
 					break;
 	
 					case '5️⃣':
 						message.channel.send("Tier Editor: Enter the Key Name of the Tier (Ex: IrrImg)");
 						let tierID = await collectMsg(message, 1);
-						if(dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content.toLowerCase()) === -1) return message.channel.send("Tier Not Found! Try Again");
-						let tier = dbRes.serverTiers[dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.toLowerCase())];
-						message.channel.send(`${tier.TierName}: Please Enter the Next Tier Time You Want to Add (T${dbRes.serverTiers.findIndex(tier => tier.TierName === tierID.first().content) - 1}) (Enter Delete to Delete Last Tier)`);
-						let tierNew = await collectMsg(message, 1);
-						if(tierNew.first().content.toLowerCase() == 'delete') {
-							await thisServer.updateOne(
-								{
-									guildId: message.guild.id, 
-									"serverTiers.TierName": tierID
-								}, 
-								{
-									$pop: {
-										"serverTiers.$.TierTimes":  -1
-								}
-							}).exec();
-	
-							message.channel.send("Latest Tier Removed!");
-							return;
-						} else {
-	
-						if(!ms(tierNew)) return message.channel.send("No Time was Specified");
-						let newEntry = ms(tierNew);
-						message.channel.send(`Send Your Punishment type for next tier.`);
-						if(punishType.toLowerCase() == "warning" || punishType.toLowerCase() ==  "ban" || punishType.toLowerCase() ==  "mute") {
-							await thisServer.updateOne({
-									guildId: message.guild.id, 
-									"serverTiers.TierName": tierID.first().content
-								}, 
-								{
-								$push: {
-									"serverTiers.$.banOrMute": punishType.toLowerCase(),
-									"serverTiers.$.TierTimes": newEntry
-								}
-							}).exec();
-	
-				message.channel.send("Successfully edited tier");
-						} else return message.channel.send("Punishment does not exist. Try using Mute, Warning, or Ban");
-					}
+						if(thisServer.serverTiers.findIndex(tier => tier.TierName === tierID) === -1) return message.channel.send("Tier Not Found! Try Again");
+						await tierEditor.editor(tierID, thisServer, message, client);
 					break;
 	
 					case '📜':
@@ -164,6 +131,7 @@ exports.run = async (client, message) => {
 								logChannel: newLog
 							});
 						}
+						return this.run(client, message);
 					break;
 	
 					case '6️⃣':
@@ -177,6 +145,7 @@ exports.run = async (client, message) => {
 							mutedRole: newMutedRole.id
 						});	
 						}
+						return this.run(client, message);
 					break;
 	
 					case '7️⃣':
@@ -190,10 +159,10 @@ exports.run = async (client, message) => {
 							mutedRole: newRestRole.id
 						});	
 						}
+						return this.run(client, message);
 					break;
 	
 				}
-				return this.run(client, message);
 				});
 			 });
 		} else {

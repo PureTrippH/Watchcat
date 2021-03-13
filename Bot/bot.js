@@ -32,7 +32,7 @@ client.aliases = new Discord.Collection();
 client.once('ready', async() => {
     const guildCount = await client.shard.fetchClientValues('guilds.cache.size');
     console.log("Laela's Watchcat Ready to Guard");
-    client.user.setPresence({ activity: { name: `𝓸𝓷 ${guildCount} 𝓢𝓮𝓻𝓿𝓮𝓻𝓼! 𝓣𝔂!`, type:"STREAMING", url:"https://www.twitch.tv/fextralife" }});
+    client.user.setPresence({ activity: { name: `Now On ${guildCount} Servers! TY!`, type:"STREAMING", url:"https://www.twitch.tv/fextralife" }});
     //eggHunt.run(client);
     console.log("Hi");
     checkPunishments()
@@ -45,10 +45,8 @@ commandFiles.forEach(file => {
     let commandName = file.split(".")[0];
     client.commands.set(commandName.toLowerCase(), command);
     command.help.aliases.forEach(alias => {
-        console.log(`Watchcat Registering ${alias}`);
         client.aliases.set(alias, command);
     })
-    console.log(`Watchcat has registered ${commandName}`);
 });
 
 mongoose.init();
