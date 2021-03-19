@@ -25,7 +25,8 @@ module.exports.help = {
 	type: "fun",
 	aliases: ['roulette', 'roul', 'randimg', 'luck'],
 	desc: "Serves a Random Image in your DMs (NOTE: Watchcat Developer not responsible for content of images)",
-	usage: "!!roulette"
+	usage: "!!roulette",
+	gif: "https://cdn.discordapp.com/attachments/820466229353119745/820467079991787540/2021-03-13_20-20-38_1.gif"
 }
 
 const getRandomUrl = (linkArr, randAmt) => {

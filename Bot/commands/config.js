@@ -29,6 +29,8 @@ exports.run = async (client, message) => {
 			you can run !!tier (user) spam and it will automatically warn them. Next time they spam, its automatically a mute. Setup options here.`, inline: false },
 			{ name: `5️⃣ Edit Tier:`, value: `Click 5 to Edit Tiers and Tier Levels`, inline: false },
 			{ name: `6️⃣ Muted Role:`, value: `<@&${thisServer.mutedRole}> - Role Given When a User is Muted with Watchcat`, inline: false },
+			{ name: `7️⃣ Prefix:`, value: `${thisServer.prefix} - Prefix Used For Bot Commands in this server.`, inline: false },
+			{ name: `📜 Log Channel:`, value: `<#${thisServer.logChannel}> - Set a Channel Where all Tiers are posted`, inline: false },
 		  )
 		 message.channel.send(embed).then(msg => {
 			msg.react('1️⃣');
@@ -38,7 +40,6 @@ exports.run = async (client, message) => {
 			msg.react('5️⃣');
 			msg.react('6️⃣');
 			msg.react('7️⃣');
-			msg.react('❗');
 			msg.react('📜');
 		
 			msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(async collected => {
@@ -122,13 +123,13 @@ exports.run = async (client, message) => {
 	
 					case '📜':
 						message.channel.send("Please send a Channel");
-						let newLog = (await collectMsg(message), 1)
-						if(!message.guild.channels.cache.get(newLog.content.replace('<#', '').replace('>', ""))) {
+						let newLog = await collectMsg(message, 1);
+						if(!message.guild.channels.cache.get(newLog.replace('<#', '').replace('>', ""))) {
 							message.channel.send("No Channel Found!");
 						} else {
 			
 							await thisServer.updateOne({
-								logChannel: newLog
+								logChannel: newLog.replace('<#', '').replace('>', "")
 							});
 						}
 						return this.run(client, message);
@@ -149,16 +150,11 @@ exports.run = async (client, message) => {
 					break;
 	
 					case '7️⃣':
-						message.channel.send("Please send a Role");
-						let restRole = await collectMsg(message, 1);
-						let newRestRole = message.guild.roles.cache.get(restRole.replace('<@&', '').replace('>', ""));
-						if(!newrole) {
-							message.channel.send("No Role Found!");
-						} else {
+						message.channel.send("Please send a prefix");
+						let newPrefix = await collectMsg(message, 1);
 						await thisServer.updateOne({
-							mutedRole: newRestRole.id
+							prefix: newPrefix
 						});	
-						}
 						return this.run(client, message);
 					break;
 	
@@ -173,9 +169,10 @@ exports.run = async (client, message) => {
 module.exports.help = {
 	name: "config",
 	type: "utility",
-	aliases: [],
+	aliases: ["c"],
 	desc: `Opens your Server's Config. Here, you can create set the verification channel, verification role, the Restricted Role, and add and edit tier and their levels for your server.`,
-	usage: "l^config"
+	usage: "!!config",
+	gif: "https://cdn.discordapp.com/attachments/820346508263424000/820348355883302973/2021-03-13_12-16-03_1.gif"
 }
 
 const updateVer = async(thisConfig, field, val) => {

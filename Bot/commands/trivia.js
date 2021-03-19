@@ -139,7 +139,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
     name: "Trivia",
     type: "fun",
-    aliases: [],
+    aliases: ["triv"],
 	desc: "Generates a Trivia Question from the hit prime time show Jeopardy (RIP Alex Trebek), and displays it. You have 20 seconds to answer the clue from 1000s of categories. To Answer a Clue, Type the answer in chat.",
 	usage: "!!trivia",
     gif: "https://cdn.discordapp.com/attachments/812808586890838046/812810505743499314/2021-02-20_17-14-34_1.gif"

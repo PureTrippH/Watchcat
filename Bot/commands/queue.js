@@ -21,9 +21,10 @@ exports.run = async (client, message, args) => {
 }
 
 module.exports.help = {
-	name: "Play Music",
+	name: "Music Queue",
 	type: "fun",
-	aliases: [],
+	aliases: ["q"],
 	desc: "Displays the current queue for the server. It will only show the next 10 songs on the list.",
 	usage: "!!queue",
+	gif: "https://cdn.discordapp.com/attachments/820346508263424000/820348011296194570/2021-03-13_12-24-00.gif"
 }

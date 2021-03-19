@@ -95,7 +95,8 @@ exports.getQueue = async() => {
 module.exports.help = {
 	name: "Play Music",
 	type: "fun",
-	aliases: [],
+	aliases: ["p"],
 	desc: "YES! Watchcat can even play music in your server. At the minute, watchcat can search all of YouTube to find the perfect audio just for you! To do this, type !!play (link or search query) to start playing your song.",
 	usage: "!!play (link or search query)",
+	gif: "https://cdn.discordapp.com/attachments/820346508263424000/820348255502204998/2021-03-13_12-22-27_1.gif"
 }

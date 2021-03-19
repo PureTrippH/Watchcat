@@ -75,7 +75,7 @@ const collectID = async(message, embedSchem) => {
 module.exports.help = {
   name: "Embed",
   type: "utility",
-  aliases: [],
+  aliases: ["emb"],
 	desc: "Opens the Embed Editor to create Discord Embeds. Here, you can reuse embeds by editing previously posted ones and post them. This is one of the most powerful features of watchcat, and is straight forward.",
 	usage: "!!embed",
   gif: "https://cdn.discordapp.com/attachments/817804441130369066/817898679641833492/2021-03-06_11-50-16_1.gif"

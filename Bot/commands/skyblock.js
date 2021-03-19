@@ -29,7 +29,7 @@ exports.run = async (client, message, args) => {
                 message.channel.send({embed: {
                     color: 0x361c4f,
                     thumbnail: {
-                        url: `https://minotar.net/helm/${myJson.id}`,
+                        url: `https://crafatar.com/avatars/${myJson.id}?overlay`,
                     },
                     author: {
                       name: client.user.username,
@@ -104,5 +104,6 @@ module.exports.help = {
     type: "user",
     aliases: [],
 	desc: "View a Minecraft Players Hypixel Skyblock Statistics",
-	usage: "l^Skyblock (MC Username), (Profile #)"
+	usage: "l^Skyblock (MC Username), (Profile #)",
+    gif: "https://cdn.discordapp.com/attachments/820346508263424000/820348437047541790/2021-03-13_12-21-20.gif"
 }

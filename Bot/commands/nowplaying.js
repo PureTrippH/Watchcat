@@ -23,4 +23,5 @@ module.exports.help = {
 	aliases: ['np'],
 	desc: "Displays What You Are Currently Playing on Spotify. (NOTE: Spotify must be linked to Discord)",
 	usage: "!!np",
+	gif: "https://cdn.discordapp.com/attachments/754785638766608586/820443916389318676/2021-03-13_18-48-35_1.gif"
 }
