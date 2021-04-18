@@ -15,7 +15,7 @@ module.exports = async (client, oldMember, newMember) => {
     }
     const joinDate = new Date();
 
-    serverStats.findOneAndUpdate({
+    await serverStats.findOneAndUpdate({
       guildId: oldMember.guild.id, 
       "guildMembers.userID": oldMember.id
     },
@@ -36,16 +36,17 @@ module.exports = async (client, oldMember, newMember) => {
       console.log("yes");
       oldMember.voice.setMute(false);
     }
-    const msInbetween = Math.trunc((vcLeaveDate - vcJoinedDate)/(1000*60));  
-    console.log(msInbetween);
-    let realTime = (msInbetween*2);
-    serverStats.findOneAndUpdate({
+    const realTime = (vcLeaveDate - vcJoinedDate)
+    console.log(`Leave: ${vcLeaveDate}`);
+    console.log(`join: ${vcJoinedDate}`) 
+    console.log(`Real Time: ${Math.round(((realTime % 86400000) % 3600000) / 60000)}`);
+    await serverStats.findOneAndUpdate({
       guildId: oldMember.guild.id, 
       "guildMembers.userID": oldMember.id
     },
     {
       $inc:{
-        "guildMembers.$.messageCount": realTime
+        "guildMembers.$.vcMinutes": Math.round(((realTime % 86400000) % 3600000) / 60000)
       }
     },
      {upsert: true}).exec();

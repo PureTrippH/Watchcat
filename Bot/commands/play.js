@@ -1,24 +1,42 @@
+//God Help Me I am Too Lazy to pass these so they are global vars.s
+
 const queue = new Map();
 const Discord = require("discord.js");
+const ytdl = require('ytdl-core');
+const ytSearch = require('yt-search');
+
+var ytpl = require('ytpl');
 exports.run = async (client, message, args) => {
 	const embed = new Discord.MessageEmbed();
-	const ytdl = require('ytdl-core');
-	const ytSearch = require('yt-search');
 	const vc = message.member.voice.channel;
 	if(!vc) return message.author.send("Not in a VC");
 	if(!args.length) return message.channel.send("Please send a link to the video");
 	let song = {};
-	if(ytdl.validateURL(args[0])) {
+	let playlist = false;
+
+
+	if(args[0].match(/https??:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)) {
+		let playList = await ytpl(args[0]);
+		playlist = true;
+		playList.items.forEach(async item => {
+			console.log("playlist");
+			song = {
+				title: item.title,
+				url: item.url,
+				thumbnail: item.thumbnails[0].url
+			}
+			await createQueue(vc, song, embed, message, playlist);
+		});	
+	} else if(ytdl.validateURL(args[0])) {
 		const info = await ytdl.getInfo(args[0]);
 		song = {
 			title: info.videoDetails.title,
 			url: info.videoDetails.video_url,
 			thumbnail: info.videoDetails.thumbnails[0].url
 		}
-
+		await createQueue(vc, song, embed, message, playlist);
 	} else {
 		const videoResult = await ytSearch(args.join(' '));
-		console.log(videoResult);
 		if(videoResult) {
 			song = {
 				title: videoResult.videos[0].title, 
@@ -26,7 +44,13 @@ exports.run = async (client, message, args) => {
 				thumbnail: videoResult.videos[0].thumbnail
 			}
 		}
+		await createQueue(vc, song, embed, message, playlist);
 	}
+	
+
+}
+
+const createQueue = async (vc, song, embed, message, playlist) => {
 	const servQueue = queue.get(message.guild.id);
 	if(!servQueue) {
 		const queueBase = {
@@ -52,11 +76,13 @@ exports.run = async (client, message, args) => {
 		}
 	} else {
 		servQueue.songs.push(song);
-		embed.setTitle(`Added to Queue:`);
-		embed.setDescription(song.title);
-		embed.setThumbnail(song.thumbnail);
-		embed.setColor('#7d3878');
-		message.channel.send(embed);
+		if(!playlist) {
+			embed.setTitle(`Added to Queue:`);
+			embed.setDescription(song.title);
+			embed.setThumbnail(song.thumbnail);
+			embed.setColor('#7d3878');
+			message.channel.send(embed);
+		}
 	}
 }
 
@@ -80,6 +106,7 @@ exports.player = async(message, song, ytdl) => {
 				skipEmbed.setTitle(`Next In Line: ${song.title}`);
 				skipEmbed.setThumbnail(song.thumbnail);
 				skipEmbed.setColor('#7d3878');
+				message.channel.send(skipEmbed);
 			}
 			console.log(songqueue.songs[0]);
 			this.player(message, songqueue.songs[0], ytdl);

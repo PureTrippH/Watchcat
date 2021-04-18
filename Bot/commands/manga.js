@@ -1,7 +1,8 @@
+const fetch = require('node-fetch');
 exports.run = async (client, message, args) => {
 	const fs = require("fs");
 	const Discord = require('discord.js');
-	const fetch = require('node-fetch');
+	const read = require('./readmanga');
 	
 	const embed = new Discord.MessageEmbed();
 
@@ -14,12 +15,22 @@ exports.run = async (client, message, args) => {
 	
 	embed.setImage(mangaData.data.mainCover);
 	embed.setTitle(mangaData.data.title);
-	embed.setDescription(mangaData.data.description.substring(0, 2048).replace("&minus;", "-").replace("&minus;", "-").replace("&rdquo;", ""-""));
+	embed.setDescription(mangaData.data.description.substring(0, 2048).replace("&minus;", "-").replace("&minus;", "-").replace("&rdquo;", ""-"").replace("&ldquo;", '"'));
 	embed.addFields({ name: `Hentai?:`, value: `${mangaData.data.isHentai ? "Yes" : "No"}`});
 	embed.addFields({ name: `Link:`, value: `https://mangadex.org/title/${mangaData.data.id}/`});
 	embed.addFields({ name: `Star Rating:`, value: `${ratingInStars(mangaData.data.rating.bayesian).join("")} - ${mangaData.data.rating.bayesian}`});
-	message.channel.send(embed);
-
+	embed.setFooter("Like it? Click the '📚' To Read it IN WATCHCAT!");
+	message.channel.send(embed).then(msg => {
+		msg.react('📚');
+		msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(collection => {
+		let reaction = collection.first().emoji.name;
+		switch(reaction) {
+			case '📚':
+				return read.run(client, message, [`${mangaData.data.id}`]);
+			break;
+		};
+		})
+	});
 }
 module.exports.help = {
 	name: "Manga",
@@ -33,10 +44,12 @@ module.exports.help = {
 const getRandomUrl = (linkArr) => {
 	const chars = '0123456789';
 	let rand = Math.floor(Math.random() * 5) + 1;
-
 	for(let i = 0 ; i < rand ; i++) {
 		let randomChar = (chars.charAt(Math.floor(Math.random() * chars.length)));
 		linkArr.push(randomChar);
+	}
+	if(rand <3 && (Math.floor(Math.random() * 5) + 1) != 2) {
+		return getRandomUrl([]);
 	}
 	return (linkArr.reduce((a, b) => a + b));
 }

@@ -5,6 +5,7 @@ const settings = require('./settings.json');
 const queries = require("./utils/queries/queries.js");
 const express = require("express");
 
+const eggHunt = require('./commands/laelaevents/easteregg');
 const serverStats = require("./utils/schemas/serverstat");
 const punishSchema = require("./utils/schemas/punishment");
 
@@ -33,7 +34,6 @@ client.once('ready', async() => {
     const guildCount = await client.shard.fetchClientValues('guilds.cache.size');
     console.log("Laela's Watchcat Ready to Guard");
     client.user.setPresence({ activity: { name: `Now On ${guildCount} Servers! TY!`, type:"STREAMING", url:"https://www.twitch.tv/fextralife" }});
-    //eggHunt.run(client);
     console.log("Hi");
     checkPunishments()
 

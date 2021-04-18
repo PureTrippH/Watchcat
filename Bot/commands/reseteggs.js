@@ -8,6 +8,7 @@ exports.run = async(client, message, args) => {
 		guildId: message.guild.id
 	})
 	if(message.author.id == '168695206575734784') {
+	console.log(req);
 	req.guildMembers.forEach(async user => {
 		await Stats.updateOne(
 			{
@@ -15,7 +16,7 @@ exports.run = async(client, message, args) => {
 			  "guildMembers.userID": user.userID
 			}, 
 			{
-			  "guildMembers.$.vcMinutes": 0
+			  "guildMembers.$.eggCount": 0
 			}).exec().then((err) => {
 				console.log(`${err}: Set User to 0`);
 			});
@@ -26,7 +27,7 @@ exports.run = async(client, message, args) => {
 module.exports.help = {
 	name: "slap",
 	type: "fun",
-	aliases: ['resetmsg'],
+	aliases: ['resetegg'],
 	desc: "Reaction Gif: Slaps The Tagged User",
 	usage: "!!slap (tagged user)",
 	hidden: "true"

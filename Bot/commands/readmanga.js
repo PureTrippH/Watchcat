@@ -6,6 +6,7 @@ exports.run = async (client, message, args) => {
 	const embed = new Disc.MessageEmbed();
 	const manga = await fetch(`https://api.mangadex.org/v2/manga/${args[0]}/chapters`).then(res => res.json()).then(json => {return json});
 	const chapList = getLang('gb', manga.data.chapters);
+	if(chapList.length == 0) return message.channel.send("manga not available in English! If you know the native language, click the link above to translate it.");
 	let pageNum = 1;
 	this.postChapter(chapList, 1, pageNum, embed, message);
 }
@@ -46,11 +47,11 @@ exports.nextPage = async(linkData, pageNumber, chapList, chapNum, embed, message
 
 
 module.exports.help = {
-	name: "Manga",
+	name: "Manga Reading Client",
 	type: "fun",
 	aliases: ['read'],
 	desc: "Did you just use !!manga and found a REALLY good manga you are just anxious to read? Well, with !!read, all you do is type !!read (manga id [found in link]), and you can start reading the manga you found ON DISCORD. All Chapters are available. Go Wild and have a nice read! Ill be waiting here :).",
-	usage: "!!manga",
+	usage: "!!read (manga ID)",
 	gif: "https://cdn.discordapp.com/attachments/732237195980701820/820506242060517396/unknown.png"
 }
 

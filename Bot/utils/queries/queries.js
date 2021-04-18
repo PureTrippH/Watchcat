@@ -29,6 +29,7 @@ const user = await serverStats.findOne(
               $addToSet: {
               guildMembers: {
                 userID: userId,
+                vcMinutes: 1,
                 messageCount: 1,
                 punishmentsTiers: [],
                 medals: []

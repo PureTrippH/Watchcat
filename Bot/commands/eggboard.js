@@ -21,7 +21,7 @@ console.log(message.guild.id);
 	  for(i = 0 ; i<=10 ; i++) {
 		  if(i >= leaders.length || i == 9) return message.channel.send(exampleEmbed);
 		  console.log("IM ON " + i);
-		exampleEmbed.addFields({ name: `${i + 1}: ${message.guild.member((leaders[i]).userID).displayName}`, value: `Eggs: **${leaders[i].eggCount}**`, inline: true });
+		exampleEmbed.addFields({ name: `${i + 1}: ${(message.guild.member((leaders[i]).userID)) ? message.guild.member((leaders[i]).userID).displayName : `<@l${eaders[i].userID}>`}`, value: `Eggs: **${leaders[i].eggCount}**`, inline: true });
 		
 	  }
 

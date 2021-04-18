@@ -12,9 +12,6 @@ module.exports = async() => {
             client.quit()
             reject(err)
         })
-        client.on('end', () => {
-            console.log("Client has disconnected");
-        })
 
         client.on('ready', () => {
             resolve(client);

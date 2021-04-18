@@ -80,6 +80,24 @@ exports.run = async (client, message, args) => {
 	ctx.fillText(user.guildMembers[0].messageCount, 75, 100);
 	
 
+	ctx.font = "20px Arial";
+	ctx.fillStyle = "White";
+	ctx.fillText("- VC Minutes -", 225, 75);
+	ctx.font = "20px Arial";
+	ctx.strokeStyle = 'black';
+    ctx.lineWidth = 0.5;
+	ctx.strokeText("- VC Minutes -", 225, 75);
+
+	ctx.font = "20px Arial";
+	ctx.fillStyle = "White";
+	ctx.fillText(user.guildMembers[0].vcMinutes, 225, 100);
+	ctx.font = "20px Arial";
+	ctx.strokeStyle = 'black';
+    ctx.lineWidth = 0.5;
+	ctx.strokeText(user.guildMembers[0].vcMinutes, 225, 100);
+
+
+
 		ctx.fillStyle = "#d6a7eb";
 		ctx.fillRect(60, 155, percentOf300, 25);
 		ctx.fill();
