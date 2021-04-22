@@ -2,46 +2,43 @@ const fetch = require('node-fetch');
 const puppet = require('puppeteer');
 const fs = require("fs");
 const Discord = require('discord.js');
+let webBrowsers = [];
 exports.run = async (client, message, args) => {
-	const browser = await puppet.launch({
-		headless: true,
-		args: ['--no-sandbox']
-		});
-		
-	const page = await browser.newPage();
 	let pageNum = 1;
+	if(webBrowsers.length == 0) {
+		const contentBrowser = await puppet.launch({
+			headless: true,
+			args: ['--no-sandbox']
+		});
+		webBrowsers.push(contentBrowser);
+	}
 	let loadEmbed = new Discord.MessageEmbed;
 	loadEmbed.setTitle("Loading Hentai!");
 	loadEmbed.setDescription("Finding the Right Hentai takes some time! Please Be Patient!");
 	loadEmbed.setThumbnail('https://i2.wp.com/onemansblog.com/wp-content/uploads/2016/05/Octopus-Loading.gif?fit=800%2C600&ssl=1');
+	loadEmbed.setFooter("Just Move on if there is Loli. I sadly cant filter it out ;-;");
 	message.channel.send(loadEmbed);
-	let hentaiLink = await validLink(page);
-	this.nextPage(hentaiLink, pageNum, message, page);
+	this.nextPage(await validLink(), pageNum, message);
 
 
 }
 
-exports.nextPage = async (hentaiLink, pageNum, message, page)  => {
+exports.nextPage = async (hentaiLink, pageNum, message)  => {
+
+	const nextPage = await goToPage(hentaiLink + `/${pageNum}`);
 	const embed = new Discord.MessageEmbed;
 	embed.setAuthor('nhentai');
-	console.log(hentaiLink + `/${pageNum}`);
-	await page.goto(hentaiLink + `/${pageNum}`);
-	await page.waitForSelector('img');
-	let data = await page.evaluate(() => {
-		const images = document.querySelectorAll('img');
-		const urls = Array.from(images).map(v => v.src);
-		return urls;
-	})
+	console.log(nextPage);
+
 	embed.setTitle("Your Mystery Hentai:");
-	console.log(data);
-	embed.setImage(data[1]);
+	embed.setImage(nextPage[1]);
 	let msg = await message.author.send(embed);
 	msg.react('➡️');
 	msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(collection => {
 		let reaction = collection.first().emoji.name;
 		switch(reaction) {
 			case '➡️':
-				return this.nextPage(hentaiLink, pageNum+1, message, page);
+				return this.nextPage(hentaiLink, pageNum+1, message);
 			break;
 		}
 	});
@@ -56,7 +53,7 @@ const getRandomUrl = (linkArr) => {
 		let randomChar = (chars.charAt(Math.floor(Math.random() * chars.length)));
 		linkArr.push(randomChar);
 	}
-	if(rand <3 && (Math.floor(Math.random() * 5) + 1) != 2) {
+	if((rand <3 || linkArr >= 1000) && (Math.floor(Math.random() * 5) + 1) != 2) {
 		return getRandomUrl([]);
 	}
 	return (linkArr.reduce((a, b) => a + b));
@@ -67,24 +64,26 @@ const validLink = async (page) => {
 	let linkArr = [];
 	//getRandomUrl(linkArr)
 	let newLink = 'https://nhentai.net/g/' + `${getRandomUrl(linkArr)}`;
-	console.log(newLink);
-	try {
-	await page.goto(newLink);
-	} catch(err) {
-		console.log(`HENTAI ERROR: ${err}`);
-		validLink()
-	}
-	await page.waitForSelector('img');
-	let data = await page.evaluate(() => {
-		const images = document.querySelectorAll('img');
-		const urls = Array.from(images).map(v => v.src);
-		return urls;
-	})
-	if(data.length == 1) {
+	const pageData = await goToPage(newLink);
+	if(pageData.length == 1) {
 		return validLink(page);
 	} else {
 		return newLink
 	}
+}
+
+const goToPage = async(link) => {
+	const browser = webBrowsers[0];
+	const contPage = await browser.newPage();
+	await contPage.goto(link);
+	await contPage.waitForSelector('img');
+	let data = await contPage.evaluate(() => {
+		const images = document.querySelectorAll('img');
+		const urls = Array.from(images).map(v => v.src);
+		return urls;
+	});
+	await contPage.close();
+	return data;
 }
 
 
