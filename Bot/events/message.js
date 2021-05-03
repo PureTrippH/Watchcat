@@ -4,8 +4,8 @@ module.exports = async (client, message) => {
     const mongoose = require('mongoose');
     const serverStats = require("../utils/schemas/serverstat.js");
     const queries = require('../utils/queries/queries.js');
+    const tier = require('../commands/tier');
     if(message.author.bot) return;
-
 
 if(message.guild) {
 //Is the User in the Cooldown for message count?
@@ -35,6 +35,12 @@ setTimeout(() => {
     }
 
     //Starts to Splice the Message, checking and removing command and prefix
+    
+    if(message.content.toLowerCase().includes("bladee")) {
+      message.delete();
+      tier.run(client, message, [message.author.id, "bladee"]);
+    }
+
     if(!prefixes.get(message.guild.id)) {
       let guildData = await queries.queryServerConfig(message.guild.id);
       if(guildData.prefix) {

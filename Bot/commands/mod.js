@@ -30,11 +30,14 @@ message.channel.send(embed).then(msg =>{
         message.channel.send(action);
       break;
 
-      case '2️⃣':!
-        message.channel.updateOverwrite(message.channel.guild.roles.everyone, {SEND_MESSAGES: true});
+      case '2️⃣':
+        message.channel.updateOverwrite(message.channel.guild.roles.everyone, {SEND_MESSAGES: null});
         action.setTitle(`Thawing Channel`);
         action.setImage("https://media1.giphy.com/media/WTpPuEnlEZIAImjtJK/giphy.gif");
         message.channel.send(action);
+      break;
+      case '3️⃣':
+        
       break;
     }
   });

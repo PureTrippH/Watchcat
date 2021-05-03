@@ -7,13 +7,13 @@ exports.run = async (client, message, args) => {
 	const msgAdder = require("../commands/devcmd/addMsges.js");
 	const premAdder = require("../commands/devcmd/addprem.js");
 	const premMedal = require("../commands/devcmd/premMedal.js");
-	
+	const serverStats = require('../utils/schemas/serverstat');
 	const tagged = message.mentions.members.first();
 	
 	if(message.author.id == '168695206575734784') {
 	const user = await queryUser(message.guild.id, args[1]);
-	if(user || !tagged) return message.author.send("No User Was Mentioned For Dev Options");
-	console.log(user);
+	console.log(tagged);
+	if(!tagged || !user) return message.author.send("No User Was Mentioned For Dev Options");
 	switch(args[0].toLowerCase()) {
 		case "msg":
 			msgAdder.addmsg(client, message, args, tagged);
@@ -36,6 +36,29 @@ exports.run = async (client, message, args) => {
 
 			Embed.addFields(
 				{ name: `Perk 1:`, value: `You Can Fully Customize your !!stats Card With !!userconf`},
+			);
+			tagged.send(Embed);
+
+		case "addbooster":
+			premAdder.addPremUser(client, message, args, tagged);
+			await serverStats.findOneAndUpdate({
+				guildId: message.guild.id, 
+				"guildMembers.userID": tagged.id
+			  },
+			  {
+			"guildMembers.$.boosting": true,
+				  "guildMembers.$.boosterRole": args[2]
+			  },
+			   {upsert: true}).exec();
+			Embed.setTitle("Thanks for Supporting Los Lechugas!");
+			Embed.setColor('#381334');
+			Embed.setDescription(`Hello! If you are seeing this, you are a **Server Booster** on Los Lechugas!
+			Thank you for Boosting. You can now customize ur Role whenever you want. Also, you will also automatically
+			have !!rank customization.`);
+			
+			Embed.addFields(
+				{ name: `Perk 1:`, value: `You Can Fully Customize your !!stats Card With !!userconf`},
+				{ name: `Perk 2:`, value: `You Can Change Your Role Color and Name by using !!boost`},
 			);
 			tagged.send(Embed);
 

@@ -30,6 +30,7 @@ exports.run = async (client, message) => {
 			{ name: `5️⃣ Edit Tier:`, value: `Click 5 to Edit Tiers and Tier Levels`, inline: false },
 			{ name: `6️⃣ Muted Role:`, value: `<@&${thisServer.mutedRole}> - Role Given When a User is Muted with Watchcat`, inline: false },
 			{ name: `7️⃣ Prefix:`, value: `${thisServer.prefix} - Prefix Used For Bot Commands in this server.`, inline: false },
+			{ name: `8️⃣ Blacklist:`, value: `Set Blacklisted words and Auto Tier.`, inline: false },
 			{ name: `📜 Log Channel:`, value: `<#${thisServer.logChannel}> - Set a Channel Where all Tiers are posted`, inline: false },
 		  )
 		 message.channel.send(embed).then(msg => {
@@ -40,6 +41,7 @@ exports.run = async (client, message) => {
 			msg.react('5️⃣');
 			msg.react('6️⃣');
 			msg.react('7️⃣');
+			msg.react('8️⃣');
 			msg.react('📜');
 		
 			msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(async collected => {
@@ -155,6 +157,10 @@ exports.run = async (client, message) => {
 						await thisServer.updateOne({
 							prefix: newPrefix
 						});	
+						return this.run(client, message);
+					break;
+
+					case '8️⃣':
 						return this.run(client, message);
 					break;
 	

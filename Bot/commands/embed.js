@@ -12,11 +12,13 @@ exports.run = async (client, message, args) => {
   embed.addFields({ name: `2️⃣`, value: `Edit an Old Embed`});
   embed.addFields({ name: `3️⃣`, value: `Post an Embed`});
   embed.addFields({ name: `4️⃣`, value: `Edit a Posted Embed`});
+  embed.addFields({ name: `5️⃣`, value: `List IDs`});
   message.channel.send(embed).then(msg => {
 		msg.react('1️⃣');
 		msg.react('2️⃣');
 		msg.react('3️⃣');
     msg.react('4️⃣');
+    msg.react('5️⃣');
     
   msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(async collected => {
 			let reaction = collected.first().emoji.name;
@@ -45,6 +47,17 @@ exports.run = async (client, message, args) => {
           message.channel.send("Please send the Message ID");
           channel.messages.fetch(await collectMsg(message)).then(async msg => {
             msg.edit(new Discord.MessageEmbed((await collectID(message, embedSchem)).embedInfo));
+          });
+				break;
+        case '5️⃣':
+          embedSchem.find({
+            guildId: message.guild.id
+          }).then(res => {
+            let mastArray = [];
+            res.forEach(embed => {
+              mastArray.push(`${embed.embedId}`);
+            })
+            message.channel.send(`Your Server's Embeds: ${mastArray.toString()}`);
           });
 				break;
 

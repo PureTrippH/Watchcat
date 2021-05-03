@@ -4,6 +4,7 @@ const fs = require("fs");
 const Discord = require('discord.js');
 let webBrowsers = [];
 exports.run = async (client, message, args) => {
+	if(message.guild.id == "709865844670201967") return message.channel.send(`Haha ${message.author} you thought you could get hentai on a teen server. Horny bastard u arent 18+`);
 	let pageNum = 1;
 	if(webBrowsers.length == 0) {
 		const contentBrowser = await puppet.launch({
@@ -18,6 +19,9 @@ exports.run = async (client, message, args) => {
 	loadEmbed.setThumbnail('https://i2.wp.com/onemansblog.com/wp-content/uploads/2016/05/Octopus-Loading.gif?fit=800%2C600&ssl=1');
 	loadEmbed.setFooter("Just Move on if there is Loli. I sadly cant filter it out ;-;");
 	message.channel.send(loadEmbed);
+	if(args[0]) {
+		this.nextPage(`https://nhentai.net/g/${args[0]}`, pageNum, message);
+	}
 	this.nextPage(await validLink(), pageNum, message);
 
 
@@ -53,7 +57,7 @@ const getRandomUrl = (linkArr) => {
 		let randomChar = (chars.charAt(Math.floor(Math.random() * chars.length)));
 		linkArr.push(randomChar);
 	}
-	if((rand <3 || linkArr >= 1000) && (Math.floor(Math.random() * 5) + 1) != 2) {
+	if((rand <3 || linkArr >= 1000) && (Math.floor(Math.random() * 3) + 1) != 2) {
 		return getRandomUrl([]);
 	}
 	return (linkArr.reduce((a, b) => a + b));
