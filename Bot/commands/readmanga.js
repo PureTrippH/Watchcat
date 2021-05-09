@@ -4,45 +4,52 @@ exports.run = async (client, message, args) => {
 	//Get Manga and Chapter Lists
 	const Disc = require('discord.js');
 	const embed = new Disc.MessageEmbed();
-	const manga = await fetch(`https://api.mangadex.org/v2/manga/${args[0]}/chapters`).then(res => res.json()).then(json => {return json});
-	const chapList = getLang('gb', manga.data.chapters);
-	if(chapList.length == 0) return message.channel.send("manga not available in English! If you know the native language, click the link above to translate it.");
-	let pageNum = 1;
-	this.postChapter(chapList, 1, pageNum, embed, message);
+	try {
+		const manga = await getMangaData(args[0], 1, message);
+		this.postChapter(args[0] , 1, manga.data, manga.hash, 1, manga.title, message, embed);
+	} catch(err) {return message.channel.send("Manga does not Exist in English YET!");}
 }
 
 
-exports.postChapter = async(chapList, chapNum, pageNum, embed, message) => {
-	console.log(chapNum);
-	let data = await fetch(`https://api.mangadex.org/v2/chapter/${chapList[chapList.findIndex(chap => chap.chapter == chapNum)].id}`);
-	let linkData = await data.json();
-	embed.setTitle(linkData.data.mangaTitle);
-	console.log(linkData.data.chapter);
-	embed.setDescription(`Chapter: ${linkData.data.chapter} - ${linkData.data.title}`);
-	if(linkData.data.pages.length <= pageNum-1) {
-		return this.postChapter(chapList, chapNum+1, 1, embed, message);
-	}
-	let img = await fetch(`${linkData.data.server}${linkData.data.hash}/${linkData.data.pages[pageNum-1]}`);
-	embed.setImage(img.url);
+exports.postChapter = async(mangaId, pageNum, panelArray, hash, chapNum, mangaTitle, message, embed) => {
+	console.log(panelArray);
+	embed.setTitle(mangaTitle);
+	embed.setImage(`https://s2.mangadex.org/data/${hash}/${panelArray[pageNum-1]}`)
 	let msg = await message.channel.send(embed);
+	panelArray[pageNum-1]
 	msg.react('➡️');
 	msg.react('⏭️');
-	msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(collection => {
+	msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(async collection => {
 		let reaction = collection.first().emoji.name;
 		switch(reaction) {
 			case '➡️':
-				return this.postChapter(chapList, chapNum, pageNum+1, embed, message);
+				if(panelArray.length <= pageNum+1) {
+					try {
+					let data = await getMangaData(mangaId, chapNum+1, message);
+					return this.postChapter(mangaId, 1, data.data, data.hash, chapNum+1, mangaTitle, message, embed);
+					}  catch(err) {
+						return message.channel.send("You have Read Every Chapter of this manga! Do !!manga to find a new one to read!");
+					}
+				}
+				return this.postChapter(mangaId, pageNum+1, panelArray, hash, chapNum, mangaTitle, message, embed);
 			break;
 			case '⏭️':
-				return this.postChapter(chapList, chapNum+1, 1, embed, message);
+				try {
+				await getMangaData(mangaId, chapNum+1);
+				let data = await getMangaData(mangaId, chapNum+1, message);
+				console.log(data);
+				return this.postChapter(mangaId, 1, data.data, data.hash, chapNum+1, mangaTitle , message, embed);
+				}  catch(err) {
+					return message.channel.send("You have Read Every Chapter of this manga! Do !!manga to find a new one to read!");
+				}
 			break;
 		}
 	});
 }
 
-exports.nextPage = async(linkData, pageNumber, chapList, chapNum, embed, message) => {
-	
-	return img;
+
+const getMangaData = async(mangaId, chapNum, message) => {
+		return await fetch(`https://api.mangadex.org/chapter?manga=${mangaId}&chapter=${chapNum}&translatedLanguage=en`).then(res => res.json()).then(json => {return json.results[0].data.attributes});
 }
 
 
@@ -53,14 +60,4 @@ module.exports.help = {
 	desc: "Did you just use !!manga and found a REALLY good manga you are just anxious to read? Well, with !!read, all you do is type !!read (manga id [found in link]), and you can start reading the manga you found ON DISCORD. All Chapters are available. Go Wild and have a nice read! Ill be waiting here :).",
 	usage: "!!read (manga ID)",
 	gif: "https://cdn.discordapp.com/attachments/732237195980701820/820506242060517396/unknown.png"
-}
-
-const getLang = (lang, JSONinf) => {
-	let list = new Array;
-	JSONinf.forEach(chapter => {
-		if(chapter.language == lang) {
-			list.push(chapter);
-		}
-	})
-	return(list);
 }
