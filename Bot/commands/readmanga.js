@@ -24,15 +24,10 @@ exports.postChapter = async(mangaId, pageNum, panelArray, hash, chapNum, mangaTi
 		let reaction = collection.first().emoji.name;
 		switch(reaction) {
 			case '🔍':
-				try {
 				message.channel.send("Please Send a Chapter Number");
-				const msg = await message.channel.awaitMessages(m => m.author.id === message.author.id, {
-					max: 1
-				})
-				return this.postChapter(mangaId, 1, data.data, data.hash, parseInt(msg.first().content), data.title, message, embed);
-				}catch(err) {
-					return message.channel.send("Chapter Does Not Exist!");
-				}
+				const msg = await collectMsg(message);
+				let data = await getMangaData(mangaId, chapNum+1, message);
+				return this.postChapter(mangaId, 1, data.data, data.hash, parseInt(msg), data.title, message, embed);
 			case '➡️':
 				if(panelArray.length <= pageNum+1) {
 					try {
@@ -63,6 +58,12 @@ const getMangaData = async(mangaId, chapNum, message) => {
 		return await fetch(`https://api.mangadex.org/chapter?manga=${mangaId}&chapter=${chapNum}&translatedLanguage=en`).then(res => res.json()).then(json => {return json.results[0].data.attributes});
 }
 
+const collectMsg = async(message) => {
+	const msg = await message.channel.awaitMessages(m => m.author.id === message.author.id, {
+		max: 1
+	})
+	return msg.first().content;
+}
 
 module.exports.help = {
 	name: "Manga Reading Client",
