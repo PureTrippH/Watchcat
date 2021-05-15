@@ -33,7 +33,7 @@ exports.run = async (client, message, args) => {
     await fetch(`https://jservice.io/api/random`)
     .then(response => response.json())
     .then(data => {
-    
+    if(data[0].invalid_count > 0) return this.run(client, message, args);
     
     do{
         startfont--;
@@ -58,7 +58,6 @@ exports.run = async (client, message, args) => {
             newlineString += char
         }
     };
-    console.log(newlineString);
     if(count <= 49 || count >= 49) {
         spacing += 20;
         ctx.font = "20px Arial";
@@ -83,8 +82,9 @@ exports.run = async (client, message, args) => {
         time: 15000
     }).then(collectedtext => {
         message.delete();
-        let newAnswer = (data[0].answer).replace("<i>", "").replace("</i>", "")
-        if((collectedtext.first().content).toLowerCase() == (newAnswer).toLowerCase()) {
+        let newAnswer = (data[0].answer).replace("<i>", "").replace("</i>", "");
+        let ansArray = getPossibleAnswers((data[0].answer).replace("<i>", "").replace("</i>", "").toLowerCase());
+        if(ansArray.includes((collectedtext.first().content).toLowerCase())) {
             serverStats.findOneAndUpdate({
                 guildId: message.guild.id, 
                 "guildMembers.userID": message.author.id
@@ -145,3 +145,17 @@ module.exports.help = {
     gif: "https://cdn.discordapp.com/attachments/812808586890838046/812810505743499314/2021-02-20_17-14-34_1.gif"
 }
 
+const getPossibleAnswers = (string) => {
+    const answers = new Array;
+    answers.push(string);
+    string.split(")").forEach(str => {
+        str.replace("(", "");
+        answers.push(str);
+    })
+    answers.push(string.replace("-", " ").toLowerCase);
+    answers.push(string.replace("\"", "").toLowerCase);
+    if(string.indexOf('the') == 0) {
+        answers.push(string.substr(4));
+    }
+    return answers;
+} 

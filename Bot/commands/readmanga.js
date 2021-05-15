@@ -19,14 +19,25 @@ exports.postChapter = async(mangaId, pageNum, panelArray, hash, chapNum, mangaTi
 	panelArray[pageNum-1]
 	msg.react('➡️');
 	msg.react('⏭️');
+	msg.react('🔍');
 	msg.awaitReactions((reaction, user) => user.id == message.author.id, { max: 1 }).then(async collection => {
 		let reaction = collection.first().emoji.name;
 		switch(reaction) {
+			case '🔍':
+				try {
+				message.channel.send("Please Send a Chapter Number");
+				const msg = await message.channel.awaitMessages(m => m.author.id === message.author.id, {
+					max: 1
+				})
+				return this.postChapter(mangaId, 1, data.data, data.hash, parseInt(msg.first().content), data.title, message, embed);
+				}catch(err) {
+					return message.channel.send("Chapter Does Not Exist!");
+				}
 			case '➡️':
 				if(panelArray.length <= pageNum+1) {
 					try {
 					let data = await getMangaData(mangaId, chapNum+1, message);
-					return this.postChapter(mangaId, 1, data.data, data.hash, chapNum+1, mangaTitle, message, embed);
+					return this.postChapter(mangaId, 1, data.data, data.hash, chapNum+1, data.title, message, embed);
 					}  catch(err) {
 						return message.channel.send("You have Read Every Chapter of this manga! Do !!manga to find a new one to read!");
 					}
@@ -38,7 +49,7 @@ exports.postChapter = async(mangaId, pageNum, panelArray, hash, chapNum, mangaTi
 				await getMangaData(mangaId, chapNum+1);
 				let data = await getMangaData(mangaId, chapNum+1, message);
 				console.log(data);
-				return this.postChapter(mangaId, 1, data.data, data.hash, chapNum+1, mangaTitle , message, embed);
+				return this.postChapter(mangaId, 1, data.data, data.hash, chapNum+1, data.title , message, embed);
 				}  catch(err) {
 					return message.channel.send("You have Read Every Chapter of this manga! Do !!manga to find a new one to read!");
 				}
