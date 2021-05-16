@@ -3,7 +3,7 @@ exports.run = async (client, message, args) => {
 	const fs = require("fs");
 	const Discord = require('discord.js');
 	const read = require('./readmanga');
-	
+
 	const embed = new Discord.MessageEmbed();
 	const listEmbed = new Discord.MessageEmbed();
 	embed.setColor('#92cfd6');
@@ -13,10 +13,9 @@ exports.run = async (client, message, args) => {
 
 	if(args[0]) {
 		try {
-		const manga = await fetch(`https://api.mangadex.org/manga?title="${args.slice(0).join(" ")}"`);
+		const manga = await fetch(`https://api.mangadex.org/manga?title="${args.slice(0).join(" ")}"&limit=99`);
 		mangaData = await manga.json();
-		mangaData = await makeList(mangaData.results, listEmbed, message);
-		console.log(mangaData);
+		mangaData = await this.mangaList(mangaData.results, listEmbed, message, 0, 10);
 		} catch(err) {console.log(err); return message.channel.send("Manga Not Found!");}
 	} else {
 		mangaData = await validLink(fetch);
@@ -74,20 +73,6 @@ const validLink = async (fetch) => {
 	return mangaData.data;
 }
 
-const makeList = async(searchResults, embed, message) => {
-	let indexNum = 1;
-	searchResults.forEach(result => {
-		let desc = result.data.attributes.description.en.substring(0, 500);
-		embed.addFields(
-			{ name: `${indexNum}: ${result.data.attributes.title.en}`, value: `${convertFormCode(desc) ? convertFormCode(desc) : "No Description"}`, inline: true }
-		  )
-		indexNum++;
-	})
-	message.channel.send(embed);
-	message.channel.send("Please send the Number of the Manga you want to Read");
-	let index = await collectMsg(message);
-	if(index-1 < indexNum-1) return searchResults[index-1].data;
-}
 
 
 const collectMsg = async(message) => {
@@ -103,7 +88,30 @@ const convertFormCode = (message) => {
 	message =  message.replace("[u]", "__").replace("[/u]", "__");
 	message =  message.replace("[hr]", "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ \n");
 	message =  message.replace("[url=", "[").replace("[/url]", "](url)");
-	message =  message.replace("&quot;", "\"")
-	console.log(message);
+	message =  message.replace("&quot;", "\"");
+	message = message.replace ("&rsquo;", "'");
+	message = message.replace ("[i]", "*").replace("[/i]", "*");
 	return message;
+}
+
+exports.mangaList = async(searchResults, embed, message, num1, num2) => {
+	let indexNum = 1;
+	console.log(num1);
+	if(num1 > searchResults.length) return this.mangaList(searchResults, embed, message, 0, 10);
+	searchResults.slice(num1, num2).forEach(result => {
+		let desc = result.data.attributes.description.en.substring(0, 500);
+		embed.addFields(
+			{ name: `${indexNum}: ${result.data.attributes.title.en}`, value: `${convertFormCode(desc) ? convertFormCode(desc) : "No Description"}`, inline: true }
+		  )
+		indexNum++;
+	})
+	message.channel.send(embed);
+	message.channel.send("Please send the Number of the Manga you want to Read. Type Next or Back to see other Selections.");
+	embed.fields = [];
+	let index = await collectMsg(message);
+	console.log(num1+1);
+	if(index.toLowerCase() == "next") {
+		return this.mangaList(searchResults, embed, message, num1+10, num2+10);
+	} else if(index-1 <= indexNum-1) {console.log(parseInt(num1)+(index-1)); return searchResults[parseInt(num1)+(index-1)].data;}
+	else {message.channel.send("Manga Not Found!"); return this.mangaList(searchResults, embed, message, num1, num2)}; 
 }
