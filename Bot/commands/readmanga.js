@@ -1,18 +1,19 @@
 const fetch = require('node-fetch');
 
 exports.run = async (client, message, args) => {
+	let newManga = await getMangaData(args[0], 1, message);
 	//Get Manga and Chapter Lists
 	const Disc = require('discord.js');
 	const embed = new Disc.MessageEmbed();
 	try {
-		const manga = await getMangaData(args[0], 1, message);
-		this.postChapter(args[0] , 1, manga.data, manga.hash, 1, manga.title, message, embed);
-	} catch(err) {return message.channel.send("Manga does not Exist in English YET!");}
+		console.log(args[0]);
+		console.log(newManga.data);
+		this.postChapter(args[0], 1, newManga.data, newManga.hash, 1, newManga.title, message, embed);
+	} catch(err) {console.log(err); return message.channel.send("Manga does not Exist in English YET!");}
 }
 
 
 exports.postChapter = async(mangaId, pageNum, panelArray, hash, chapNum, mangaTitle, message, embed) => {
-	console.log(panelArray);
 	embed.setTitle(mangaTitle);
 	embed.setImage(`https://s2.mangadex.org/data/${hash}/${panelArray[pageNum-1]}`)
 	let msg = await message.channel.send(embed);
@@ -43,7 +44,6 @@ exports.postChapter = async(mangaId, pageNum, panelArray, hash, chapNum, mangaTi
 				try {
 				await getMangaData(mangaId, chapNum+1);
 				let data = await getMangaData(mangaId, chapNum+1, message);
-				console.log(data);
 				return this.postChapter(mangaId, 1, data.data, data.hash, chapNum+1, data.title , message, embed);
 				}  catch(err) {
 					return message.channel.send("You have Read Every Chapter of this manga! Do !!manga to find a new one to read!");
@@ -55,9 +55,12 @@ exports.postChapter = async(mangaId, pageNum, panelArray, hash, chapNum, mangaTi
 
 
 const getMangaData = async(mangaId, chapNum, message) => {
-		return await fetch(`https://api.mangadex.org/chapter?manga=${mangaId}&chapter=${chapNum}&translatedLanguage=en`).then(res => res.json()).then(json => {return json.results[0].data.attributes});
+	return await fetch(`https://api.mangadex.org/chapter?manga=${mangaId}&chapter=${chapNum}&translatedLanguage[]=en`).then(res => res.json()).then(json => {
+		try {
+		return json.results[0].data.attributes
+		} catch(err) {return null}
+	});
 }
-
 const collectMsg = async(message) => {
 	const msg = await message.channel.awaitMessages(m => m.author.id === message.author.id, {
 		max: 1

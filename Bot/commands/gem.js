@@ -7,15 +7,17 @@ exports.run = async (client, message, args) => {
 	const msgAdder = require("../commands/devcmd/addMsges.js");
 	const premAdder = require("../commands/devcmd/addprem.js");
 	const premMedal = require("../commands/devcmd/premMedal.js");
+	const devMessage = require("../commands/devcmd/devMessage");
 	const serverStats = require('../utils/schemas/serverstat');
 	const tagged = message.mentions.members.first();
 	
 	if(message.author.id == '168695206575734784') {
 	const user = await queryUser(message.guild.id, args[1]);
 	console.log(tagged);
-	if(!tagged || !user) return message.author.send("No User Was Mentioned For Dev Options");
+	
 	switch(args[0].toLowerCase()) {
 		case "msg":
+			if(!tagged || !user) return message.author.send("No User Was Mentioned For Dev Options");
 			msgAdder.addmsg(client, message, args, tagged);
 
 		break;
@@ -25,7 +27,12 @@ exports.run = async (client, message, args) => {
 			console.log(await queryServerStats(message.guild.id));
 		break;
 
+		case 'message':
+			devMessage.message(client, message, args);
+		break;
+
 		case "addprem":
+			if(!tagged || !user) return message.author.send("No User Was Mentioned For Dev Options");
 			premAdder.addPremUser(client, message, args, tagged);
 			Embed.setTitle("Thanks for Supporting Watchcat!");
 			Embed.setColor('#381334');
@@ -40,6 +47,7 @@ exports.run = async (client, message, args) => {
 			tagged.send(Embed);
 
 		case "addbooster":
+			if(!tagged || !user) return message.author.send("No User Was Mentioned For Dev Options");
 			premAdder.addPremUser(client, message, args, tagged);
 			await serverStats.findOneAndUpdate({
 				guildId: message.guild.id, 
