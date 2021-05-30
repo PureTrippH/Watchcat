@@ -32,14 +32,9 @@ setTimeout(() => {
 }
 
 
-    }
+}
 
     //Starts to Splice the Message, checking and removing command and prefix
-    
-    if(message.content.toLowerCase().includes("bladee")) {
-      message.delete();
-      tier.run(client, message, [message.author.id, "bladee"]);
-    }
 
     if(!prefixes.get(message.guild.id)) {
       let guildData = await queries.queryServerConfig(message.guild.id);

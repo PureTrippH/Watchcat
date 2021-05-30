@@ -32,7 +32,7 @@ client.commands = new Discord.Collection();
 client.aliases = new Discord.Collection();
 client.once('ready', async() => {
     const guildCount = await client.shard.fetchClientValues('guilds.cache.size');
-    console.log("Laela's Watchcat Ready to Guard");
+    console.log("Watchcat Ready to Guard");
     client.user.setPresence({ activity: { name: `Now On ${guildCount} Servers! TY!`, type:"STREAMING", url:"https://www.twitch.tv/fextralife" }});
     console.log("Hi");
     checkPunishments()

@@ -3,14 +3,19 @@ exports.run = async (client, message, args) => {
 	const fs = require("fs");
 	const Discord = require('discord.js');
 	const read = require('./readmanga');
-
 	const embed = new Discord.MessageEmbed();
 	const listEmbed = new Discord.MessageEmbed();
 	embed.setColor('#92cfd6');
 	embed.setTitle('Watchcat - Random Manga');
 	embed.setFooter('Brought to you by Mangadex');
 	let mangaData = null;
-
+	if(args[0].includes("--")) {
+		let subArg = args[0].split("--")[1];
+		if(fs.existsSync(`./commands/settingscommands/manga/${subArg}.js`)) {
+			const selectedSetting = require(`./settingscommands/manga/${subArg}`);
+			return selectedSetting.run(client, message, args);
+		}
+	}
 	if(args[0]) {
 		try {
 		const manga = await fetch(`https://api.mangadex.org/manga?title="${args.slice(0).join(" ")}"&limit=99`);
