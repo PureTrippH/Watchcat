@@ -4,9 +4,11 @@ const mongoose = require('./utils/mongoose');
 const settings = require('./settings.json');
 const queries = require("./utils/queries/queries.js");
 const express = require("express");
+const playQueue = require('./commands/play');
 
 const eggHunt = require('./commands/laelaevents/easteregg');
 const serverStats = require("./utils/schemas/serverstat");
+const pollSchema = require("./utils/schemas/poll");
 const punishSchema = require("./utils/schemas/punishment");
 
 const app = express();
@@ -69,7 +71,6 @@ app.listen(3016, () => console.log("Bot Command API Open"));
 
 //Check Tiers
 const checkPunishments = async() => {
-    console.log("CHECKING DATA");
         const now = new Date();
         const cond = {
             expires: {
@@ -77,7 +78,12 @@ const checkPunishments = async() => {
             },
             stale: false
         }
-    
+        const pollRes = await pollSchema.find({
+            endDate: {
+                $lt: now
+            },
+        });
+        console.log(pollRes);
         const punishments = await punishSchema.find(cond);
         if(punishments) {
             for(const result of punishments) {
@@ -128,7 +134,33 @@ const checkPunishments = async() => {
                 }
             }
             await punishSchema.deleteMany(cond);
-            return setTimeout(checkPunishments, 1000 * 30);
         }
-        setTimeout(checkPunishments, 1000 * 30);
+        if(pollRes) {
+            for(const res of pollRes) {
+                console.log("new res");
+                let channel = await client.channels.fetch(res.channel);
+                let message = await channel.messages.fetch(res.message);
+                    if(res.type == 'skippoll') {
+                        let countCheck = 0;
+                        let countX = 0;
+                        message.reactions.cache.forEach(async emoji => {
+                            switch(emoji.emoji.id) {
+                              case '767083818199810088':
+                                countCheck = emoji.count-1;
+                              break;
+                              case '767083772440608778':
+                                countX = emoji.count-1;
+                              break; 
+                            }
+                        if(countCheck/(countCheck+countX) > 0.6 && playQueue.getQueue().get(message.guild.id)) {
+                            playQueue.getQueue().get(message.guild.id).connection.dispatcher.end();
+                            client.channels.cache.get(res.channel).send("Vote Passed! Skipping Queue");
+
+                        }
+                        res.delete();
+                    })
+                }
+            }
+        }
+        return setTimeout(checkPunishments, 1000 * 30);
     }

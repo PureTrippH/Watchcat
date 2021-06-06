@@ -1,7 +1,7 @@
 exports.run = async (client, message, args) => {
 	const playQueue = require('./play');
 	const ytdl = require('ytdl-core');
-	const currentQueue = await playQueue.getQueue();
+	const currentQueue = playQueue.getQueue();
 	const vc = message.member.voice.channel;
 	console.log(currentQueue);
 		message.channel.send("Now Stopping Queue...");

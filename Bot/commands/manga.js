@@ -9,14 +9,14 @@ exports.run = async (client, message, args) => {
 	embed.setTitle('Watchcat - Random Manga');
 	embed.setFooter('Brought to you by Mangadex');
 	let mangaData = null;
-	if(args[0].includes("--")) {
-		let subArg = args[0].split("--")[1];
-		if(fs.existsSync(`./commands/settingscommands/manga/${subArg}.js`)) {
-			const selectedSetting = require(`./settingscommands/manga/${subArg}`);
-			return selectedSetting.run(client, message, args);
-		}
-	}
 	if(args[0]) {
+		if(args[0].includes("--")) {
+			let subArg = args[0].split("--")[1];
+			if(fs.existsSync(`./commands/settingscommands/manga/${subArg}.js`)) {
+				const selectedSetting = require(`./settingscommands/manga/${subArg}`);
+				return selectedSetting.run(client, message, args);
+			}
+		}
 		try {
 		const manga = await fetch(`https://api.mangadex.org/manga?title="${args.slice(0).join(" ")}"&limit=99`);
 		mangaData = await manga.json();
@@ -62,9 +62,19 @@ module.exports.help = {
 	name: "Manga",
 	type: "fun",
 	aliases: ['man', 'randommanga'],
-	desc: "Are You Just Bored and Need to Read a Random Manga? Well, with this command, you can fetch a random manga right off mangadex. This can help you find something new to read, and maybe you can find a new love.",
+	desc: `Are You Just Bored and Need to Read a Random Manga? Well, with this command, you can fetch a random manga for you to read! 
+	This can help you find something new to read, and maybe you can find a new love. 
+	
+	
+	If you want to read a series you know, simply type something like:
+	!!manga The Quintessential Quintuplets 
+	or
+	!!manga Chainsaw Man
+
+	and it will find that title for you to read!
+	`,
 	usage: "!!manga",
-	gif: "https://cdn.discordapp.com/attachments/732237195980701820/820506242060517396/unknown.png"
+	gif: "https://cdn.discordapp.com/attachments/850866166917365780/850933894404636712/Screenshot_639.png"
 }
 
 
@@ -170,6 +180,12 @@ const ratingInStars = (num) => {
 const validLink = async (fetch) => {
 	const manga = await fetch('https://api.mangadex.org/manga/random');
 	let mangaData = await manga.json();
+	await fetch(`https://api.mangadex.org/chapter?manga=${mangaData.id}&chapter=1&translatedLanguage[]=en`).then(res => res.json()).then(async json => {
+		try {
+		console.log(json);
+		} catch(err) {return await validLink(fetch)}
+	});
+
 	return mangaData.data;
 }
 

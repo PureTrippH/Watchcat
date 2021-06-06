@@ -22,10 +22,10 @@ module.exports = async (client, reaction) => {
       reaction.message.reactions.cache.forEach(emoji => {
         switch(emoji.emoji.id) {
           case '767083818199810088':
-            countCheck = emoji.count;
+            countCheck = emoji.count-1;
           break;
           case '767083772440608778':
-            countX = emoji.count;
+            countX = emoji.count-1;
           break; 
         }
       });

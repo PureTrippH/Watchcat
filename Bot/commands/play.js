@@ -19,7 +19,6 @@ exports.run = async (client, message, args) => {
 		let playList = await ytpl(args[0]);
 		playlist = true;
 		playList.items.forEach(async item => {
-			console.log("playlist");
 			song = {
 				title: item.title,
 				url: item.url,
@@ -56,7 +55,8 @@ const createQueue = async (vc, song, embed, message, playlist) => {
 		const queueBase = {
 			voice_channel: vc,
 			connection: null,
-			songs: []
+			songs: [],
+			skipVotes: 0
 		}
 		queue.set(message.guild.id, queueBase);
 		queueBase.songs.push(song);
@@ -75,6 +75,12 @@ const createQueue = async (vc, song, embed, message, playlist) => {
 			throw err;
 		}
 	} else {
+		if(!servQueue.voice_channel) {
+			const connection = await vc.join();
+			servQueue.connection = connection;
+			servQueue.voice_channel = vc;
+			this.player(message, servQueue.songs[0], ytdl);
+		}
 		servQueue.songs.push(song);
 		if(!playlist) {
 			embed.setTitle(`Added to Queue:`);
@@ -103,19 +109,18 @@ exports.player = async(message, song, ytdl) => {
 			songqueue.connection.play(stream, { seek: 0, volume: 1}).on('finish', () => {
 			songqueue.songs.shift();
 			if(songqueue.songs[0]) {
-				skipEmbed.setTitle(`Next In Line: ${song.title}`);
-				skipEmbed.setThumbnail(song.thumbnail);
+				skipEmbed.setTitle(`Next In Line --- ${songqueue.songs[0].title}`);
+				skipEmbed.setThumbnail(songqueue.songs[0].thumbnail);
 				skipEmbed.setColor('#7d3878');
 				message.channel.send(skipEmbed);
 			}
-			console.log(songqueue.songs[0]);
 			this.player(message, songqueue.songs[0], ytdl);
 		})
 	}
 
 }
 
-exports.getQueue = async() => {
+exports.getQueue = () => {
 	return queue;
 }
 

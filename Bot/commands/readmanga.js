@@ -7,7 +7,7 @@ exports.run = async (client, message, args) => {
 	const embed = new Disc.MessageEmbed();
 	try {
 		console.log(args[0]);
-		console.log(newManga.data);
+		console.log(newManga);
 		this.postChapter(args[0], 1, newManga.data, newManga.hash, 1, newManga.title, message, embed);
 	} catch(err) {console.log(err); return message.channel.send("Manga does not Exist in English YET!");}
 }
@@ -72,7 +72,16 @@ module.exports.help = {
 	name: "Manga Reading Client",
 	type: "fun",
 	aliases: ['read'],
-	desc: "Did you just use !!manga and found a REALLY good manga you are just anxious to read? Well, with !!read, all you do is type !!read (manga id [found in link]), and you can start reading the manga you found ON DISCORD. All Chapters are available. Go Wild and have a nice read! Ill be waiting here :).",
+	desc: `Did you just use !!manga and found a REALLY good manga you are just anxious to read? Well, with !!read, all you do is type !!read (manga id [found in link]), and you can start reading the manga you found ON DISCORD. 
+	All Chapters are available.
+	Controls:
+	- To Search for a Chapter, click the Magnifiying Glass. 
+	 
+	- To Skip a Chapter, click the Double Arrows. 
+	 
+	 - To go to the next page, click the singular arrow. 
+	 
+	 Now, Go Wild and have a nice read! Ill be waiting here :).`,
 	usage: "!!read (manga ID)",
-	gif: "https://cdn.discordapp.com/attachments/732237195980701820/820506242060517396/unknown.png"
+	gif: "https://cdn.discordapp.com/attachments/850866166917365780/850934183961690152/Screenshot_641.png"
 }

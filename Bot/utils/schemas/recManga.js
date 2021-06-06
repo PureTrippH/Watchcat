@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const recManga = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     mangaTitle: {
@@ -7,7 +6,7 @@ const recManga = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    mangaDescription: {
+    recommendation: {
         type: String,
         required: true,
     },
