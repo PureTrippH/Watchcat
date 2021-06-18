@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 const user = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     guildID: String,
-    authorID: String,
-    messageCount: Number,
+    userID: String,
+    globalMessageCount: Number,
     Tiers: [{type: String}],
-    Medals: [{type: String}],
+    mangaSaves: [{type: Object}],
 });
 
 module.exports = mongoose.model("User", user, 'users');

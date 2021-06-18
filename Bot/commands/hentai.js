@@ -100,5 +100,5 @@ module.exports.help = {
 	weird sexual fantasies you will never live out you nerd. (Dev Note: BY USING THIS COMMAND, YOU ARE CONFIRMING YOU ARE 18+)
 	`,
 	usage: "!!hentai",
-	gif: "https://cdn.discordapp.com/attachments/732237195980701820/820506242060517396/unknown.png"
+	gif: "https://cdn.discordapp.com/attachments/548659297517830155/855103394599272458/ezgif.com-gif-maker_1.gif"
 }

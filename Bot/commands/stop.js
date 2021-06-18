@@ -14,7 +14,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
 	name: "Stop Music",
 	type: "fun",
-	aliases: ["s"],
+	aliases: ["st"],
 	desc: "Stops the current queue in the VC. When you run this command, you delete the WHOLE Queue.",
 	usage: "!!role (user) (add/remove) (role)",
 	gif: "https://cdn.discordapp.com/attachments/820346508263424000/820348129227833344/2021-03-13_12-24-10.gif"

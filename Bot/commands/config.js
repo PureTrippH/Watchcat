@@ -14,6 +14,7 @@ exports.run = async (client, message) => {
 
 	//Variable Delcaration
 	let embed = new Discord.MessageEmbed();
+	let newrole = null;
 
 	if(message.member.hasPermission('ADMINISTRATOR') || message.author.id == '168695206575734784') {
 		embed.setTitle("Watchcat Config");
@@ -51,7 +52,7 @@ exports.run = async (client, message) => {
 					case '1️⃣':
 						message.channel.send("Send a Role or role id");
 						const role = await collectMsg(message, 1);
-						let newrole = await message.guild.roles.cache.get(role.replace('<@&', '').replace('>', ""));
+						newrole = await message.guild.roles.cache.get(role.replace('<@&', '').replace('>', ""));
 						if(!newrole) {
 							message.channel.send("No Role Found!");
 						} else {
@@ -78,12 +79,12 @@ exports.run = async (client, message) => {
 					case '3️⃣':
 						message.channel.send("Please send a Role for New Users");
 						let newTextTwo = await collectMsg(message, 1);
-						let newNewRole = message.guild.roles.cache.get(newTextTwo.replace('<@&', '').replace('>', ""));
-						if(!newNewRole) {
+						newrole = message.guild.roles.cache.get(newTextTwo.replace('<@&', '').replace('>', ""));
+						if(!newrole) {
 							message.channel.send("No Role Found!");
 						} else {
 							await thisServer.updateOne({
-								newUserRole: newNewRole.id
+								newUserRole: newrole.id
 							});	
 						}
 						return this.run(client, message);
@@ -140,12 +141,12 @@ exports.run = async (client, message) => {
 					case '6️⃣':
 						message.channel.send("Please send Your Server's Muted Role");
 						let mutedRole = await collectMsg(message, 1);
-						let newMutedRole = message.guild.roles.cache.get(mutedRole.replace('<@&', '').replace('>', ""));
+						newrole = message.guild.roles.cache.get(mutedRole.replace('<@&', '').replace('>', ""));
 						if(!newrole) {
 							message.channel.send("No Role Found!");
 						} else {
 						await thisServer.updateOne({
-							mutedRole: newMutedRole.id
+							mutedRole: newrole.id
 						});	
 						}
 						return this.run(client, message);

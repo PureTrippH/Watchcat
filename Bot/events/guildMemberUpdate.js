@@ -17,7 +17,7 @@ module.exports = async (client, oldMember, newMember) => {
       },
       reason: 'New Booster!!!',
     });
-    role.setPosition(64);
+    role.setPosition(90);
     await serverStats.findOneAndUpdate({
 			guildId: oldMember.guild.id, 
 			"guildMembers.userID": oldMember.id

@@ -2,6 +2,8 @@ exports.run = async (client, message, args) => {
     const Discord = require('discord.js');
     const redis = require("../utils/redis");
     const ms = require('ms');
+    const mongoose = require('mongoose');
+    const pollSchema = require('../utils/schemas/poll');
     const poll = new Discord.MessageEmbed();
     if(!message.member.hasPermission('MANAGE_CHANNELS')) return message.author.send('You Need permission to cast a poll');
     if(!args[0]) return message.author.send("You MUST need a Poll Time");
@@ -16,28 +18,23 @@ exports.run = async (client, message, args) => {
     poll.setColor("ff0000");
 
     poll.addFields({ name: `Positive:`, value: `⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛`, inline: true }, { name: `Negative:`, value: `⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛`, inline: true });
-
-    const redisClient = await redis()
-
-
     
    const pollmsg = await message.channel.send(poll);
-        pollmsg.react(client.emojis.resolveIdentifier("767083818199810088"));
-        pollmsg.react(client.emojis.resolveIdentifier("767083772440608778"));
+    pollmsg.react(client.emojis.resolveIdentifier("767083818199810088"));
+    pollmsg.react(client.emojis.resolveIdentifier("767083772440608778"));
 
-                
-    try {
-        console.log(`Message Author: ${pollmsg.id}`);
-        const redisKey = `poll-${pollmsg.id}`
-        await redisClient.set(redisKey, 'true', 'EX', time);
-    } finally {
-        redisClient.quit();
-    }
-    redisClient.quit();
-
-
-
-    
+    const expires = new Date();
+    expires.setSeconds(expires.getSeconds() + time);
+    let newPoll = new pollSchema({
+        _id: mongoose.Types.ObjectId(),
+        guildId: message.guild.id,
+        endDate: expires,
+        channel: pollmsg.channel.id,
+        message: pollmsg.id,
+        author: message.author.id,
+        type: 'default'
+    });
+    newPoll.save();
 }
 
 

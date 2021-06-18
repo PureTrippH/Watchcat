@@ -30,7 +30,7 @@ exports.run = async (client, message, args) => {
 module.exports.help = {
   name: "Badger",
   type: "fun",
-  aliases: [],
+  aliases: ['badger'],
 	desc: `You know that song from Mr Weebl? Yes... this one... https://www.youtube.com/watch?v=EIyixC9NsLI&ab_channel=Weebl%27sStuff .... 
   Well I made it into a command as my first command outside of the verification system. It sends the Badgers video in your DMS`,
 	usage: "!!badger",

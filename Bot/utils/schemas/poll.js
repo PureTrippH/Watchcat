@@ -5,7 +5,9 @@ const pollschema = mongoose.Schema({
     channel: String,
     endDate: Date,
     message: String,
-    type: String
+    type: String,
+    author: String,
+    title: String
 });
 
 module.exports = mongoose.model("Poll", pollschema, 'polls');

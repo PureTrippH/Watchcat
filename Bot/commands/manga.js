@@ -37,7 +37,7 @@ exports.run = async (client, message, args) => {
 	if(cover.results[0]) {
 		embed.setImage(`https://uploads.mangadex.org/covers/${mangaData.id}/${cover.results[0].data.attributes.fileName}`);
 	}
-	getGenreIcon(tagList, embed);
+	this.getGenreIcon(tagList, embed);
 	embed.setDescription(convertFormCode(mangaData.attributes.description.en.substring(0, 2000)));
 	embed.addFields({ name: `Demographic:`, value: `${(mangaData.attributes.publicationDemographic) ? mangaData.attributes.publicationDemographic : "Unknown"}`});
 	embed.addFields({ name: `Rating:`, value: `${(mangaData.attributes.contentRating) ? mangaData.attributes.contentRating : "Unknown"}`});
@@ -63,22 +63,25 @@ module.exports.help = {
 	type: "fun",
 	aliases: ['man', 'randommanga'],
 	desc: `Are You Just Bored and Need to Read a Random Manga? Well, with this command, you can fetch a random manga for you to read! 
-	This can help you find something new to read, and maybe you can find a new love. 
-	
-	
-	If you want to read a series you know, simply type something like:
-	!!manga The Quintessential Quintuplets 
-	or
-	!!manga Chainsaw Man
-
-	and it will find that title for you to read!
+	This can help you find something new to read, and maybe you can find a new love. /n 
+	/n
+	/n
+	If you want to read a series you know, simply type something like:/n
+	!!manga Quintessential Quintuplets /n
+	or/n
+	!!manga Chainsaw Man/n
+	/n
+	and it will find that title for you to read!/n
+	/n
+	Also, if you want to access your saves, just type !!manga --l
+	/n 
 	`,
 	usage: "!!manga",
-	gif: "https://cdn.discordapp.com/attachments/850866166917365780/850933894404636712/Screenshot_639.png"
+	gif: "https://cdn.discordapp.com/attachments/548659297517830155/855103264722255923/ezgif.com-gif-maker.gif"
 }
 
 
-const getGenreIcon = (genreArray, embed) => {
+exports.getGenreIcon = (genreArray, embed) => {
 	console.log(genreArray);
 	for(let x = 0 ; x < genreArray.length ; x++) {
 		switch(genreArray[x]) {
@@ -202,7 +205,7 @@ const convertFormCode = (message) => {
 	message = message.replace("[/spoiler]", "||").replace("[spoiler]", "||");
 	message =  message.replace("[b]", "**").replace("[/b]", "**");
 	message =  message.replace("[u]", "__").replace("[/u]", "__");
-	message =  message.replace("[hr]", "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ \n");
+	message =  message.replace("[hr]", "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ /n");
 	message =  message.replace("[url=", "[").replace("[/url]", "](url)");
 	message =  message.replace("&quot;", "\"");
 	message = message.replace ("&rsquo;", "'");

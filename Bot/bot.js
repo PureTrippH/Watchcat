@@ -1,5 +1,7 @@
 const fs = require('fs');
 const Discord = require('discord.js');
+const Canvas = require('canvas');
+
 const mongoose = require('./utils/mongoose');
 const settings = require('./settings.json');
 const queries = require("./utils/queries/queries.js");
@@ -140,26 +142,55 @@ const checkPunishments = async() => {
                 console.log("new res");
                 let channel = await client.channels.fetch(res.channel);
                 let message = await channel.messages.fetch(res.message);
-                    if(res.type == 'skippoll') {
-                        let countCheck = 0;
-                        let countX = 0;
-                        message.reactions.cache.forEach(async emoji => {
-                            switch(emoji.emoji.id) {
-                              case '767083818199810088':
-                                countCheck = emoji.count-1;
-                              break;
-                              case '767083772440608778':
-                                countX = emoji.count-1;
-                              break; 
-                            }
-                        if(countCheck/(countCheck+countX) > 0.6 && playQueue.getQueue().get(message.guild.id)) {
-                            playQueue.getQueue().get(message.guild.id).connection.dispatcher.end();
-                            client.channels.cache.get(res.channel).send("Vote Passed! Skipping Queue");
+                let countCheck = 0;
+                let countX = 0;
+                message.reactions.cache.forEach(async emoji => {
+                    switch(emoji.emoji.id) {
+                      case '767083818199810088':
+                        countCheck = emoji.count-1;
+                      break;
+                      case '767083772440608778':
+                        countX = emoji.count-1;
+                      break; 
+                    }
+                })
+                if(res.type == 'skippoll') {
+                    if(countCheck/(countCheck+countX) > 0.6 && playQueue.getQueue().get(message.guild.id)) {
+                        playQueue.getQueue().get(message.guild.id).connection.dispatcher.end();
+                        client.channels.cache.get(res.channel).send("Vote Passed! Skipping Queue");
 
-                        }
-                        res.delete();
-                    })
+                    }
+
+                } else {
+                    const levelBoard = Canvas.createCanvas(500, 500, {
+                        legend: {
+                            itemMaxWidth: 150,
+                            itemWrap: true
+                        }});
+                    const ctx = levelBoard.getContext("2d");
+                    ctx.fillStyle = '#5da67f';
+                    ctx.beginPath();
+                    ctx.arc(250, 250, 150, 0, (2*Math.PI)*(countCheck/(countCheck+countX)));
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.fillStyle = '#a65d5d';
+                    ctx.beginPath();
+                    ctx.arc(250, 250, 150, (2*Math.PI)*(countCheck/(countCheck+countX)), 0);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '25px serif';
+                    ctx.fillText(`Yes - ${(countCheck/(countCheck+countX))*100}%`, 25, 450);
+                    ctx.fillText(`No - ${100 - (countCheck/(countCheck+countX))*100}%`, 300, 450);
+                    const exportImage = new Discord.MessageAttachment(levelBoard.toBuffer(), "levelBoard.png");
+                    const embed = new Discord.MessageEmbed();
+                    embed.setTitle(res.title)
+                    embed.setDescription("Poll Results");
+                    embed.attachFiles(exportImage);
+                    let user = client.users.cache.find(user => user.id === res.author);
+                    user.send(embed);
                 }
+                await res.delete();
             }
         }
         return setTimeout(checkPunishments, 1000 * 30);

@@ -1,12 +1,7 @@
-const redis = require("../utils/redis");
-
+const pollSchema = require('../utils/schemas/poll');
 module.exports = async (client, reaction) => {
-
-  const redisClient = await redis()
-  const redisKey = `poll-${reaction.message.id}`
-
-  redisClient.get(redisKey, (err, result) => {
-    redisClient.quit();
+    let result = await pollSchema.findOne({message: reaction.message.id});
+    console.log(`Res: ${result}`);
     if(result) {
       const Discord = require('discord.js');
       const channel = reaction.message.channel;
@@ -34,7 +29,6 @@ module.exports = async (client, reaction) => {
         oldEmbForm.addFields({ name: `Positive:`, value: getAverages(countCheck/(countCheck + countX), "pos").join(""), inline: true }, { name: `Negative:`, value: getAverages(countX/(countCheck + countX), "neg").join(""), inline: true });
         poll.edit(oldEmbForm);
     }
-  });
 };
 
 
