@@ -168,20 +168,34 @@ const checkPunishments = async() => {
                             itemWrap: true
                         }});
                     const ctx = levelBoard.getContext("2d");
+                    let stopPoint = 0;
+                    console.log(countCheck);
+                    console.log(countX);
                     ctx.fillStyle = '#5da67f';
                     ctx.beginPath();
-                    ctx.arc(250, 250, 150, 0, (2*Math.PI)*(countCheck/(countCheck+countX)));
+                    console.log("Pre Check Passed");
+                    if(countCheck + countX == 0) {
+                        message.channel.send("Not Enough Interaction on Poll!");
+                        await res.delete();
+                        return setTimeout(checkPunishments, 1000 * 30);
+                    }
+                    ctx.moveTo(levelBoard.width/3,levelBoard.height/3);
+                    ctx.arc(levelBoard.width/3,levelBoard.height/3,levelBoard.height/3,stopPoint,stopPoint+(Math.PI*2*(countCheck/(countCheck+countX))),false);
                     ctx.fill();
+                    stopPoint += Math.PI*2*(countCheck/(countCheck+countX));
+                    console.log("First Check Passed");
                     ctx.stroke();
                     ctx.fillStyle = '#a65d5d';
                     ctx.beginPath();
-                    ctx.arc(250, 250, 150, (2*Math.PI)*(countCheck/(countCheck+countX)), 0);
+                    ctx.moveTo(levelBoard.width/3,levelBoard.height/3);
+                    ctx.arc(levelBoard.width/3,levelBoard.height/3,levelBoard.height/3,stopPoint,stopPoint+(Math.PI*2*(countX/(countCheck+countX))),false);
+                    console.log("Second Check Passed");
                     ctx.fill();
                     ctx.stroke();
                     ctx.fillStyle = '#ffffff';
                     ctx.font = '25px serif';
-                    ctx.fillText(`Yes - ${(countCheck/(countCheck+countX))*100}%`, 25, 450);
-                    ctx.fillText(`No - ${100 - (countCheck/(countCheck+countX))*100}%`, 300, 450);
+                    ctx.fillText(`Yes - ${Math.trunc((countCheck/(countCheck+countX))*100)}%`, 25, 450);
+                    ctx.fillText(`No - ${Math.trunc(100 - (countCheck/(countCheck+countX))*100)}%`, 300, 450);
                     const exportImage = new Discord.MessageAttachment(levelBoard.toBuffer(), "levelBoard.png");
                     const embed = new Discord.MessageEmbed();
                     embed.setTitle(res.title)
